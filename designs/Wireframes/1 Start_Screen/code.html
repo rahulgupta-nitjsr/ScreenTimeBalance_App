@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Noto+Sans:wght@400;500;700;900&amp;family=Spline+Sans:wght@400;500;700" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<title>FocusFlow - Welcome</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --robin-hood-green: #38e07b;
+            --light-gray: #f7fafc;
+            --steel-gray: #4a5568;
+            --gradient-start: rgba(56, 224, 123, 0.1);
+            --gradient-end: rgba(247, 250, 252, 0.1);
+        }
+        .liquid-glass-bg {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%), var(--light-gray);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[var(--light-gray)]" style='font-family: "Spline Sans", "Noto Sans", sans-serif;'>
+<div class="relative flex size-full min-h-screen flex-col justify-between group/design-root overflow-hidden">
+<div class="absolute top-0 left-0 w-96 h-96 bg-[var(--robin-hood-green)] opacity-10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
+<div class="absolute bottom-0 right-0 w-96 h-96 bg-[#a8c5ff] opacity-10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
+<main class="relative z-10 flex flex-col flex-grow items-center justify-center p-6 text-center">
+<div class="liquid-glass-bg border border-gray-200/50 rounded-3xl p-8 shadow-2xl max-w-sm w-full flex flex-col items-center">
+<h1 class="text-gray-800 text-4xl font-bold tracking-tight mb-4">Welcome to FocusFlow</h1>
+<p class="text-[var(--steel-gray)] text-lg leading-relaxed mb-8">
+                    Unlock your potential where healthy habits meet rewarding screen time. Our science-backed approach helps you achieve balance and focus, one habit at a time.
+                </p>
+<button class="flex min-w-[84px] w-full max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-14 px-5 bg-[var(--robin-hood-green)] text-gray-800 text-lg font-bold leading-normal tracking-wide shadow-lg hover:shadow-xl transition-shadow duration-300">
+<span class="truncate">Get Started</span>
+</button>
+</div>
+</main>
+<footer class="relative z-10">
+<div class="h-5 bg-transparent"></div>
+</footer>
+</div>
+
+</body></html>
