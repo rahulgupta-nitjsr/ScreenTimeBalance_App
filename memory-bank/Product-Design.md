@@ -1,7 +1,7 @@
-# ScreenTime Balance - Product Design Documentation
+# ZenScreen - Product Design Documentation
 
 ## Overview
-This document provides comprehensive design specifications for the ScreenTime Balance mobile app, including visual design system, user interface components, interaction patterns, and design implementation guidelines.
+This document provides comprehensive design specifications for the ZenScreen mobile app, including visual design system, user interface components, interaction patterns, and design implementation guidelines.
 
 **Related Documents:**
 - [Design Assets](../designs/README.md) - Complete wireframes and visual assets

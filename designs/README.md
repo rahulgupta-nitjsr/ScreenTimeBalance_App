@@ -1,6 +1,6 @@
-# ScreenTime Balance - Design Assets
+# ZenScreen - Design Assets
 
-This folder contains all design assets, wireframes, and visual documentation for the ScreenTime Balance mobile app.
+This folder contains all design assets, wireframes, and visual documentation for the ZenScreen mobile app.
 
 ## 📁 Folder Structure
 

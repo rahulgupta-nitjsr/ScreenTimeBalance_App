@@ -1,7 +1,7 @@
-# ScreenTime Balance - Project Progress
+# ZenScreen - Project Progress
 
 ## Overview
-This document tracks the progress of the ScreenTime Balance project through all phases of development, from initial concept to deployment.
+This document tracks the progress of the ZenScreen project through all phases of development, from initial concept to deployment.
 
 **Last Updated:** December 2024
 

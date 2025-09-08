@@ -1,7 +1,7 @@
-# ScreenTime Balance - Privacy Policy Framework
+# ZenScreen - Privacy Policy Framework
 
 ## Overview
-This document outlines the privacy policy framework for ScreenTime Balance app, ensuring compliance with privacy regulations while maintaining user trust and transparency.
+This document outlines the privacy policy framework for ZenScreen app, ensuring compliance with privacy regulations while maintaining user trust and transparency.
 
 **Related Documents:**
 - [Features.md](./Features.md) - Detailed feature specifications including data handling

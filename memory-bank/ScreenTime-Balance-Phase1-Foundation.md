@@ -1,4 +1,4 @@
-# ScreenTime Balance – Phase 1 Foundation
+# ZenScreen – Phase 1 Foundation
 
 ## Problem Statement
 Many adults and young professionals struggle to balance tech use with real-life habits. Most current screen time solutions are punitive, complex, or oriented toward parental control, not positive self-improvement. There’s a gap for a simple app that motivates adults to earn healthy screen time by building real-world habits, in a way that’s intuitive, beautiful, and rooted in wellness science.
@@ -13,7 +13,7 @@ Focused adults, digital wellness seekers.
 Current apps dominate in tracking/blocking (parental controls, productivity tools, “focus” apps). Nearly none combine science-driven, weighted, multi-habit tracking + positive earning with a modern, minimalist UX and frictionless, transparent input. “Good habit unlocks fun time” is an under-served area, especially for adults.
 
 ## Product Idea & USPs (Phase 1)
-ScreenTime Balance lets users manually or with one-tap stopwatch log four habits and transparently "earn" screen time.  
+ZenScreen lets users manually or with one-tap stopwatch log four habits and transparently "earn" screen time.  
 Key features:
 - **Liquid glass, beautiful, minimalist interface** - Complete design system with 6 interactive wireframes
 - **No sensors or complex setup needed** - Simple manual entry and timer functionality

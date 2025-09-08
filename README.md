@@ -1,4 +1,4 @@
-# ScreenTime Balance
+# ZenScreen
 
 A mobile app that helps users earn screen time through positive habit building, using a science-based algorithm and thoughtful design.
 
@@ -6,7 +6,7 @@ A mobile app that helps users earn screen time through positive habit building, 
 
 ## Project Overview
 
-ScreenTime Balance is a mobile app that allows users to **earn screen time** through positive habit building. Instead of restricting phone usage, the app motivates users to engage in healthy activities (sleep, exercise, outdoor time, productive work) to unlock screen time rewards using a science-backed algorithm.
+ZenScreen is a mobile app that allows users to **earn screen time** through positive habit building. Instead of restricting phone usage, the app motivates users to engage in healthy activities (sleep, exercise, outdoor time, productive work) to unlock screen time rewards using a science-backed algorithm.
 
 **Key Innovation:** Positive reinforcement over punishment - users are empowered, not restricted.
 
@@ -150,7 +150,7 @@ Design Framework: Material Design + Custom Components
 ## Project Structure
 
 ```
-ScreenTimeBalance/
+ZenScreen/
 ├── memory-bank/                    # Project documentation
 │   ├── Product-Requirements-Document.md
 │   ├── Features.md                 # Detailed feature specifications

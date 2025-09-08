@@ -1,4 +1,4 @@
-# ScreenTime Balance – Earning Algorithm (Phase 1)
+# ZenScreen – Earning Algorithm (Phase 1)
 
 ## Overview
 Users earn daily screen time by logging four good habit categories: Sleep, Exercise, Outdoor, and Productive (non-work). Earning is transparent, capped, and gamified with “POWER+ Mode” for additional rewards.

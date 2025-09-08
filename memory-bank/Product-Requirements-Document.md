@@ -1,4 +1,4 @@
-# Product Requirements Document (PRD) – ScreenTime Balance
+# Product Requirements Document (PRD) – ZenScreen
 
 ## 1. Problem Statement
 Adults and young professionals are struggling with excessive smartphone use, leading to reduced productivity, impaired sleep, and imbalanced lifestyles. Existing solutions focus on punitive controls or stats, often feeling restrictive or “parental.” There is a clear opportunity for a positive, habit-forming screen time management tool that rewards good behaviors with phone time, with a modern, minimalist user experience.

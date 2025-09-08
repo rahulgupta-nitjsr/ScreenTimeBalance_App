@@ -1,7 +1,7 @@
-# ScreenTime Balance - Detailed Features Specification
+# ZenScreen - Detailed Features Specification
 
 ## Overview
-This document defines all features for the ScreenTime Balance mobile app Phase 1, organized by user journey flow with detailed acceptance criteria, technical requirements, and edge case handling.
+This document defines all features for the ZenScreen mobile app Phase 1, organized by user journey flow with detailed acceptance criteria, technical requirements, and edge case handling.
 
 **Related Documents:**
 - [Product Requirements Document](./Product-Requirements-Document.md) - High-level requirements and constraints
@@ -30,7 +30,7 @@ This document defines all features for the ScreenTime Balance mobile app Phase 1
 **User Story**: As a new user, I want to understand what the app does and how it benefits me, so that I can decide to proceed with setup.
 
 **Functional Requirements**:
-- Display app name "FocusFlow" (or final brand name)
+- Display app name "ScreenTime Balance"
 - Show value proposition text
 - Present single "Get Started" CTA button
 - Apply liquid glass visual design
