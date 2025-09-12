@@ -1,0 +1,281 @@
+{
+  "environments": {
+    "local_development": {
+      "name": "Local Development",
+      "description": "Local testing environment for development",
+      "database": {
+        "type": "sqlite",
+        "path": "./test_database.db",
+        "backup_enabled": true
+      },
+      "firebase": {
+        "project_id": "zenscreen-test-dev",
+        "auth_domain": "zenscreen-test-dev.firebaseapp.com",
+        "firestore_url": "https://zenscreen-test-dev.firestore.io",
+        "storage_bucket": "zenscreen-test-dev.appspot.com"
+      },
+      "api_endpoints": {
+        "base_url": "http://localhost:3000",
+        "auth_endpoint": "/api/auth",
+        "data_endpoint": "/api/data",
+        "sync_endpoint": "/api/sync"
+      },
+      "feature_flags": {
+        "power_plus_mode": true,
+        "timer_functionality": true,
+        "manual_entry": true,
+        "data_sync": true,
+        "historical_data": true
+      },
+      "test_data": {
+        "auto_seed": true,
+        "cleanup_after_tests": true,
+        "mock_external_services": true
+      }
+    },
+    "staging": {
+      "name": "Staging Environment",
+      "description": "Pre-production testing environment",
+      "database": {
+        "type": "firestore",
+        "project_id": "zenscreen-staging",
+        "backup_enabled": true
+      },
+      "firebase": {
+        "project_id": "zenscreen-staging",
+        "auth_domain": "zenscreen-staging.firebaseapp.com",
+        "firestore_url": "https://zenscreen-staging.firestore.io",
+        "storage_bucket": "zenscreen-staging.appspot.com"
+      },
+      "api_endpoints": {
+        "base_url": "https://api-staging.zenscreen.com",
+        "auth_endpoint": "/api/auth",
+        "data_endpoint": "/api/data",
+        "sync_endpoint": "/api/sync"
+      },
+      "feature_flags": {
+        "power_plus_mode": true,
+        "timer_functionality": true,
+        "manual_entry": true,
+        "data_sync": true,
+        "historical_data": true
+      },
+      "test_data": {
+        "auto_seed": false,
+        "cleanup_after_tests": true,
+        "mock_external_services": false
+      }
+    },
+    "production": {
+      "name": "Production Environment",
+      "description": "Production environment (read-only tests)",
+      "database": {
+        "type": "firestore",
+        "project_id": "zenscreen-production",
+        "backup_enabled": true
+      },
+      "firebase": {
+        "project_id": "zenscreen-production",
+        "auth_domain": "zenscreen-production.firebaseapp.com",
+        "firestore_url": "https://zenscreen-production.firestore.io",
+        "storage_bucket": "zenscreen-production.appspot.com"
+      },
+      "api_endpoints": {
+        "base_url": "https://api.zenscreen.com",
+        "auth_endpoint": "/api/auth",
+        "data_endpoint": "/api/data",
+        "sync_endpoint": "/api/sync"
+      },
+      "feature_flags": {
+        "power_plus_mode": true,
+        "timer_functionality": true,
+        "manual_entry": true,
+        "data_sync": true,
+        "historical_data": true
+      },
+      "test_data": {
+        "auto_seed": false,
+        "cleanup_after_tests": false,
+        "mock_external_services": false
+      },
+      "restrictions": {
+        "read_only": true,
+        "no_data_modification": true,
+        "limited_test_accounts": true
+      }
+    },
+    "performance": {
+      "name": "Performance Testing Environment",
+      "description": "High-load testing environment",
+      "database": {
+        "type": "firestore",
+        "project_id": "zenscreen-performance",
+        "backup_enabled": true
+      },
+      "firebase": {
+        "project_id": "zenscreen-performance",
+        "auth_domain": "zenscreen-performance.firebaseapp.com",
+        "firestore_url": "https://zenscreen-performance.firestore.io",
+        "storage_bucket": "zenscreen-performance.appspot.com"
+      },
+      "api_endpoints": {
+        "base_url": "https://api-performance.zenscreen.com",
+        "auth_endpoint": "/api/auth",
+        "data_endpoint": "/api/data",
+        "sync_endpoint": "/api/sync"
+      },
+      "feature_flags": {
+        "power_plus_mode": true,
+        "timer_functionality": true,
+        "manual_entry": true,
+        "data_sync": true,
+        "historical_data": true
+      },
+      "test_data": {
+        "auto_seed": true,
+        "cleanup_after_tests": true,
+        "mock_external_services": false,
+        "large_datasets": true
+      },
+      "performance_config": {
+        "concurrent_users": 1000,
+        "load_testing": true,
+        "stress_testing": true,
+        "memory_monitoring": true
+      }
+    },
+    "security": {
+      "name": "Security Testing Environment",
+      "description": "Security testing environment",
+      "database": {
+        "type": "firestore",
+        "project_id": "zenscreen-security",
+        "backup_enabled": true
+      },
+      "firebase": {
+        "project_id": "zenscreen-security",
+        "auth_domain": "zenscreen-security.firebaseapp.com",
+        "firestore_url": "https://zenscreen-security.firestore.io",
+        "storage_bucket": "zenscreen-security.appspot.com"
+      },
+      "api_endpoints": {
+        "base_url": "https://api-security.zenscreen.com",
+        "auth_endpoint": "/api/auth",
+        "data_endpoint": "/api/data",
+        "sync_endpoint": "/api/sync"
+      },
+      "feature_flags": {
+        "power_plus_mode": true,
+        "timer_functionality": true,
+        "manual_entry": true,
+        "data_sync": true,
+        "historical_data": true
+      },
+      "test_data": {
+        "auto_seed": true,
+        "cleanup_after_tests": true,
+        "mock_external_services": true,
+        "malicious_data": true
+      },
+      "security_config": {
+        "penetration_testing": true,
+        "vulnerability_scanning": true,
+        "authentication_testing": true,
+        "authorization_testing": true
+      }
+    }
+  },
+  "test_configurations": {
+    "default": {
+      "environment": "local_development",
+      "test_timeout": 30000,
+      "retry_count": 3,
+      "parallel_execution": true,
+      "screenshot_on_failure": true,
+      "video_recording": false
+    },
+    "performance": {
+      "environment": "performance",
+      "test_timeout": 60000,
+      "retry_count": 1,
+      "parallel_execution": false,
+      "screenshot_on_failure": false,
+      "video_recording": false
+    },
+    "security": {
+      "environment": "security",
+      "test_timeout": 45000,
+      "retry_count": 2,
+      "parallel_execution": false,
+      "screenshot_on_failure": true,
+      "video_recording": true
+    }
+  },
+  "device_configurations": {
+    "android_devices": [
+      {
+        "name": "Pixel 7",
+        "os_version": "Android 13",
+        "screen_resolution": "1080x2400",
+        "memory": "8GB",
+        "storage": "128GB"
+      },
+      {
+        "name": "Samsung Galaxy S23",
+        "os_version": "Android 13",
+        "screen_resolution": "1080x2340",
+        "memory": "8GB",
+        "storage": "256GB"
+      },
+      {
+        "name": "OnePlus 11",
+        "os_version": "Android 13",
+        "screen_resolution": "1440x3216",
+        "memory": "16GB",
+        "storage": "256GB"
+      }
+    ],
+    "ios_devices": [
+      {
+        "name": "iPhone 14 Pro",
+        "os_version": "iOS 16",
+        "screen_resolution": "1179x2556",
+        "memory": "6GB",
+        "storage": "128GB"
+      },
+      {
+        "name": "iPhone 13",
+        "os_version": "iOS 16",
+        "screen_resolution": "1170x2532",
+        "memory": "4GB",
+        "storage": "128GB"
+      }
+    ]
+  },
+  "network_conditions": {
+    "wifi": {
+      "download_speed": "50 Mbps",
+      "upload_speed": "10 Mbps",
+      "latency": "20ms",
+      "reliability": "99%"
+    },
+    "4g": {
+      "download_speed": "25 Mbps",
+      "upload_speed": "5 Mbps",
+      "latency": "100ms",
+      "reliability": "95%"
+    },
+    "3g": {
+      "download_speed": "1 Mbps",
+      "upload_speed": "0.5 Mbps",
+      "latency": "300ms",
+      "reliability": "90%"
+    },
+    "offline": {
+      "download_speed": "0 Mbps",
+      "upload_speed": "0 Mbps",
+      "latency": "N/A",
+      "reliability": "0%"
+    }
+  }
+}

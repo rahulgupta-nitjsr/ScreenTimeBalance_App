@@ -1,0 +1,175 @@
+{
+  "habit_entries": [
+    {
+      "id": "habit-001",
+      "user_id": "test-user-001",
+      "date": "2025-09-11",
+      "sleep_minutes": 480,
+      "exercise_minutes": 60,
+      "outdoor_minutes": 120,
+      "productive_minutes": 180,
+      "earned_screen_time": 200,
+      "power_plus_mode": true,
+      "created_at": "2025-09-11T08:00:00Z",
+      "updated_at": "2025-09-11T08:00:00Z"
+    },
+    {
+      "id": "habit-002",
+      "user_id": "test-user-002",
+      "date": "2025-09-11",
+      "sleep_minutes": 420,
+      "exercise_minutes": 90,
+      "outdoor_minutes": 60,
+      "productive_minutes": 240,
+      "earned_screen_time": 185,
+      "power_plus_mode": true,
+      "created_at": "2025-09-11T09:00:00Z",
+      "updated_at": "2025-09-11T09:00:00Z"
+    },
+    {
+      "id": "habit-003",
+      "user_id": "test-user-003",
+      "date": "2025-09-11",
+      "sleep_minutes": 540,
+      "exercise_minutes": 120,
+      "outdoor_minutes": 180,
+      "productive_minutes": 300,
+      "earned_screen_time": 275,
+      "power_plus_mode": true,
+      "created_at": "2025-09-11T10:00:00Z",
+      "updated_at": "2025-09-11T10:00:00Z"
+    },
+    {
+      "id": "habit-004",
+      "user_id": "test-user-004",
+      "date": "2025-09-11",
+      "sleep_minutes": 0,
+      "exercise_minutes": 0,
+      "outdoor_minutes": 0,
+      "productive_minutes": 0,
+      "earned_screen_time": 0,
+      "power_plus_mode": false,
+      "created_at": "2025-09-11T11:00:00Z",
+      "updated_at": "2025-09-11T11:00:00Z"
+    },
+    {
+      "id": "habit-005",
+      "user_id": "test-user-005",
+      "date": "2025-09-11",
+      "sleep_minutes": 300,
+      "exercise_minutes": 30,
+      "outdoor_minutes": 45,
+      "productive_minutes": 120,
+      "earned_screen_time": 95,
+      "power_plus_mode": false,
+      "created_at": "2025-09-11T12:00:00Z",
+      "updated_at": "2025-09-11T12:00:00Z"
+    }
+  ],
+  "timer_sessions": [
+    {
+      "id": "timer-001",
+      "user_id": "test-user-001",
+      "habit_type": "sleep",
+      "start_time": "2025-09-11T22:00:00Z",
+      "end_time": "2025-09-12T06:00:00Z",
+      "duration_minutes": 480,
+      "status": "completed",
+      "created_at": "2025-09-11T22:00:00Z"
+    },
+    {
+      "id": "timer-002",
+      "user_id": "test-user-002",
+      "habit_type": "exercise",
+      "start_time": "2025-09-11T07:00:00Z",
+      "end_time": "2025-09-11T08:30:00Z",
+      "duration_minutes": 90,
+      "status": "completed",
+      "created_at": "2025-09-11T07:00:00Z"
+    },
+    {
+      "id": "timer-003",
+      "user_id": "test-user-003",
+      "habit_type": "outdoor",
+      "start_time": "2025-09-11T14:00:00Z",
+      "end_time": null,
+      "duration_minutes": 0,
+      "status": "active",
+      "created_at": "2025-09-11T14:00:00Z"
+    }
+  ],
+  "manual_entries": [
+    {
+      "id": "manual-001",
+      "user_id": "test-user-001",
+      "habit_type": "sleep",
+      "adjustment_minutes": 15,
+      "operation": "add",
+      "timestamp": "2025-09-11T08:15:00Z",
+      "reason": "Additional nap time"
+    },
+    {
+      "id": "manual-002",
+      "user_id": "test-user-002",
+      "habit_type": "exercise",
+      "adjustment_minutes": -15,
+      "operation": "subtract",
+      "timestamp": "2025-09-11T09:30:00Z",
+      "reason": "Timer overcounted"
+    }
+  ],
+  "power_plus_achievements": [
+    {
+      "id": "power-001",
+      "user_id": "test-user-001",
+      "date": "2025-09-11",
+      "achieved_at": "2025-09-11T15:30:00Z",
+      "bonus_minutes": 30,
+      "goals_met": ["sleep", "exercise", "outdoor"],
+      "total_earned": 200
+    },
+    {
+      "id": "power-002",
+      "user_id": "test-user-002",
+      "date": "2025-09-11",
+      "achieved_at": "2025-09-11T16:45:00Z",
+      "bonus_minutes": 30,
+      "goals_met": ["sleep", "exercise", "productive"],
+      "total_earned": 185
+    }
+  ],
+  "test_scenarios": {
+    "minimum_values": {
+      "sleep_minutes": 0,
+      "exercise_minutes": 0,
+      "outdoor_minutes": 0,
+      "productive_minutes": 0,
+      "expected_earned": 0
+    },
+    "maximum_values": {
+      "sleep_minutes": 540,
+      "exercise_minutes": 120,
+      "outdoor_minutes": 300,
+      "productive_minutes": 480,
+      "expected_earned": 425
+    },
+    "power_plus_scenario": {
+      "sleep_minutes": 480,
+      "exercise_minutes": 60,
+      "outdoor_minutes": 120,
+      "productive_minutes": 0,
+      "expected_earned": 200,
+      "power_plus_bonus": 30,
+      "total_earned": 230
+    },
+    "insufficient_sleep": {
+      "sleep_minutes": 300,
+      "exercise_minutes": 60,
+      "outdoor_minutes": 120,
+      "productive_minutes": 180,
+      "expected_earned": 140,
+      "sleep_penalty": -50,
+      "total_earned": 90
+    }
+  }
+}

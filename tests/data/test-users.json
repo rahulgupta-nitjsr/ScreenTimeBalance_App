@@ -1,0 +1,134 @@
+{
+  "test_users": [
+    {
+      "id": "test-user-001",
+      "email": "john.doe@test.com",
+      "password": "TestPassword123!",
+      "profile": {
+        "name": "John Doe",
+        "avatar_url": "https://test.com/avatars/john.jpg",
+        "timezone": "America/New_York",
+        "preferences": {
+          "notifications": true,
+          "theme": "light",
+          "language": "en"
+        }
+      },
+      "account_status": "active",
+      "created_date": "2025-09-01T00:00:00Z",
+      "last_login": "2025-09-11T08:00:00Z"
+    },
+    {
+      "id": "test-user-002",
+      "email": "jane.smith@test.com",
+      "password": "TestPassword456!",
+      "profile": {
+        "name": "Jane Smith",
+        "avatar_url": "https://test.com/avatars/jane.jpg",
+        "timezone": "Europe/London",
+        "preferences": {
+          "notifications": false,
+          "theme": "dark",
+          "language": "en"
+        }
+      },
+      "account_status": "active",
+      "created_date": "2025-09-02T00:00:00Z",
+      "last_login": "2025-09-11T09:30:00Z"
+    },
+    {
+      "id": "test-user-003",
+      "email": "power.user@test.com",
+      "password": "TestPassword789!",
+      "profile": {
+        "name": "Power User",
+        "avatar_url": "https://test.com/avatars/power.jpg",
+        "timezone": "America/Los_Angeles",
+        "preferences": {
+          "notifications": true,
+          "theme": "light",
+          "language": "en"
+        }
+      },
+      "account_status": "active",
+      "created_date": "2025-08-15T00:00:00Z",
+      "last_login": "2025-09-11T10:15:00Z"
+    },
+    {
+      "id": "test-user-004",
+      "email": "new.user@test.com",
+      "password": "TestPassword000!",
+      "profile": {
+        "name": "New User",
+        "avatar_url": null,
+        "timezone": "America/Chicago",
+        "preferences": {
+          "notifications": true,
+          "theme": "light",
+          "language": "en"
+        }
+      },
+      "account_status": "active",
+      "created_date": "2025-09-11T00:00:00Z",
+      "last_login": "2025-09-11T11:00:00Z"
+    },
+    {
+      "id": "test-user-005",
+      "email": "edge.case@test.com",
+      "password": "TestPassword111!",
+      "profile": {
+        "name": "Edge Case User",
+        "avatar_url": "https://test.com/avatars/edge.jpg",
+        "timezone": "Asia/Tokyo",
+        "preferences": {
+          "notifications": false,
+          "theme": "dark",
+          "language": "ja"
+        }
+      },
+      "account_status": "active",
+      "created_date": "2025-09-10T00:00:00Z",
+      "last_login": "2025-09-11T12:45:00Z"
+    }
+  ],
+  "invalid_users": [
+    {
+      "email": "invalid.email",
+      "password": "weak",
+      "description": "Invalid email format and weak password"
+    },
+    {
+      "email": "user@test.com",
+      "password": "",
+      "description": "Empty password"
+    },
+    {
+      "email": "",
+      "password": "ValidPassword123!",
+      "description": "Empty email"
+    },
+    {
+      "email": "nonexistent@test.com",
+      "password": "TestPassword123!",
+      "description": "Non-existent user account"
+    }
+  ],
+  "test_credentials": {
+    "valid_login": {
+      "email": "john.doe@test.com",
+      "password": "TestPassword123!"
+    },
+    "invalid_login": {
+      "email": "john.doe@test.com",
+      "password": "WrongPassword123!"
+    },
+    "weak_password": {
+      "email": "test@test.com",
+      "password": "123"
+    },
+    "invalid_email": {
+      "email": "not-an-email",
+      "password": "TestPassword123!"
+    }
+  }
+}
