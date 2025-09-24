@@ -1,2 +1,5 @@
 # ignore the root-level scratch directory
 /scratch/
+
+# ignore temporary reports and artifacts
+/temp/
