@@ -41,3 +41,70 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# APK and AAB files
+*.apk
+*.aab
+*.ipa
+
+# Android build outputs
+/android/app/build/
+/android/build/
+/android/.gradle/
+/android/captures/
+/android/gradlew
+/android/gradlew.bat
+/android/local.properties
+/android/**/GeneratedPluginRegistrant.java
+
+# Gradle files
+.gradle/
+build/
+
+# iOS build outputs
+/ios/build/
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/App.framework
+/ios/Flutter/Flutter.framework
+/ios/Flutter/Flutter.podspec
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/ephemeral/
+/ios/Flutter/app.flx
+/ios/Flutter/app.zip
+/ios/Flutter/flutter_assets/
+/ios/ServiceDefinitions.json
+/ios/Runner/GeneratedPluginRegistrant.*
+
+# macOS build outputs
+/macos/build/
+/macos/Pods/
+/macos/.symlinks/
+/macos/Flutter/GeneratedPluginRegistrant.swift
+
+# Linux build outputs
+/linux/build/
+
+# Windows build outputs
+/windows/build/
+
+# Web build outputs
+/web/build/
+
+# Coverage files
+coverage/
+*.lcov
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Firebase config (if contains sensitive data)
+# google-services.json
+# GoogleService-Info.plist
+
+# Keystore files (if contains sensitive keys)
+# android/key.properties
+# *.keystore
+# *.jks
