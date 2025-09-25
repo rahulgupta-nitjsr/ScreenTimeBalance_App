@@ -1,10 +1,10 @@
 # Test Cases - ZenScreen Mobile App
 
-**Last Updated**: September 11, 2025  
+**Last Updated**: September 24, 2025  
 **Total Test Cases**: 180  
-**Passed**: 0  
+**Passed**: 10  
 **Failed**: 0  
-**Pending**: 180  
+**Pending**: 170  
 **Defects Found**: 0  
 
 ---
@@ -337,9 +337,9 @@
 
 **Overall Test Results:**
 - **Total Test Cases**: 180
-- **Passed**: 0
+- **Passed**: 10
 - **Failed**: 0
-- **Pending**: 180
+- **Pending**: 170
 - **Blocked**: 0
 - **Not Applicable**: 0
 
