@@ -10,6 +10,7 @@ import 'package:zen_screen/screens/profile_screen.dart';
 import 'package:zen_screen/screens/how_it_works_screen.dart';
 import 'package:zen_screen/utils/app_router.dart';
 import 'package:zen_screen/utils/theme.dart';
+import 'package:zen_screen/utils/app_keys.dart';
 
 // Test version of LogScreen without BottomNavigation for testing
 class TestLogScreen extends StatelessWidget {
@@ -192,10 +193,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
       
       // Find and tap Get Started button
-      final getStartedButton = find.text('Get Started');
-      expect(getStartedButton, findsOneWidget);
-      
-      await tester.tap(getStartedButton);
+      await tester.tap(find.byKey(AppKeys.welcomeGetStartedButton));
       await tester.pumpAndSettle();
       
       // Verify Home screen loads
@@ -213,11 +211,11 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
       
       // Navigate to Home first
-      await tester.tap(find.text('Get Started'));
+      await tester.tap(find.byKey(AppKeys.welcomeGetStartedButton));
       await tester.pumpAndSettle();
       
       // Tap Log Time button
-      await tester.tap(find.text('Log Time'));
+      await tester.tap(find.byKey(AppKeys.homeLogTimeButton));
       await tester.pumpAndSettle();
       
       // Verify Log screen loads
@@ -235,11 +233,11 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
       
       // Navigate to Home first
-      await tester.tap(find.text('Get Started'));
+      await tester.tap(find.byKey(AppKeys.welcomeGetStartedButton));
       await tester.pumpAndSettle();
       
       // Tap See Progress button
-      await tester.tap(find.text('See Progress'));
+      await tester.tap(find.byKey(AppKeys.homeSeeProgressButton));
       await tester.pumpAndSettle();
       
       // Verify Progress screen loads
@@ -258,7 +256,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
       
       // Navigate to Home first
-      await tester.tap(find.text('Get Started'));
+      await tester.tap(find.byKey(AppKeys.welcomeGetStartedButton));
       await tester.pumpAndSettle();
       
       // Navigate to Profile via bottom navigation
@@ -302,11 +300,11 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
       
       // Navigate to Home first
-      await tester.tap(find.text('Get Started'));
+      await tester.tap(find.byKey(AppKeys.welcomeGetStartedButton));
       await tester.pumpAndSettle();
       
       // Navigate to Log screen
-      await tester.tap(find.text('Log Time'));
+      await tester.tap(find.byKey(AppKeys.homeLogTimeButton));
       await tester.pumpAndSettle();
       
       // Tap back button
@@ -325,10 +323,10 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
       
       // Navigate to Home first
-      await tester.tap(find.text('Get Started'));
+      await tester.tap(find.byKey(AppKeys.welcomeGetStartedButton));
       await tester.pumpAndSettle();
       
-      await tester.tap(find.text('See Progress'));
+      await tester.tap(find.byKey(AppKeys.homeSeeProgressButton));
       await tester.pumpAndSettle();
       
       // Verify we're on Progress screen
@@ -342,7 +340,7 @@ void main() {
       expect(find.text('1h 23m'), findsOneWidget);
       
       // Navigate back to Progress screen
-      await tester.tap(find.text('See Progress'));
+      await tester.tap(find.byKey(AppKeys.homeSeeProgressButton));
       await tester.pumpAndSettle();
       
       // Verify we're back on Progress screen
@@ -369,7 +367,7 @@ void main() {
       // Measure navigation time
       final stopwatch = Stopwatch()..start();
       
-      await tester.tap(find.text('Get Started'));
+      await tester.tap(find.byKey(AppKeys.welcomeGetStartedButton));
       await tester.pumpAndSettle();
       
       stopwatch.stop();
@@ -381,7 +379,7 @@ void main() {
       stopwatch.reset();
       stopwatch.start();
       
-      await tester.tap(find.text('Log Time'));
+      await tester.tap(find.byKey(AppKeys.homeLogTimeButton));
       await tester.pumpAndSettle();
       
       stopwatch.stop();

@@ -1,42 +1,68 @@
 import 'package:flutter/material.dart';
 
-/// App theme configuration with liquid glass aesthetic
+/// App theme configuration with liquid glass aesthetic and design tokens
 class AppTheme {
-  // Color palette
+  // Base color palette
   static const Color primaryGreen = Color(0xFF38E07B); // Robin Hood Green
+  static const Color primaryGreenDark = Color(0xFF2EC36A);
   static const Color secondaryGreen = Color(0xFF10B981);
+  static const Color successGreen = Color(0xFF22C55E);
+  static const Color warningYellow = Color(0xFFFACC15);
+  static const Color infoBlue = Color(0xFFA8C5FF);
   static const Color backgroundLight = Color(0xFFF7FAFC);
   static const Color backgroundGray = Color(0xFFF9FAFB);
-  static const Color textDark = Color(0xFF1A202C);
+  static const Color backgroundElevated = Color(0xFFFFFFFF);
+  static const Color textDark = Color(0xFF1F2937);
   static const Color textMedium = Color(0xFF4A5568);
   static const Color textLight = Color(0xFF6B7280);
   static const Color borderLight = Color(0xFFE5E7EB);
-  static const Color cardBackground = Color(0xFFFFFFFF);
+  static const Color borderSubtle = Color(0xFFD1D5DB);
+  static const Color overlay = Color(0x26FFFFFF);
+
+  // Spacing scale (in logical pixels)
+  static const double spaceXS = 4;
+  static const double spaceSM = 8;
+  static const double spaceMD = 16;
+  static const double spaceLG = 24;
+  static const double spaceXL = 32;
+  static const double space2XL = 48;
+  static const double space3XL = 64;
+
+  // Radius scale
+  static const double radiusSM = 12;
+  static const double radiusMD = 16;
+  static const double radiusLG = 24;
+  static const double radiusXL = 32;
+
+  // Breakpoints (mobile-first but documented for responsive layouts)
+  static const double breakpointSmall = 320;
+  static const double breakpointStandard = 375;
+  static const double breakpointLarge = 428;
+
+  // Blur configuration for glass components
+  static const double glassBlurSigma = 20;
+  static const double glassOpacity = 0.72;
+  static const double glassBorderOpacity = 0.18;
+  static const double glassShadowOpacity = 0.12;
 
   /// Light theme configuration
   static ThemeData get lightTheme {
     return ThemeData(
-      // Color scheme
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryGreen,
         brightness: Brightness.light,
         primary: primaryGreen,
         secondary: secondaryGreen,
-        surface: cardBackground,
+        surface: backgroundElevated,
         background: backgroundLight,
         onPrimary: textDark,
         onSecondary: Colors.white,
         onSurface: textDark,
         onBackground: textDark,
       ),
-      
-      // Material Design 3
       useMaterial3: true,
-      
-      // Typography
       fontFamily: 'Spline Sans',
       textTheme: const TextTheme(
-        // Headlines
         headlineLarge: TextStyle(
           fontFamily: 'Spline Sans',
           fontSize: 72,
@@ -58,8 +84,25 @@ class AppTheme {
           fontWeight: FontWeight.bold,
           color: textDark,
         ),
-        
-        // Body text
+        titleLarge: TextStyle(
+          fontFamily: 'Spline Sans',
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          color: textDark,
+          letterSpacing: -0.3,
+        ),
+        titleMedium: TextStyle(
+          fontFamily: 'Spline Sans',
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+          color: textMedium,
+        ),
+        titleSmall: TextStyle(
+          fontFamily: 'Spline Sans',
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: textMedium,
+        ),
         bodyLarge: TextStyle(
           fontFamily: 'Spline Sans',
           fontSize: 18,
@@ -77,8 +120,6 @@ class AppTheme {
           fontSize: 14,
           color: textLight,
         ),
-        
-        // Labels
         labelLarge: TextStyle(
           fontFamily: 'Spline Sans',
           fontSize: 18,
@@ -97,8 +138,6 @@ class AppTheme {
           letterSpacing: 0.5,
         ),
       ),
-      
-      // App bar theme
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -111,14 +150,45 @@ class AppTheme {
           color: textDark,
         ),
       ),
-      
-      // Elevated button theme
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: backgroundElevated,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMD),
+          borderSide: const BorderSide(color: borderSubtle),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMD),
+          borderSide: const BorderSide(color: borderSubtle),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMD),
+          borderSide: const BorderSide(color: primaryGreen, width: 1.4),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMD),
+          borderSide: const BorderSide(color: warningYellow),
+        ),
+        floatingLabelStyle: const TextStyle(
+          fontFamily: 'Spline Sans',
+          fontWeight: FontWeight.w500,
+          color: textMedium,
+        ),
+        labelStyle: const TextStyle(
+          fontFamily: 'Spline Sans',
+          color: textLight,
+        ),
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 8,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(radiusLG),
           ),
           textStyle: const TextStyle(
             fontFamily: 'Spline Sans',
@@ -128,17 +198,40 @@ class AppTheme {
           ),
         ),
       ),
-      
-      // Card theme
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: backgroundElevated,
+          foregroundColor: textDark,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radiusLG),
+          ),
+          textStyle: const TextStyle(
+            fontFamily: 'Spline Sans',
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: primaryGreen,
+          textStyle: const TextStyle(
+            fontFamily: 'Spline Sans',
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.4,
+          ),
+        ),
+      ),
       cardTheme: CardTheme(
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(radiusLG),
         ),
-        color: cardBackground,
+        color: backgroundElevated,
+        margin: const EdgeInsets.all(0),
       ),
-      
-      // Bottom navigation bar theme
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -158,40 +251,54 @@ class AppTheme {
           letterSpacing: 0.5,
         ),
       ),
-      
-      // Icon theme
       iconTheme: const IconThemeData(
         color: textMedium,
         size: 24,
       ),
-      
-      // Divider theme
       dividerTheme: const DividerThemeData(
         color: borderLight,
         thickness: 1,
         space: 1,
       ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: primaryGreen,
+        linearMinHeight: 12,
+      ),
+      scaffoldBackgroundColor: backgroundLight,
     );
   }
 
-  /// Clean card decoration without blur effects
-  static BoxDecoration get liquidGlassDecoration {
+  /// Base shadow used across components to achieve liquid glass depth
+  static List<BoxShadow> get glassShadow => [
+        BoxShadow(
+          color: Colors.black.withOpacity(glassShadowOpacity),
+          blurRadius: 24,
+          offset: const Offset(0, 12),
+        ),
+        BoxShadow(
+          color: Colors.white.withOpacity(0.18),
+          blurRadius: 2,
+          offset: const Offset(0, 1),
+        ),
+      ];
+
+  /// Clean glass decoration that can be safely layered on top of content
+  static BoxDecoration glassDecoration({double? opacity}) {
     return BoxDecoration(
-      borderRadius: BorderRadius.circular(24),
-      color: cardBackground,
+      borderRadius: BorderRadius.circular(radiusLG),
+      color: backgroundElevated.withOpacity(
+        (opacity ?? glassOpacity).clamp(0.1, 1.0),
+      ),
       border: Border.all(
-        color: Colors.grey.withOpacity(0.2),
+        color: Colors.white.withOpacity(glassBorderOpacity),
         width: 1,
       ),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.1),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
-        ),
-      ],
+      boxShadow: glassShadow,
     );
   }
+
+  /// Backwards compatible accessor retained for existing tests/components
+  static BoxDecoration get liquidGlassDecoration => glassDecoration();
 
   /// Primary button style
   static ButtonStyle get primaryButtonStyle {
@@ -201,7 +308,7 @@ class AppTheme {
       elevation: 8,
       shadowColor: primaryGreen.withOpacity(0.3),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(radiusLG),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       textStyle: const TextStyle(
@@ -220,7 +327,7 @@ class AppTheme {
       foregroundColor: textDark,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(radiusLG),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       textStyle: const TextStyle(
@@ -239,7 +346,7 @@ class AppTheme {
       foregroundColor: Colors.white,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(radiusLG),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       textStyle: const TextStyle(
@@ -250,4 +357,43 @@ class AppTheme {
       ),
     );
   }
+
+  /// Outlined button style for glass surfaces
+  static ButtonStyle get outlineButtonStyle {
+    return OutlinedButton.styleFrom(
+      foregroundColor: textDark,
+      backgroundColor: backgroundElevated.withOpacity(0.4),
+      side: BorderSide(color: Colors.white.withOpacity(0.4)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(radiusLG),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      textStyle: const TextStyle(
+        fontFamily: 'Spline Sans',
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.4,
+      ),
+    );
+  }
+
+  /// Gradient helper for large surfaces
+  static LinearGradient get primaryBackgroundGradient => LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          backgroundLight,
+          backgroundLight,
+          overlay,
+        ],
+      );
+
+  /// Gradient helper for highlight overlays
+  static RadialGradient get highlightRadialGradient => RadialGradient(
+        colors: [
+          primaryGreen.withOpacity(0.16),
+          Colors.transparent,
+        ],
+        radius: 0.9,
+      );
 }

@@ -10,6 +10,14 @@ import 'package:zen_screen/screens/profile_screen.dart';
 import 'package:zen_screen/screens/how_it_works_screen.dart';
 import 'package:zen_screen/utils/app_router.dart';
 import 'package:zen_screen/utils/theme.dart';
+import 'package:zen_screen/utils/app_keys.dart';
+
+Future<void> _tapButton(WidgetTester tester, Finder finder) async {
+  expect(finder, findsAtLeastNWidgets(1));
+  await tester.ensureVisible(finder.first);
+  await tester.tap(finder.first);
+  await tester.pumpAndSettle();
+}
 
 void main() {
   group('Feature 1: App Shell & Navigation Tests (Isolated)', () {
@@ -57,11 +65,11 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       
       // Navigate to Home first
-      await tester.tap(find.text('Get Started'));
+      await _tapButton(tester, find.byKey(AppKeys.welcomeGetStartedButton));
       await tester.pumpAndSettle();
       
       // Tap Log Time button
-      await tester.tap(find.text('Log Time'));
+      await _tapButton(tester, find.byKey(AppKeys.homeLogTimeButton));
       await tester.pumpAndSettle();
       
       // Verify Log screen loads
@@ -80,11 +88,11 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       
       // Navigate to Home first
-      await tester.tap(find.text('Get Started'));
+      await _tapButton(tester, find.byKey(AppKeys.welcomeGetStartedButton));
       await tester.pumpAndSettle();
       
       // Tap See Progress button
-      await tester.tap(find.text('See Progress'));
+      await _tapButton(tester, find.byKey(AppKeys.homeSeeProgressButton));
       await tester.pumpAndSettle();
       
       // Verify Progress screen loads
@@ -104,11 +112,15 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       
       // Navigate to Home first
-      await tester.tap(find.text('Get Started'));
+      await _tapButton(tester, find.byKey(AppKeys.welcomeGetStartedButton));
       await tester.pumpAndSettle();
       
       // Navigate to Profile via bottom navigation
-      await tester.tap(find.text('Profile'));
+      final profileFinder = find.text('Profile');
+      if (profileFinder.evaluate().isNotEmpty) {
+        await tester.ensureVisible(profileFinder);
+      }
+      await tester.tap(profileFinder);
       await tester.pumpAndSettle();
       
       // Verify Profile screen loads (check for header text specifically)
@@ -149,11 +161,11 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       
       // Navigate to Home first
-      await tester.tap(find.text('Get Started'));
+      await _tapButton(tester, find.byKey(AppKeys.welcomeGetStartedButton));
       await tester.pumpAndSettle();
       
       // Navigate to Log screen
-      await tester.tap(find.text('Log Time'));
+      await _tapButton(tester, find.byKey(AppKeys.homeLogTimeButton));
       await tester.pumpAndSettle();
       
       // Tap back button
@@ -173,10 +185,10 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       
       // Navigate to Home first
-      await tester.tap(find.text('Get Started'));
+      await _tapButton(tester, find.byKey(AppKeys.welcomeGetStartedButton));
       await tester.pumpAndSettle();
       
-      await tester.tap(find.text('See Progress'));
+      await _tapButton(tester, find.byKey(AppKeys.homeSeeProgressButton));
       await tester.pumpAndSettle();
       
       // Verify we're on Progress screen
@@ -190,7 +202,7 @@ void main() {
       expect(find.text('1h 23m'), findsOneWidget);
       
       // Navigate back to Progress screen
-      await tester.tap(find.text('See Progress'));
+      await _tapButton(tester, find.byKey(AppKeys.homeSeeProgressButton));
       await tester.pumpAndSettle();
       
       // Verify we're back on Progress screen
@@ -226,7 +238,11 @@ void main() {
       // Measure navigation time
       final stopwatch = Stopwatch()..start();
       
-      await tester.tap(find.text('Get Started'));
+      final getStartedFinder = find.text('Get Started');
+      if (getStartedFinder.evaluate().isNotEmpty) {
+        await tester.ensureVisible(getStartedFinder);
+      }
+      await tester.tap(getStartedFinder);
       await tester.pumpAndSettle();
       
       stopwatch.stop();
@@ -238,7 +254,11 @@ void main() {
       stopwatch.reset();
       stopwatch.start();
       
-      await tester.tap(find.text('Log Time'));
+      final logButtonFinder = find.text('Log Time');
+      if (logButtonFinder.evaluate().isNotEmpty) {
+        await tester.ensureVisible(logButtonFinder);
+      }
+      await tester.tap(logButtonFinder);
       await tester.pumpAndSettle();
       
       stopwatch.stop();

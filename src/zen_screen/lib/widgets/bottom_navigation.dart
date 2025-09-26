@@ -49,7 +49,6 @@ class BottomNavigation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(navigationIndexProvider);
-    final currentRoute = GoRouterState.of(context).uri.toString();
 
     return Container(
       decoration: BoxDecoration(
@@ -62,25 +61,25 @@ class BottomNavigation extends ConsumerWidget {
         ),
       ),
       child: Container(
-          height: 96,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: _navigationItems.asMap().entries.map((entry) {
-              final index = entry.key;
-              final item = entry.value;
-              final isActive = currentRoute == item.route;
+        height: 96,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: _navigationItems.asMap().entries.map((entry) {
+            final index = entry.key;
+            final item = entry.value;
+            final isActive = currentIndex == index;
 
-              return _buildNavItem(
-                context: context,
-                ref: ref,
-                item: item,
-                index: index,
-                isActive: isActive,
-              );
-            }).toList(),
-          ),
+            return _buildNavItem(
+              context: context,
+              ref: ref,
+              item: item,
+              index: index,
+              isActive: isActive,
+            );
+          }).toList(),
         ),
+      ),
     );
   }
 
@@ -138,11 +137,15 @@ class BottomNavigation extends ConsumerWidget {
   ) {
     // Update navigation index
     ref.read(navigationIndexProvider.notifier).setIndex(index);
-    
+
     // Update navigation history
     ref.read(navigationHistoryProvider.notifier).pushRoute(item.route);
-    
-    // Navigate using GoRouter
-    context.go(item.route);
+
+    final goRouter = GoRouter.maybeOf(context);
+    if (goRouter != null) {
+      goRouter.go(item.route);
+    } else {
+      Navigator.of(context).pushNamed(item.route);
+    }
   }
 }

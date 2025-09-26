@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/bottom_navigation.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/zen_button.dart';
+import '../widgets/zen_progress.dart';
 import '../utils/app_router.dart';
+import '../utils/app_keys.dart';
 import '../utils/theme.dart';
 import '../providers/navigation_provider.dart';
 
@@ -53,40 +57,59 @@ class HomeScreen extends ConsumerWidget {
             // Main content
             SafeArea(
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Earned screen time display
-                    Text(
-                      'Earned screen time',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textLight,
-                      ),
+                padding: const EdgeInsets.all(AppTheme.spaceLG),
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GlassCard(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppTheme.spaceXL,
+                            vertical: AppTheme.spaceLG,
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                'Earned screen time',
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: AppTheme.textLight,
+                                    ),
+                              ),
+                              const SizedBox(height: AppTheme.spaceSM),
+                              Text(
+                                '1h 23m',
+                                style: Theme.of(context).textTheme.headlineLarge,
+                              ),
+                              const SizedBox(height: AppTheme.spaceMD),
+                              _buildPowerModeIndicator(context),
+                              const SizedBox(height: AppTheme.spaceLG),
+                              ZenLinearProgressBar(
+                                progress: 0.64,
+                                showLabel: true,
+                                label: 'Daily Progress',
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.spaceXL),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceMD),
+                          child: Text(
+                            '"The journey of a thousand miles begins with a single step."',
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  color: AppTheme.textLight,
+                                  fontStyle: FontStyle.italic,
+                                  height: 1.4,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.space2XL),
+                        _buildActionButtons(context, ref),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '1h 23m',
-                      style: Theme.of(context).textTheme.headlineLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    // POWER+ Mode indicator
-                    _buildPowerModeIndicator(context),
-                    const SizedBox(height: 32),
-                    // Motivational quote
-                    Text(
-                      '"The journey of a thousand miles begins with a single step."',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppTheme.textLight,
-                        fontStyle: FontStyle.italic,
-                        height: 1.4,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 40),
-                    // Action buttons
-                    _buildActionButtons(context, ref),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -126,45 +149,27 @@ class HomeScreen extends ConsumerWidget {
       children: [
         SizedBox(
           width: double.infinity,
-          height: 56,
-          child: ElevatedButton(
+          child: ZenButton.success(
+            'Log Time',
+            key: AppKeys.homeLogTimeButton,
             onPressed: () {
-              // Update navigation state
               ref.read(navigationIndexProvider.notifier).setIndex(1);
               ref.read(navigationHistoryProvider.notifier).pushRoute(AppRoutes.log);
-              
-              // Navigate to Log screen
               context.go(AppRoutes.log);
             },
-            style: AppTheme.successButtonStyle,
-            child: Text(
-              'Log Time',
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Colors.white,
-              ),
-            ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppTheme.spaceMD),
         SizedBox(
           width: double.infinity,
-          height: 56,
-          child: ElevatedButton(
+          child: ZenButton.secondary(
+            'See Progress',
+            key: AppKeys.homeSeeProgressButton,
             onPressed: () {
-              // Update navigation state
               ref.read(navigationIndexProvider.notifier).setIndex(2);
               ref.read(navigationHistoryProvider.notifier).pushRoute(AppRoutes.progress);
-              
-              // Navigate to Progress screen
               context.go(AppRoutes.progress);
             },
-            style: AppTheme.secondaryButtonStyle,
-            child: Text(
-              'See Progress',
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: AppTheme.textDark,
-              ),
-            ),
           ),
         ),
       ],
