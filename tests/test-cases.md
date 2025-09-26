@@ -64,16 +64,16 @@
 
 | Test ID | Test Case | Prerequisites | Test Steps | Expected Result | Status | Observations | Defects | Last Updated |
 |---------|-----------|---------------|------------|-----------------|--------|--------------|---------|--------------|
-| TC031 | Algorithm config load + validation | Deployed config file available | 1. Launch app<br>2. Verify JSON parsed<br>3. Check schema validation result | Algorithm config loads successfully with schema validation | PENDING | Not yet executed | None | 2025-09-26 |
-| TC032 | Config fallback behavior | Config file removed/corrupt | 1. Corrupt/remove JSON<br>2. Relaunch app<br>3. Verify defaults applied and warning logged | Engine falls back to baked-in defaults without crash | PENDING | Not yet executed | None | 2025-09-26 |
-| TC033 | Sleep time earning calculation | Algorithm running | 1. Log 8 hours sleep<br>2. Calculate earned screen time<br>3. Verify against config | Earned time matches config-defined sleep rate (default 200 min) | PENDING | Not yet executed | None | 2025-09-11 |
-| TC034 | Exercise time earning calculation | Algorithm running | 1. Log 1 hour exercise<br>2. Calculate earned screen time<br>3. Verify against config | Earned time matches config-defined exercise rate (default 20 min) | PENDING | Not yet executed | None | 2025-09-11 |
-| TC035 | Outdoor time earning calculation | Algorithm running | 1. Log 1 hour outdoor time<br>2. Calculate earned screen time<br>3. Verify against config | Earned time matches config-defined outdoor rate (default 15 min) | PENDING | Not yet executed | None | 2025-09-11 |
-| TC036 | Productive time earning calculation | Algorithm running | 1. Log 1 hour productive time<br>2. Calculate earned screen time<br>3. Verify against config | Earned time matches config-defined productive rate (default 10 min) | PENDING | Not yet executed | None | 2025-09-11 |
-| TC037 | POWER+ Mode detection | Config thresholds loaded | 1. Complete 3 of 4 habit goals<br>2. Check POWER+ status<br>3. Verify bonus activation | POWER+ Mode activates when configured thresholds met | PENDING | Not yet executed | None | 2025-09-11 |
-| TC038 | POWER+ Mode bonus calculation | POWER+ Mode active | 1. Verify base earned time<br>2. Check bonus addition from config<br>3. Confirm total | Bonus minutes equal config-defined value (default 30 min) | PENDING | Not yet executed | None | 2025-09-11 |
-| TC039 | Daily cap/penalty enforcement | Algorithm running | 1. Exceed category caps<br>2. Trigger sleep penalty<br>3. Verify totals | Caps and penalties enforced exactly as defined in config | PENDING | Not yet executed | None | 2025-09-26 |
-| TC040 | Real-time calculation updates | Algorithm running | 1. Edit habit values<br>2. Measure calculation speed<br>3. Verify result | Calculations update in real-time (<100ms) using active config | PENDING | Not yet executed | None | 2025-09-26 |
+| TC031 | Algorithm config load + validation | Deployed config file available | 1. Launch app<br>2. Verify JSON parsed<br>3. Check schema validation result | Algorithm config loads successfully with schema validation | ✅ PASSED | Config loads with proper schema validation, JSON parsing works correctly | None | 2025-09-26 |
+| TC032 | Config fallback behavior | Config file removed/corrupt | 1. Corrupt/remove JSON<br>2. Relaunch app<br>3. Verify defaults applied and warning logged | Engine falls back to baked-in defaults without crash | ✅ PASSED | Graceful fallback to baked-in defaults without crash, error handling works correctly | None | 2025-09-26 |
+| TC033 | Sleep time earning calculation | Algorithm running | 1. Log 8 hours sleep<br>2. Calculate earned screen time<br>3. Verify against config | Earned time matches config-defined sleep rate (default 200 min) | ✅ PASSED | Sleep calculations work correctly with proper caps and penalties, 8h=200min capped at 120min | None | 2025-09-26 |
+| TC034 | Exercise time earning calculation | Algorithm running | 1. Log 1 hour exercise<br>2. Calculate earned screen time<br>3. Verify against config | Earned time matches config-defined exercise rate (default 20 min) | ✅ PASSED | Exercise calculations work correctly with proper caps, 1h=20min, 2h=40min capped | None | 2025-09-26 |
+| TC035 | Outdoor time earning calculation | Algorithm running | 1. Log 1 hour outdoor time<br>2. Calculate earned screen time<br>3. Verify against config | Earned time matches config-defined outdoor rate (default 15 min) | ✅ PASSED | Outdoor calculations work correctly, 1h=15min, 2h=30min capped | None | 2025-09-26 |
+| TC036 | Productive time earning calculation | Algorithm running | 1. Log 1 hour productive time<br>2. Calculate earned screen time<br>3. Verify against config | Earned time matches config-defined productive rate (default 10 min) | ✅ PASSED | Productive calculations work correctly, 1h=10min, 4h=40min capped | None | 2025-09-26 |
+| TC037 | POWER+ Mode detection | Config thresholds loaded | 1. Complete 3 of 4 habit goals<br>2. Check POWER+ status<br>3. Verify bonus activation | POWER+ Mode activates when configured thresholds met | ✅ PASSED | POWER+ Mode detection works correctly with 3 of 4 goals, bonus activation verified | None | 2025-09-26 |
+| TC038 | POWER+ Mode bonus calculation | POWER+ Mode active | 1. Verify base earned time<br>2. Check bonus addition from config<br>3. Confirm total | Bonus minutes equal config-defined value (default 30 min) | ✅ PASSED | 30-minute bonus added correctly when POWER+ Mode unlocked, total calculation accurate | None | 2025-09-26 |
+| TC039 | Daily cap/penalty enforcement | Algorithm running | 1. Exceed category caps<br>2. Trigger sleep penalty<br>3. Verify totals | Caps and penalties enforced exactly as defined in config | ✅ PASSED | Daily caps enforced correctly (120min base, 150min POWER+), sleep penalties applied | None | 2025-09-26 |
+| TC040 | Real-time calculation updates | Algorithm running | 1. Edit habit values<br>2. Measure calculation speed<br>3. Verify result | Calculations update in real-time (<100ms) using active config | ✅ PASSED | All calculations complete well under 100ms threshold, performance excellent | None | 2025-09-26 |
 
 ---
 
@@ -337,9 +337,9 @@
 
 **Overall Test Results:**
 - **Total Test Cases**: 180
-- **Passed**: 10
+- **Passed**: 20
 - **Failed**: 0
-- **Pending**: 170
+- **Pending**: 160
 - **Blocked**: 0
 - **Not Applicable**: 0
 
