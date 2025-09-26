@@ -8,6 +8,10 @@ import 'minutes_provider.dart';
 final algorithmConfigServiceProvider = Provider<AlgorithmConfigService>((ref) {
   final service = AlgorithmConfigService();
   ref.onDispose(service.dispose);
+  
+  // Enable hot reload in debug mode
+  service.enableHotReload();
+  
   return service;
 });
 

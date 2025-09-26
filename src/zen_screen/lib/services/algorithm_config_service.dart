@@ -21,6 +21,7 @@ class AlgorithmConfigService {
 
   AlgorithmConfig? _cachedConfig;
   StreamController<AlgorithmConfig>? _controller;
+  StreamSubscription<FileSystemEvent>? _fileWatcher;
 
   Stream<AlgorithmConfig> get configStream {
     _controller ??= StreamController<AlgorithmConfig>.broadcast(onListen: () {
@@ -57,6 +58,13 @@ class AlgorithmConfigService {
       _cache(config);
       return config;
     } catch (error) {
+      // Log error for developer resolution
+      if (kDebugMode) {
+        print('🚨 AlgorithmConfig Error: $error');
+        print('📁 Asset path: $_assetPath');
+        print('🔄 Falling back to default configuration');
+      }
+      
       final fallback = _buildFallbackConfig();
       _cache(fallback);
       return fallback;
@@ -67,8 +75,36 @@ class AlgorithmConfigService {
     await loadConfig(forceReload: true);
   }
 
+  /// Enables hot reload for development - watches config file for changes
+  void enableHotReload() {
+    if (!kDebugMode) return;
+    
+    try {
+      final configFile = File(_resolveAssetPath(_assetPath));
+      if (configFile.existsSync()) {
+        _fileWatcher = configFile.parent.watch(events: FileSystemEvent.modify).listen((event) {
+          if (event.path.endsWith('earning_algorithm.json')) {
+            if (kDebugMode) {
+              print('🔄 Config file changed, reloading...');
+            }
+            loadConfig(forceReload: true);
+          }
+        });
+        
+        if (kDebugMode) {
+          print('✅ Hot reload enabled for algorithm config');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('⚠️ Could not enable hot reload: $e');
+      }
+    }
+  }
+
   void dispose() {
     _controller?.close();
+    _fileWatcher?.cancel();
   }
 
   void _cache(AlgorithmConfig config) {
