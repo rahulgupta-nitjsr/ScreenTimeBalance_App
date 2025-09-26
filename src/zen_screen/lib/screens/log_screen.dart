@@ -1,20 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../models/habit_category.dart';
+import '../providers/algorithm_provider.dart';
+import '../providers/minutes_provider.dart';
+import '../utils/app_router.dart';
+import '../utils/theme.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/glass_card.dart';
+import '../widgets/habit_entry_pad.dart';
 import '../widgets/zen_button.dart';
-import '../widgets/zen_progress.dart';
-import '../widgets/zen_input_field.dart';
-import '../utils/theme.dart';
-import '../utils/app_router.dart';
-import '../providers/navigation_provider.dart';
 
-class LogScreen extends ConsumerWidget {
+class LogScreen extends ConsumerStatefulWidget {
   const LogScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LogScreen> createState() => _LogScreenState();
+}
+
+class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final result = ref.watch(algorithmResultProvider);
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -125,46 +147,46 @@ class LogScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: AppTheme.spaceXL),
-                        Text(
-                          'Manual Entry',
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: AppTheme.spaceMD),
-                        Column(
-                          children: [
-                            _buildHabitCategory(
-                              context,
-                              icon: Icons.bedtime,
-                              title: 'Sleep',
-                              subtitle: 'Log your sleep time',
-                              minutes: 480,
-                            ),
-                            const SizedBox(height: AppTheme.spaceMD),
-                            _buildHabitCategory(
-                              context,
-                              icon: Icons.fitness_center,
-                              title: 'Exercise',
-                              subtitle: 'Log your workout time',
-                              minutes: 60,
-                            ),
-                            const SizedBox(height: AppTheme.spaceMD),
-                            _buildHabitCategory(
-                              context,
-                              icon: Icons.park,
-                              title: 'Outdoor',
-                              subtitle: 'Log your outdoor activities',
-                              minutes: 30,
-                            ),
-                            const SizedBox(height: AppTheme.spaceMD),
-                            _buildHabitCategory(
-                              context,
-                              icon: Icons.book,
-                              title: 'Productive',
-                              subtitle: 'Log your productive work',
-                              minutes: 120,
-                            ),
+                        TabBar(
+                          controller: _tabController,
+                          labelColor: AppTheme.primaryGreen,
+                          unselectedLabelColor: AppTheme.textLight,
+                          indicatorColor: AppTheme.primaryGreen,
+                          tabs: const [
+                            Tab(text: 'Timer'),
+                            Tab(text: 'Manual Entry'),
                           ],
                         ),
+                        const SizedBox(height: AppTheme.spaceMD),
+                        SizedBox(
+                          height: 420,
+                          child: TabBarView(
+                            controller: _tabController,
+                            physics: const NeverScrollableScrollPhysics(),
+                            children: [
+                              _buildTimerCard(context),
+                              const HabitEntryPad(),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.spaceXL),
+                        GlassCard(
+                          child: Column(
+                            children: [
+                              Text(
+                                'Today\'s Totals',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: AppTheme.spaceMD),
+                              _buildTotalsList(context),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.spaceXL),
+                        if (result.powerModeUnlocked)
+                          _buildPowerModeSummary(context, result.totalEarnedMinutes)
+                        else
+                          _buildProgressSummary(context, result.totalEarnedMinutes),
                       ],
                     ),
                   );
@@ -178,101 +200,96 @@ class LogScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHabitCategory(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required int minutes,
-  }) {
-    final hours = (minutes / 60).floor();
-    final remaining = minutes % 60;
-    final display = hours > 0 ? '${hours}h ${remaining}m' : '${remaining}m';
-
+  Widget _buildPowerModeSummary(BuildContext context, int earnedMinutes) {
+    final theme = Theme.of(context);
     return GlassCard(
-      padding: const EdgeInsets.all(AppTheme.spaceLG),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryGreen.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMD),
+          Icon(Icons.rocket_launch, color: AppTheme.secondaryGreen),
+          const SizedBox(height: AppTheme.spaceSM),
+          Text('POWER+ Mode Unlocked!', style: theme.textTheme.titleMedium),
+          const SizedBox(height: AppTheme.spaceXS),
+          Text('Total earned today: ${earnedMinutes ~/ 60}h ${earnedMinutes % 60}m'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressSummary(BuildContext context, int earnedMinutes) {
+    final theme = Theme.of(context);
+    return GlassCard(
+      child: Column(
+        children: [
+          Icon(Icons.hourglass_bottom, color: AppTheme.primaryGreen),
+          const SizedBox(height: AppTheme.spaceSM),
+          Text('Total earned today: ${earnedMinutes ~/ 60}h ${earnedMinutes % 60}m',
+              style: theme.textTheme.titleMedium),
+          const SizedBox(height: AppTheme.spaceXS),
+          const Text('Keep logging habits to unlock POWER+ mode!'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimerCard(BuildContext context) {
+    return GlassCard(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spaceXL,
+        vertical: AppTheme.spaceLG,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '00:00:00',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontFamily: 'Spline Sans',
+                  letterSpacing: 2,
                 ),
-                child: Icon(
-                  icon,
-                  color: AppTheme.primaryGreen,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: AppTheme.spaceMD),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: AppTheme.spaceXS),
-                    Text(
-                      subtitle,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
-              RichText(
-                text: TextSpan(
-                  text: display,
-                  style: Theme.of(context).textTheme.labelLarge,
-                  children: const [
-                    TextSpan(
-                      text: ' today',
-                      style: TextStyle(
-                        color: AppTheme.textLight,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
           ),
-          const SizedBox(height: AppTheme.spaceMD),
-          ZenLinearProgressBar(
-            progress: (minutes / 60).clamp(0, 1),
-            height: 10,
-            backgroundColor: AppTheme.borderLight,
-            progressColor: minutes >= 60 ? AppTheme.secondaryGreen : AppTheme.primaryGreen,
+          const SizedBox(height: AppTheme.spaceSM),
+          Text(
+            'Timer coming soon',
+            style: Theme.of(context).textTheme.bodySmall,
           ),
-          const SizedBox(height: AppTheme.spaceMD),
+          const SizedBox(height: AppTheme.spaceLG),
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(
-                child: ZenInputField(
-                  label: 'Add minutes',
-                  hint: '15',
-                  keyboardType: TextInputType.number,
-                  suffix: const Padding(
-                    padding: EdgeInsets.only(top: 12, right: 12),
-                    child: Text('min'),
-                  ),
-                ),
-              ),
+              ZenButton.success('Start', onPressed: () {}),
               const SizedBox(width: AppTheme.spaceMD),
-              ZenButton.primary(
-                '+15',
-                onPressed: () {},
-              ),
+              ZenButton.secondary('Stop', onPressed: () {}),
             ],
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildTotalsList(BuildContext context) {
+    final minutesByCategory = ref.watch(minutesByCategoryProvider);
+    return Column(
+      children: [
+        for (final category in HabitCategory.values)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppTheme.spaceXS),
+            child: Row(
+              children: [
+                Icon(category.icon, size: 20, color: category.primaryColor(context)),
+                const SizedBox(width: AppTheme.spaceSM),
+                Expanded(child: Text(category.label)),
+                Text(_formatMinutes(minutesByCategory[category] ?? 0)),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  String _formatMinutes(int totalMinutes) {
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    if (hours == 0) return '${minutes}m';
+    return '${hours}h ${minutes}m';
   }
 }

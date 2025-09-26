@@ -73,4 +73,4 @@ Users earn daily screen time by logging four good habit categories: Sleep, Exerc
 
 ---
 
-_This algorithm is locked for Phase 1. It may evolve based on actual user feedback and behavior analytics post-launch._
+_This algorithm ships as the default in `assets/config/earning_algorithm.json`. Developers can adjust the JSON while retaining the documented schema; the app automatically reloads the configuration with safe fallbacks when modifications are deployed._

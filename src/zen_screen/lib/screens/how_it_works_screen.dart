@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+
+import '../utils/theme.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/zen_button.dart';
-import '../utils/theme.dart';
-import '../utils/app_router.dart';
-import '../providers/navigation_provider.dart';
 
 class HowItWorksScreen extends ConsumerWidget {
   const HowItWorksScreen({super.key});
@@ -43,7 +41,7 @@ class HowItWorksScreen extends ConsumerWidget {
                   child: Row(
                     children: [
                       IconButton(
-                        onPressed: () => context.pop(),
+                        onPressed: () => Navigator.of(context).maybePop(),
                         icon: const Icon(
                           Icons.close,
                           color: AppTheme.textMedium,

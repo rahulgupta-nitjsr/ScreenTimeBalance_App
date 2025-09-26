@@ -1,0 +1,45 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2025-09-26T00:00:00.000Z",
+  "powerPlus": {
+    "bonusMinutes": 30,
+    "requiredGoals": 3,
+    "goals": {
+      "sleep": 420,
+      "exercise": 45,
+      "outdoor": 30,
+      "productive": 120
+    }
+  },
+  "categories": {
+    "sleep": {
+      "label": "Sleep",
+      "minutesPerHour": 25,
+      "maxMinutes": 540,
+      "penalties": {
+        "underMinutes": 360,
+        "overMinutes": 540,
+        "penaltyMinutes": 20
+      }
+    },
+    "exercise": {
+      "label": "Exercise",
+      "minutesPerHour": 20,
+      "maxMinutes": 120
+    },
+    "outdoor": {
+      "label": "Outdoor",
+      "minutesPerHour": 15,
+      "maxMinutes": 120
+    },
+    "productive": {
+      "label": "Productive",
+      "minutesPerHour": 10,
+      "maxMinutes": 240
+    }
+  },
+  "dailyCaps": {
+    "baseMinutes": 120,
+    "powerPlusMinutes": 150
+  }
+}

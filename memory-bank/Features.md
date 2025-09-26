@@ -261,7 +261,8 @@ This document defines the complete feature implementation plan for ZenScreen, or
 **User Story**: As a user, I want my healthy habits to be converted to earned screen time accurately, so that I understand the direct relationship between my actions and rewards.
 
 **Functional Requirements**:
-- Implement earning rates for all 4 habit categories:
+- Load earning configuration from a bundled JSON document (`assets/config/earning_algorithm.json`) with live reload support during development.
+- Implement earning rates for all 4 habit categories based on the configuration:
   - Sleep: 1 hour = 25 min screen time (max 9 hours)
   - Exercise: 1 hour = 20 min screen time (max 2 hours)
   - Outdoor: 1 hour = 15 min screen time (max 2 hours)
@@ -287,6 +288,7 @@ This document defines the complete feature implementation plan for ZenScreen, or
 - State management for algorithm results
 - Validation of algorithm logic
 - Performance optimization for frequent calculations
+- Configuration loader with schema validation, fallback to in-memory defaults, and version tracking persisted with daily entries
 
 **Automated Testing Requirements**:
 - **Unit Tests**: Algorithm calculations, edge cases
@@ -312,7 +314,8 @@ This document defines the complete feature implementation plan for ZenScreen, or
 - Maximum time exceeded → Caps at daily maximum
 - Partial goal completion → Calculates correctly
 - POWER+ Mode lost → Removes bonus time
-- Algorithm changes → Migrates existing data
+- Algorithm config missing or malformed → Fall back to baked-in defaults and surface error for developer resolution
+- Algorithm changes → Migrates existing data and records active configuration version
 
 ---
 
@@ -327,18 +330,19 @@ This document defines the complete feature implementation plan for ZenScreen, or
 **User Story**: As a user, I want to manually add or subtract time for my habits, so that I can log activities I did without using the timer.
 
 **Functional Requirements**:
-- Implement +/- buttons for each habit category
+- Replace +/- buttons with a low-friction `HabitEntryPad` component tailored to each category:
+  - Sleep: hour chips (1–12), optional +30 min toggle, "same as last night" quick action
+  - Exercise/Outdoor/Productive: dual-layer selector (hour chips + 5-minute slider), quick presets, "same as last time"
 - Display current daily total for each habit
-- Increment/decrement in 15-minute intervals
-- Visual feedback for button presses
+- Allow quick toggle between Timer tab and Manual Entry tab
 - Real-time screen time calculation updates
 - Prevent negative values
 - Enforce daily maximums per category
 
 **Acceptance Criteria**:
 - Given a user wants to log past activity
-- When they tap the + button for a habit
-- Then 15 minutes is added to that habit's daily total
+- When they select a duration using the entry pad
+- Then the chosen time is added to that habit's daily total
 - And the earned screen time updates immediately
 - And the change is saved locally
 - And daily maximums are enforced
@@ -349,7 +353,7 @@ This document defines the complete feature implementation plan for ZenScreen, or
 - Real-time algorithm calculation
 - Input validation (no negative values)
 - Daily maximums enforcement per category
-- Button debouncing to prevent double-counting
+- Shared entry component with configurable presets and accessibility support
 
 **Automated Testing Requirements**:
 - **Unit Tests**: Time calculation logic, validation rules
@@ -359,16 +363,16 @@ This document defines the complete feature implementation plan for ZenScreen, or
 - **Validation Tests**: Input constraints, edge cases
 
 **Test Scenarios**:
-1. + button adds 15 minutes correctly
-2. - button subtracts 15 minutes correctly
-3. Daily totals update in real-time
-4. Earned screen time recalculates immediately
-5. Negative values are prevented
-6. Daily maximums are enforced
-7. Rapid button presses are debounced
-8. Data is saved to database
-9. UI provides visual feedback
-10. All habit categories work consistently
+1. Entry pad adds custom durations correctly across categories
+2. Sleep hour chips reflect selected duration and optional +30 min toggle
+3. Quick presets apply expected values (e.g., 45-minute workout)
+4. Daily totals update in real-time
+5. Earned screen time recalculates immediately
+6. Negative values are prevented
+7. Daily maximums are enforced
+8. Entry pad respects "same as last time" data
+9. Data is saved to database
+10. UI provides visual feedback
 
 **Edge Cases**:
 - Rapid button presses → Debounced to prevent double-counting
@@ -384,11 +388,11 @@ This document defines the complete feature implementation plan for ZenScreen, or
 **User Story**: As a user, I want to see my earned screen time update immediately when I log habits, so that I understand the direct relationship between my actions and rewards.
 
 **Functional Requirements**:
-- Live calculation using the defined algorithm
-- Display earned screen time prominently
-- Show breakdown by habit category
-- POWER+ Mode status updates
-- Visual progress indicators
+- Live calculation using the defined algorithm configuration
+- Display earned screen time prominently via a central donut chart (earned vs used)
+- Show breakdown by habit category with minimalist arc gauges and textual summaries
+- POWER+ Mode status updates with badge/animation
+- Visual progress indicators that reuse chart components from Feature 6.2
 - Real-time updates (<100ms response time)
 - Clear visual distinction between earned and used time
 
@@ -418,11 +422,11 @@ This document defines the complete feature implementation plan for ZenScreen, or
 **Test Scenarios**:
 1. Earned time updates immediately after logging
 2. POWER+ Mode status updates correctly
-3. Display shows accurate calculations
-4. Visual indicators reflect current status
-5. Updates occur within performance benchmarks
-6. Breakdown by category is accurate
-7. Progress indicators work correctly
+3. Donut chart reflects earned vs used screen time accurately
+4. Arc gauges update with category totals and goal progress
+5. Visual indicators reflect current status
+6. Updates occur within performance benchmarks
+7. Breakdown by category is accurate
 8. Display handles edge values gracefully
 9. Real-time updates don't impact performance
 10. Visual design is clear and accessible
@@ -454,6 +458,7 @@ This document defines the complete feature implementation plan for ZenScreen, or
 - Timer precision to seconds
 - Single active timer enforcement
 - Timer state persistence across app lifecycle
+- Seamless toggle between timer tab and manual `HabitEntryPad`
 
 **Acceptance Criteria**:
 - Given a user selects a habit category
@@ -694,7 +699,8 @@ This document defines the complete feature implementation plan for ZenScreen, or
 **User Story**: As a user, I want to see my progress toward daily goals for each habit, so that I can understand what I need to do to unlock POWER+ Mode.
 
 **Functional Requirements**:
-- Circular progress indicators for each habit
+- Reuse donut and arc gauge components for historical context, supplemented with mini sparklines
+- Circular progress indicators for each habit with trend overlays
 - Completion percentages and actual vs. goal times
 - Visual distinction between completed and incomplete habits
 - Grid layout for easy scanning
@@ -820,6 +826,7 @@ This document defines the complete feature implementation plan for ZenScreen, or
 - Data export capability (future)
 - Visual timeline representation
 - Progress comparison over time
+- Persist algorithm configuration version alongside each daily entry for context
 
 **Acceptance Criteria**:
 - Given a user has been using the app for multiple days

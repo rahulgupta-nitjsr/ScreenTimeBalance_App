@@ -72,5 +72,6 @@ Full, detailed logic and rationale in [ScreenTime-Earning-Algorithm.md](./memory
 ## 10. Dependencies & Enhanced Risk Assessment
 - **Algorithm Balance:** Ensuring POWER+ Mode is motivating but not exploitable; algorithms must be transparent, fair, and science-based.
 - **Manual Input Friction:** Excessive manual entry may reduce usage/adoption—live user feedback is crucial.
+- **Configuration Integrity:** Algorithm must remain transparent and easily changeable via documented JSON configuration with safe fallbacks.
 - **Algorithm Validation:** Early, ongoing review of time/points earned to prevent abuse and ensure engagement.
 - Store/Play Store policies must be followed (wellness claims, privacy, etc.), else approval risk.

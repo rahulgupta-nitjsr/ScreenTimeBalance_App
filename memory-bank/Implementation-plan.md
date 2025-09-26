@@ -327,9 +327,9 @@ Implement the core screen time balance algorithm that calculates earned screen t
 - Data models implemented
 
 **Implementation Steps:**
-1. Create `lib/services/algorithm_service.dart` file
-2. Implement `AlgorithmService` class
-3. Create `calculateEarnedTime` method
+1. Create `lib/services/algorithm_config_service.dart` to load `assets/config/earning_algorithm.json`
+2. Implement `DynamicAlgorithmService` class that consumes configuration
+3. Create `calculateEarnedTime` method driven by config values
 4. Implement habit completion tracking logic
 5. Add time calculation algorithms
 6. Implement bonus time calculations
@@ -339,8 +339,8 @@ Implement the core screen time balance algorithm that calculates earned screen t
 10. Add weekly and monthly calculations
 11. Create `getRecommendations` method
 12. Implement habit suggestion algorithms
-13. Add algorithm configuration options
-14. Create algorithm validation methods
+13. Add configuration hot-reload support in debug builds
+14. Create algorithm validation methods and schema enforcement
 15. Write unit tests for algorithm service
 16. Write tests for time calculations
 17. Write tests for recommendation logic
@@ -374,7 +374,7 @@ Implement functionality for users to create and manage their habits.
 2. Implement habit creation form UI
 3. Add form validation for habit input
 4. Create habit category selection
-5. Implement target duration input
+5. Implement target duration input via new `HabitEntryPad` presets
 6. Add habit description input
 7. Create habit icon selection
 8. Implement form submission logic
@@ -412,7 +412,7 @@ Implement functionality for users to view, edit, and delete their habits.
 
 **Implementation Steps:**
 1. Create `lib/screens/habit_list_screen.dart` file
-2. Implement habit list display UI
+2. Implement habit list display UI with quick edit using `HabitEntryPad`
 3. Add habit card components
 4. Implement habit editing functionality
 5. Add habit deletion functionality
@@ -468,6 +468,7 @@ Implement the core timer functionality for habit tracking sessions.
 12. Create timer session export
 13. Implement timer analytics tracking
 14. Add timer accessibility features
+15. Integrate toggle to manual `HabitEntryPad` within timer screen
 15. Write unit tests for timer logic
 16. Write widget tests for timer widget
 17. Write integration tests for timer functionality
@@ -509,6 +510,7 @@ Implement comprehensive session management for timer sessions and habit tracking
 12. Add session performance monitoring
 13. Create session error handling
 14. Implement session cleanup logic
+15. Ensure manual entry remains disabled while session active using shared components
 15. Write unit tests for session service
 16. Write tests for session management logic
 17. Write integration tests for session flow
@@ -664,8 +666,8 @@ Implement comprehensive data visualization for progress, habits, and screen time
 
 **Implementation Steps:**
 1. Create `lib/widgets/charts/` directory
-2. Implement progress charts widget
-3. Add habit completion charts
+2. Implement progress charts widget building on home dashboard components (donut, gauges, sparklines)
+3. Add habit completion charts with trend overlays
 4. Create screen time visualization
 5. Implement trend line charts
 6. Add pie charts for categories
@@ -717,6 +719,7 @@ Implement comprehensive historical data management and analysis capabilities.
 9. Add historical data migration
 10. Create historical data validation
 11. Implement historical data export
+12. Store algorithm configuration version with each daily entry for auditability
 12. Add historical data analytics
 13. Create historical data performance monitoring
 14. Implement historical data error handling

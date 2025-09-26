@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../utils/theme.dart';
-
 /// A text field that enforces design system defaults.
 class ZenInputField extends StatelessWidget {
   const ZenInputField({

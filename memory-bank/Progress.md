@@ -292,6 +292,9 @@ This document tracks the progress of the ZenScreen project through all phases of
 - **Privacy Compliance** - GDPR/CCPA ready privacy framework
 - **Developer-Ready** - Clear implementation guidance and constraints
 - **Future-Proof** - Scalable architecture and enhancement pathways
+- **Dynamic Algorithm Framework** - JSON-driven configuration with safe fallbacks and version tracking
+- **Low-Friction Habit Entry UX** - Redesigned manual entry workflow ready for development
+- **Visualization System** - Reusable donut/arc gauge components planned for home and progress screens
 - **Automated Testing** - 100% automated testing with zero manual intervention
 - **Quality Gates** - Strict pass rate requirements for feature completion
 

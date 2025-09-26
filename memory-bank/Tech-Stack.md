@@ -516,6 +516,7 @@ class Habit {
 class SyncService {
   final DatabaseService _localDb;
   final FirebaseFirestore _firestore;
+  final AlgorithmConfigService _config;
   
   Future<void> syncHabits() async {
     try {
@@ -530,6 +531,13 @@ class SyncService {
             .set(habit.toMap());
       }
       
+      // Sync algorithm configuration metadata if updated
+      final config = await _config.getActiveConfig();
+      await _firestore.collection('configs').doc('earning_algorithm').set({
+        'version': config.version,
+      'updatedAt': DateTime.now().toIso8601String(),
+      });
+
       // Download cloud changes
       final cloudChanges = await _firestore
           .collection('habits')
@@ -539,7 +547,7 @@ class SyncService {
       // Update local database
       for (final doc in cloudChanges.docs) {
         final habit = Habit.fromMap(doc.data());
-        await _localDb.insertOrUpdateHabit(habit);
+      await _localDb.insertOrUpdateHabit(habit);
       }
       
       _lastSyncTime = DateTime.now();

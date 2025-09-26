@@ -64,16 +64,16 @@
 
 | Test ID | Test Case | Prerequisites | Test Steps | Expected Result | Status | Observations | Defects | Last Updated |
 |---------|-----------|---------------|------------|-----------------|--------|--------------|---------|--------------|
-| TC031 | Sleep time earning calculation | Algorithm implemented | 1. Log 8 hours sleep<br>2. Calculate earned screen time<br>3. Verify result | 8 hours sleep = 200 minutes screen time (25 min per hour) | PENDING | Not yet executed | None | 2025-09-11 |
-| TC032 | Exercise time earning calculation | Algorithm implemented | 1. Log 1 hour exercise<br>2. Calculate earned screen time<br>3. Verify result | 1 hour exercise = 20 minutes screen time | PENDING | Not yet executed | None | 2025-09-11 |
-| TC033 | Outdoor time earning calculation | Algorithm implemented | 1. Log 1 hour outdoor time<br>2. Calculate earned screen time<br>3. Verify result | 1 hour outdoor = 15 minutes screen time | PENDING | Not yet executed | None | 2025-09-11 |
-| TC034 | Productive time earning calculation | Algorithm implemented | 1. Log 1 hour productive time<br>2. Calculate earned screen time<br>3. Verify result | 1 hour productive = 10 minutes screen time | PENDING | Not yet executed | None | 2025-09-11 |
-| TC035 | POWER+ Mode detection | Algorithm implemented | 1. Complete 3 of 4 habit goals<br>2. Check POWER+ Mode status<br>3. Verify bonus activation | POWER+ Mode activates with 3 of 4 goals met | PENDING | Not yet executed | None | 2025-09-11 |
-| TC036 | POWER+ Mode bonus calculation | POWER+ Mode active | 1. Verify base earned time<br>2. Check POWER+ bonus addition<br>3. Verify total | 30-minute bonus added to earned screen time | PENDING | Not yet executed | None | 2025-09-11 |
-| TC037 | Daily maximum enforcement - Sleep | Algorithm implemented | 1. Log more than 9 hours sleep<br>2. Calculate earned time<br>3. Verify maximum applied | Sleep time capped at 9 hours maximum | PENDING | Not yet executed | None | 2025-09-11 |
-| TC038 | Daily maximum enforcement - Exercise | Algorithm implemented | 1. Log more than 2 hours exercise<br>2. Calculate earned time<br>3. Verify maximum applied | Exercise time capped at 2 hours maximum | PENDING | Not yet executed | None | 2025-09-11 |
-| TC039 | Sleep penalty system | Algorithm implemented | 1. Log insufficient sleep (<6 hours)<br>2. Calculate penalty<br>3. Verify penalty applied | Sleep penalty applied for insufficient sleep | PENDING | Not yet executed | None | 2025-09-11 |
-| TC040 | Real-time calculation updates | Algorithm running | 1. Log habit time<br>2. Measure calculation speed<br>3. Verify real-time updates | Calculations update in real-time (<100ms) | PENDING | Not yet executed | None | 2025-09-11 |
+| TC031 | Algorithm config load + validation | Deployed config file available | 1. Launch app<br>2. Verify JSON parsed<br>3. Check schema validation result | Algorithm config loads successfully with schema validation | PENDING | Not yet executed | None | 2025-09-26 |
+| TC032 | Config fallback behavior | Config file removed/corrupt | 1. Corrupt/remove JSON<br>2. Relaunch app<br>3. Verify defaults applied and warning logged | Engine falls back to baked-in defaults without crash | PENDING | Not yet executed | None | 2025-09-26 |
+| TC033 | Sleep time earning calculation | Algorithm running | 1. Log 8 hours sleep<br>2. Calculate earned screen time<br>3. Verify against config | Earned time matches config-defined sleep rate (default 200 min) | PENDING | Not yet executed | None | 2025-09-11 |
+| TC034 | Exercise time earning calculation | Algorithm running | 1. Log 1 hour exercise<br>2. Calculate earned screen time<br>3. Verify against config | Earned time matches config-defined exercise rate (default 20 min) | PENDING | Not yet executed | None | 2025-09-11 |
+| TC035 | Outdoor time earning calculation | Algorithm running | 1. Log 1 hour outdoor time<br>2. Calculate earned screen time<br>3. Verify against config | Earned time matches config-defined outdoor rate (default 15 min) | PENDING | Not yet executed | None | 2025-09-11 |
+| TC036 | Productive time earning calculation | Algorithm running | 1. Log 1 hour productive time<br>2. Calculate earned screen time<br>3. Verify against config | Earned time matches config-defined productive rate (default 10 min) | PENDING | Not yet executed | None | 2025-09-11 |
+| TC037 | POWER+ Mode detection | Config thresholds loaded | 1. Complete 3 of 4 habit goals<br>2. Check POWER+ status<br>3. Verify bonus activation | POWER+ Mode activates when configured thresholds met | PENDING | Not yet executed | None | 2025-09-11 |
+| TC038 | POWER+ Mode bonus calculation | POWER+ Mode active | 1. Verify base earned time<br>2. Check bonus addition from config<br>3. Confirm total | Bonus minutes equal config-defined value (default 30 min) | PENDING | Not yet executed | None | 2025-09-11 |
+| TC039 | Daily cap/penalty enforcement | Algorithm running | 1. Exceed category caps<br>2. Trigger sleep penalty<br>3. Verify totals | Caps and penalties enforced exactly as defined in config | PENDING | Not yet executed | None | 2025-09-26 |
+| TC040 | Real-time calculation updates | Algorithm running | 1. Edit habit values<br>2. Measure calculation speed<br>3. Verify result | Calculations update in real-time (<100ms) using active config | PENDING | Not yet executed | None | 2025-09-26 |
 
 ---
 
@@ -81,16 +81,16 @@
 
 | Test ID | Test Case | Prerequisites | Test Steps | Expected Result | Status | Observations | Defects | Last Updated |
 |---------|-----------|---------------|------------|-----------------|--------|--------------|---------|--------------|
-| TC041 | Plus button time addition | Manual entry interface loaded | 1. Tap + button for sleep<br>2. Verify time increment<br>3. Check daily total update | + button adds 15 minutes to habit category | PENDING | Not yet executed | None | 2025-09-11 |
-| TC042 | Minus button time subtraction | Manual entry interface loaded | 1. Tap - button for exercise<br>2. Verify time decrement<br>3. Check daily total update | - button subtracts 15 minutes from habit category | PENDING | Not yet executed | None | 2025-09-11 |
-| TC043 | Daily total display | Manual entry active | 1. Add time to multiple habits<br>2. Check daily total display<br>3. Verify accuracy | Daily totals display correctly for each habit category | PENDING | Not yet executed | None | 2025-09-11 |
-| TC044 | Real-time screen time updates | Manual entry active | 1. Add habit time<br>2. Check earned screen time<br>3. Verify immediate update | Earned screen time updates immediately after manual entry | PENDING | Not yet executed | None | 2025-09-11 |
-| TC045 | Negative value prevention | Manual entry interface loaded | 1. Try to subtract from zero time<br>2. Verify prevention<br>3. Check error handling | Negative values prevented, shows minimum is 0 | PENDING | Not yet executed | None | 2025-09-11 |
-| TC046 | Daily maximum enforcement | Manual entry active | 1. Try to exceed daily maximum<br>2. Verify limit enforcement<br>3. Check user feedback | Daily maximums enforced with user notification | PENDING | Not yet executed | None | 2025-09-11 |
-| TC047 | Button debouncing | Manual entry interface loaded | 1. Rapidly tap + button<br>2. Count actual increments<br>3. Verify debouncing | Rapid button presses debounced to prevent double-counting | PENDING | Not yet executed | None | 2025-09-11 |
-| TC048 | Data persistence | Manual entry completed | 1. Add manual time entries<br>2. Close and reopen app<br>3. Verify data saved | Manual entries persist across app sessions | PENDING | Not yet executed | None | 2025-09-11 |
-| TC049 | Visual feedback | Manual entry interface loaded | 1. Tap buttons<br>2. Observe visual feedback<br>3. Check user experience | Button presses provide clear visual feedback | PENDING | Not yet executed | None | 2025-09-11 |
-| TC050 | All habit categories consistency | Manual entry interface loaded | 1. Test + and - for all habits<br>2. Verify consistent behavior<br>3. Check all categories work | All habit categories work consistently with manual entry | PENDING | Not yet executed | None | 2025-09-11 |
+| TC041 | Sleep hour chip selection | Entry pad displayed | 1. Tap 7h chip<br>2. Toggle +30 min<br>3. Verify total | Sleep entry reflects selected chips and optional half-hour | PENDING | Not yet executed | None | 2025-09-26 |
+| TC042 | Exercise quick preset | Entry pad displayed | 1. Choose "45 min session" preset<br>2. Confirm entry<br>3. Verify daily total | Exercise total updates using preset value | PENDING | Not yet executed | None | 2025-09-26 |
+| TC043 | Custom minute slider | Entry pad displayed | 1. Select 1 hour<br>2. Adjust minutes slider to 15<br>3. Save entry | Total reflects combined hours/minutes (1h15m) | PENDING | Not yet executed | None | 2025-09-26 |
+| TC044 | Real-time algorithm update | Manual entry active | 1. Log time via entry pad<br>2. Observe earned screen time<br>3. Verify immediate update | Earned screen time updates instantly after entry submission | PENDING | Not yet executed | None | 2025-09-26 |
+| TC045 | Negative value prevention | Entry pad active | 1. Attempt to reduce below zero<br>2. Verify control disabled<br>3. Check feedback | Entry pad prevents negative totals with clear feedback | PENDING | Not yet executed | None | 2025-09-26 |
+| TC046 | Daily maximum enforcement | Entry pad active | 1. Attempt to exceed category max<br>2. Observe warning<br>3. Verify cap | Entry pad enforces category caps with inline messaging | PENDING | Not yet executed | None | 2025-09-26 |
+| TC047 | Same-as-last-time shortcut | Entry pad active | 1. Tap "Same as last time" for Outdoor<br>2. Verify autofill<br>3. Save entry | Previous value applied correctly to current day | PENDING | Not yet executed | None | 2025-09-26 |
+| TC048 | Timer/manual toggle persistence | Log screen displayed | 1. Switch between Timer and Manual tabs<br>2. Start timer<br>3. Return to manual entry | Toggle preserves state and enforces single-activity rules | PENDING | Not yet executed | None | 2025-09-26 |
+| TC049 | Data persistence | Manual entry completed | 1. Submit entries<br>2. Restart app<br>3. Verify values retained | Manual entries persist across sessions | PENDING | Not yet executed | None | 2025-09-26 |
+| TC050 | Cross-category consistency | Entry pad active | 1. Repeat flows for all categories<br>2. Verify consistent behavior<br>3. Check UI feedback | Entry pad behaves consistently for Sleep, Exercise, Outdoor, Productive | PENDING | Not yet executed | None | 2025-09-26 |
 
 ---
 
@@ -98,16 +98,16 @@
 
 | Test ID | Test Case | Prerequisites | Test Steps | Expected Result | Status | Observations | Defects | Last Updated |
 |---------|-----------|---------------|------------|-----------------|--------|--------------|---------|--------------|
-| TC051 | Live calculation accuracy | Screen time display implemented | 1. Log habit time<br>2. Check immediate calculation<br>3. Verify accuracy | Earned screen time calculated accurately in real-time | PENDING | Not yet executed | None | 2025-09-11 |
-| TC052 | Prominent display visibility | Screen time display active | 1. View main screen<br>2. Check earned time visibility<br>3. Verify prominence | Earned screen time displayed prominently and clearly | PENDING | Not yet executed | None | 2025-09-11 |
-| TC053 | Breakdown by habit category | Screen time display active | 1. Check category breakdown<br>2. Verify individual contributions<br>3. Check accuracy | Screen time breakdown by habit category shown accurately | PENDING | Not yet executed | None | 2025-09-11 |
-| TC054 | POWER+ Mode status updates | POWER+ Mode conditions met | 1. Achieve POWER+ Mode<br>2. Check status display<br>3. Verify visual indication | POWER+ Mode status updates and displays correctly | PENDING | Not yet executed | None | 2025-09-11 |
-| TC055 | Visual progress indicators | Screen time display active | 1. Check progress bars/indicators<br>2. Verify visual feedback<br>3. Check accuracy | Visual progress indicators reflect current progress accurately | PENDING | Not yet executed | None | 2025-09-11 |
-| TC056 | Update response time | Screen time system active | 1. Log habit time<br>2. Measure update time<br>3. Verify performance | Display updates within 100ms response time | PENDING | Not yet executed | None | 2025-09-11 |
-| TC057 | Earned vs used time distinction | Screen time display active | 1. Check earned time display<br>2. Check used time display<br>3. Verify visual distinction | Clear visual distinction between earned and used screen time | PENDING | Not yet executed | None | 2025-09-11 |
-| TC058 | Algorithm validation | Screen time calculations active | 1. Manually verify calculations<br>2. Check against algorithm specs<br>3. Verify accuracy | All calculations match algorithm specifications exactly | PENDING | Not yet executed | None | 2025-09-11 |
-| TC059 | Edge value handling | Screen time display active | 1. Test zero values<br>2. Test maximum values<br>3. Check edge case handling | Display handles edge values (0, max) gracefully | PENDING | Not yet executed | None | 2025-09-11 |
-| TC060 | Performance impact | Screen time display active | 1. Monitor performance during updates<br>2. Check memory usage<br>3. Verify no performance degradation | Real-time updates don't impact app performance | PENDING | Not yet executed | None | 2025-09-11 |
+| TC051 | Donut chart accuracy | Dashboard displayed | 1. Log habit time<br>2. Observe earned vs used donut<br>3. Verify proportions | Donut chart reflects earned and used time accurately | PENDING | Not yet executed | None | 2025-09-26 |
+| TC052 | Arc gauge updates | Dashboard displayed | 1. Increase habit totals<br>2. Watch arc gauge changes<br>3. Verify goal ticks | Arc gauges update in sync with habit totals and goal markers | PENDING | Not yet executed | None | 2025-09-26 |
+| TC053 | Category summaries | Dashboard displayed | 1. Log values for all categories<br>2. Check textual summaries<br>3. Verify clarity | Text summaries show "Xh • Goal Yh" format accurately | PENDING | Not yet executed | None | 2025-09-26 |
+| TC054 | POWER+ badge visibility | POWER+ Mode achieved | 1. Meet thresholds<br>2. Observe badge/animation<br>3. Verify display | POWER+ badge appears prominently with animation | PENDING | Not yet executed | None | 2025-09-26 |
+| TC055 | Visual minimalism compliance | Dashboard displayed | 1. Inspect styling<br>2. Compare with design spec<br>3. Verify cleanliness | Dashboard matches minimalist design guidelines | PENDING | Not yet executed | None | 2025-09-26 |
+| TC056 | Update response time | Screen time system active | 1. Log habit time<br>2. Measure chart update speed<br>3. Verify performance | Charts update within 100ms response window | PENDING | Not yet executed | None | 2025-09-26 |
+| TC057 | Earned vs used distinction | Dashboard displayed | 1. Observe donut segments<br>2. Verify legend/text<br>3. Confirm clarity | Earned and used time visually distinct in color and legend | PENDING | Not yet executed | None | 2025-09-26 |
+| TC058 | Algorithm validation | Screen time calculations active | 1. Compare chart values with config<br>2. Cross-check totals<br>3. Verify accuracy | Visuals align with algorithm outputs from dynamic engine | PENDING | Not yet executed | None | 2025-09-26 |
+| TC059 | Edge value handling | Dashboard displayed | 1. Set zero values<br>2. Set maximum values<br>3. Check rendering | Charts handle 0 and cap values gracefully (no visual glitches) | PENDING | Not yet executed | None | 2025-09-26 |
+| TC060 | Performance impact | Dashboard displayed | 1. Monitor performance during rapid updates<br>2. Check memory usage<br>3. Verify smoothness | Dashboard renders without jank or memory spikes | PENDING | Not yet executed | None | 2025-09-26 |
 
 ---
 
@@ -217,14 +217,14 @@
 
 | Test ID | Test Case | Prerequisites | Test Steps | Expected Result | Status | Observations | Defects | Last Updated |
 |---------|-----------|---------------|------------|-----------------|--------|--------------|---------|--------------|
-| TC121 | 7-day history display | Historical data available | 1. View historical data screen<br>2. Check 7-day display<br>3. Verify data accuracy | Past 7 days of habit tracking displayed accurately | PENDING | Not yet executed | None | 2025-09-11 |
-| TC122 | Daily habit summaries | Multiple days of data | 1. Check daily summaries<br>2. Verify summary accuracy<br>3. Check completeness | Daily habit summaries show complete and accurate information | PENDING | Not yet executed | None | 2025-09-11 |
+| TC121 | Algorithm version persistence | Historical data available | 1. Log habits across days<br>2. Inspect stored entries<br>3. Verify version field | Each daily entry stores the active algorithm version | PENDING | Not yet executed | None | 2025-09-26 |
+| TC122 | 7-day history display | Historical data available | 1. View history screen<br>2. Check 7-day display<br>3. Verify accuracy | Past 7 days of habit tracking displayed accurately | PENDING | Not yet executed | None | 2025-09-11 |
 | TC123 | Earned screen time history | Historical data available | 1. Check earned time history<br>2. Verify historical accuracy<br>3. Check trend visibility | Earned screen time history displayed with clear trends | PENDING | Not yet executed | None | 2025-09-11 |
-| TC124 | POWER+ Mode achievement tracking | Historical POWER+ data | 1. Check POWER+ history<br>2. Verify achievement tracking<br>3. Check visual indicators | POWER+ Mode achievements tracked and displayed in history | PENDING | Not yet executed | None | 2025-09-11 |
-| TC125 | Trend indicators | Historical data with trends | 1. Check trend indicators<br>2. Verify trend accuracy<br>3. Check visual clarity | Simple trend indicators show patterns clearly | PENDING | Not yet executed | None | 2025-09-11 |
+| TC124 | POWER+ Mode achievement tracking | Historical POWER+ data | 1. Check POWER+ history<br>2. Verify tracking<br>3. Check visual indicators | POWER+ Mode achievements tracked and displayed in history | PENDING | Not yet executed | None | 2025-09-11 |
+| TC125 | Trend indicators with sparklines | Historical data with trends | 1. View habit sparklines<br>2. Verify trend accuracy<br>3. Check visual clarity | Sparklines show clear upward/downward trends | PENDING | Not yet executed | None | 2025-09-26 |
 | TC126 | Visual timeline representation | Historical data available | 1. Check timeline display<br>2. Verify chronological order<br>3. Check visual design | Visual timeline represents historical data chronologically | PENDING | Not yet executed | None | 2025-09-11 |
 | TC127 | Progress comparison over time | Multiple days of data | 1. Compare different days<br>2. Check comparison accuracy<br>3. Verify insights | Progress comparison over time provides useful insights | PENDING | Not yet executed | None | 2025-09-11 |
-| TC128 | Data export capability | Historical data available | 1. Trigger data export<br>2. Check export format<br>3. Verify data completeness | Data export works correctly with complete historical data | PENDING | Not yet executed | None | 2025-09-11 |
+| TC128 | Data export capability | Historical data available | 1. Trigger data export<br>2. Check export format<br>3. Verify completeness | Data export works correctly with complete historical data | PENDING | Not yet executed | None | 2025-09-11 |
 | TC129 | Performance with large datasets | Extensive historical data | 1. Load large dataset<br>2. Check performance<br>3. Verify responsiveness | Historical data display performs well with large datasets | PENDING | Not yet executed | None | 2025-09-11 |
 | TC130 | Privacy compliance | Historical data handling | 1. Check data retention<br>2. Verify privacy compliance<br>3. Check data protection | Historical data handling complies with privacy requirements | PENDING | Not yet executed | None | 2025-09-11 |
 

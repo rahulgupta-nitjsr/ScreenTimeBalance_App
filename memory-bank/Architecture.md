@@ -301,6 +301,13 @@ User Action → Local SQLite → Background Sync → Firebase Firestore
 4. **Cloud Storage**: Synced to Firebase Firestore
 5. **Conflict Resolution**: Last-write-wins strategy
 
+#### **Algorithm Configuration Pipeline**
+- **Source**: `assets/config/earning_algorithm.json`
+- **Loader**: `AlgorithmConfigService` validates schema, provides defaults when file missing/corrupt
+- **Engine**: `DynamicAlgorithmService` consumes config to calculate earned time, POWER+ thresholds, penalties
+- **Version Tracking**: Active config version persisted with each `DailyHabitEntry` and exposed to UI/analytics layers
+- **Developer Hot Reload**: Debug-only hook to reload config without rebuilding app (supports rapid iteration)
+
 ### 📊 **Data Models**
 
 #### **User Model**
@@ -455,7 +462,7 @@ class AlgorithmNotifier extends _$AlgorithmNotifier {
   AlgorithmResult build() => AlgorithmResult.empty();
   
   void calculateEarnedTime(List<Habit> habits) {
-    final result = AlgorithmService.calculate(habits);
+    final result = ref.read(dynamicAlgorithmServiceProvider).calculate(habits);
     state = result;
   }
 }

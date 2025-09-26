@@ -9,6 +9,7 @@ import '../utils/app_router.dart';
 import '../utils/app_keys.dart';
 import '../utils/theme.dart';
 import '../providers/navigation_provider.dart';
+import '../widgets/home_dashboard.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -93,18 +94,7 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: AppTheme.spaceXL),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceMD),
-                          child: Text(
-                            '"The journey of a thousand miles begins with a single step."',
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  color: AppTheme.textLight,
-                                  fontStyle: FontStyle.italic,
-                                  height: 1.4,
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
+                        const HomeDashboard(),
                         const SizedBox(height: AppTheme.space2XL),
                         _buildActionButtons(context, ref),
                       ],
