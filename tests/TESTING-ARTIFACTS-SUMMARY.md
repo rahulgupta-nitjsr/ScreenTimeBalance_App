@@ -8,6 +8,17 @@
 
 ## 📋 Complete Testing Artifacts Package
 
+### **🚨 CRITICAL: Test Directory Structure**
+
+**ALWAYS use these established test directories:**
+- ✅ **Flutter Tests**: `ScreenTimeBalance\tests\flutter\`
+- ✅ **Unit Tests**: `ScreenTimeBalance\tests\flutter\unit\`
+- ✅ **Widget Tests**: `ScreenTimeBalance\tests\flutter\widget\`
+- ✅ **Integration Tests**: `ScreenTimeBalance\tests\flutter\integration\`
+- ✅ **Test Mocks**: `ScreenTimeBalance\tests\flutter\mocks\`
+
+**❌ NEVER create new test folders** - Always use the existing structure and place test artifacts in the designated locations.
+
 ### **🎯 Testing Documentation**
 - ✅ **`tests/README.md`** - Complete testing documentation with workflow and process flows
 - ✅ **`tests/test-cases.md`** - Master test cases spreadsheet (180 test cases)
