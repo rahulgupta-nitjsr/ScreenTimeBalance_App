@@ -19,11 +19,28 @@ tests/
 │   ├── test-users.json       # Test user accounts
 │   ├── test-habits.json      # Sample habit data
 │   └── test-environments.json # Environment configurations
+├── flutter/                   # Flutter-specific tests
+│   ├── unit/                 # Unit tests
+│   ├── widget/               # Widget tests
+│   ├── integration/          # Integration tests
+│   ├── mocks/                # Test mocks
+│   └── feature*_test.dart    # Feature-specific tests
 └── logs/                      # Test execution logs
     ├── execution-logs/       # Test execution logs
     ├── error-logs/          # Error and exception logs
     └── performance-logs/    # Performance monitoring logs
 ```
+
+### **🚨 CRITICAL: Test Directory Usage Rules**
+
+**ALWAYS use these established test directories:**
+- ✅ **Flutter Tests**: `ScreenTimeBalance\tests\flutter\`
+- ✅ **Unit Tests**: `ScreenTimeBalance\tests\flutter\unit\`
+- ✅ **Widget Tests**: `ScreenTimeBalance\tests\flutter\widget\`
+- ✅ **Integration Tests**: `ScreenTimeBalance\tests\flutter\integration\`
+- ✅ **Test Mocks**: `ScreenTimeBalance\tests\flutter\mocks\`
+
+**❌ NEVER create new test folders** - Always use the existing structure and place test artifacts in the designated locations.
 
 ---
 

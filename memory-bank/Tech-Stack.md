@@ -641,6 +641,17 @@ flutter test
 ### Testing Framework - Flutter Test
 **Purpose**: Comprehensive testing for Flutter applications
 
+#### **🚨 CRITICAL: Test Directory Structure**
+
+**ALWAYS use these established test directories:**
+- ✅ **Flutter Tests**: `ScreenTimeBalance\tests\flutter\`
+- ✅ **Unit Tests**: `ScreenTimeBalance\tests\flutter\unit\`
+- ✅ **Widget Tests**: `ScreenTimeBalance\tests\flutter\widget\`
+- ✅ **Integration Tests**: `ScreenTimeBalance\tests\flutter\integration\`
+- ✅ **Test Mocks**: `ScreenTimeBalance\tests\flutter\mocks\`
+
+**❌ NEVER create new test folders** - Always use the existing structure and place test artifacts in the designated locations.
+
 #### Testing Levels
 1. **Unit Tests**: Individual function testing
 2. **Widget Tests**: UI component testing

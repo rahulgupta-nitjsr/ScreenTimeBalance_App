@@ -116,11 +116,22 @@ This implementation plan references **Testing-Plan.md** for detailed test cases,
 6. Create `lib/utils/` directory for helper functions
 
 #### Step 3: Set Up Testing Structure
-1. Create `test/unit/` directory for unit tests
-2. Create `test/widget/` directory for widget tests
-3. Create `test/integration/` directory for integration tests
-4. Create `test/mocks/` directory for test mocks
-5. Set up test configuration files
+**🚨 CRITICAL: Use Established Test Directories**
+
+**ALWAYS use these existing test directories:**
+- ✅ **Flutter Tests**: `ScreenTimeBalance\tests\flutter\`
+- ✅ **Unit Tests**: `ScreenTimeBalance\tests\flutter\unit\`
+- ✅ **Widget Tests**: `ScreenTimeBalance\tests\flutter\widget\`
+- ✅ **Integration Tests**: `ScreenTimeBalance\tests\flutter\integration\`
+- ✅ **Test Mocks**: `ScreenTimeBalance\tests\flutter\mocks\`
+
+**❌ NEVER create new test folders** - Always use the existing structure and place test artifacts in the designated locations.
+
+1. Use existing `tests/flutter/unit/` directory for unit tests
+2. Use existing `tests/flutter/widget/` directory for widget tests
+3. Use existing `tests/flutter/integration/` directory for integration tests
+4. Use existing `tests/flutter/mocks/` directory for test mocks
+5. Set up test configuration files in the established structure
 
 ### Dependency Installation
 
