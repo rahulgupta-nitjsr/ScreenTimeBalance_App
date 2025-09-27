@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../models/habit_category.dart';
 import '../providers/algorithm_provider.dart';
 import '../providers/minutes_provider.dart';
+import '../providers/timer_provider.dart';
 import '../utils/app_router.dart';
 import '../utils/theme.dart';
 import '../widgets/bottom_navigation.dart';
@@ -26,6 +27,35 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    
+    // Listen for timer completion
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setupTimerListener();
+    });
+  }
+
+  void _setupTimerListener() {
+    // Listen for timer state changes
+    ref.listen(timerManagerProvider, (previous, next) {
+      if (previous?.activeCategory != null && next.activeCategory == null) {
+        // Timer was stopped, add the elapsed time to the category
+        final elapsedMinutes = (previous!.elapsedSeconds / 60).round();
+        if (elapsedMinutes > 0) {
+          final category = previous.activeCategory!;
+          final minutesNotifier = ref.read(minutesByCategoryProvider.notifier);
+          final currentMinutes = ref.read(minutesByCategoryProvider)[category] ?? 0;
+          minutesNotifier.setMinutes(category, currentMinutes + elapsedMinutes);
+          
+          // Show completion message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${category.label} timer completed: ${elapsedMinutes}m'),
+              backgroundColor: AppTheme.primaryGreen,
+            ),
+          );
+        }
+      }
+    });
   }
 
   @override
@@ -232,6 +262,10 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
   }
 
   Widget _buildTimerCard(BuildContext context) {
+    final timerState = ref.watch(timerManagerProvider);
+    final timerManager = ref.read(timerManagerProvider.notifier);
+    final activeCategory = timerState.activeCategory;
+    
     return GlassCard(
       padding: const EdgeInsets.symmetric(
         horizontal: AppTheme.spaceXL,
@@ -241,7 +275,7 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            '00:00:00',
+            _formatTimerDisplay(timerState.elapsedSeconds),
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontFamily: 'Spline Sans',
                   letterSpacing: 2,
@@ -249,21 +283,61 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
           ),
           const SizedBox(height: AppTheme.spaceSM),
           Text(
-            'Timer coming soon',
+            activeCategory != null 
+                ? '${activeCategory.label} Timer'
+                : 'Select a category to start timer',
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: AppTheme.spaceLG),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ZenButton.success('Start', onPressed: () {}),
-              const SizedBox(width: AppTheme.spaceMD),
-              ZenButton.secondary('Stop', onPressed: () {}),
-            ],
-          ),
+          if (activeCategory != null) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ZenButton.secondary('Stop', onPressed: () {
+                  timerManager.stopTimer();
+                }),
+                const SizedBox(width: AppTheme.spaceMD),
+                ZenButton.success('Pause', onPressed: () {
+                  timerManager.pauseTimer();
+                }),
+              ],
+            ),
+          ] else ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (final category in HabitCategory.values)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceXS),
+                    child: ZenButton.outline(
+                      category.label,
+                      onPressed: () {
+                        try {
+                          timerManager.startTimer(category);
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(e.toString()),
+                              backgroundColor: Colors.orange,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  String _formatTimerDisplay(int seconds) {
+    final hours = seconds ~/ 3600;
+    final minutes = (seconds % 3600) ~/ 60;
+    final secs = seconds % 60;
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
   Widget _buildTotalsList(BuildContext context) {
