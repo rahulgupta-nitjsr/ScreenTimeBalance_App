@@ -6,6 +6,7 @@ import '../models/habit_category.dart';
 import '../providers/algorithm_provider.dart';
 import '../providers/minutes_provider.dart';
 import '../providers/timer_provider.dart';
+import '../providers/repository_providers.dart';
 import '../utils/app_keys.dart';
 import '../utils/app_router.dart';
 import '../utils/theme.dart';
@@ -29,35 +30,9 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     
-    // Listen for timer completion
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _setupTimerListener();
-    });
+    // Timer listener will be set up in build method
   }
 
-  void _setupTimerListener() {
-    // Listen for timer state changes
-    ref.listen(timerManagerProvider, (previous, next) {
-      if (previous?.activeCategory != null && next.activeCategory == null) {
-        // Timer was stopped, add the elapsed time to the category
-        final elapsedMinutes = (previous!.elapsedSeconds / 60).round();
-        if (elapsedMinutes > 0) {
-          final category = previous.activeCategory!;
-          final minutesNotifier = ref.read(minutesByCategoryProvider.notifier);
-          final currentMinutes = ref.read(minutesByCategoryProvider)[category] ?? 0;
-          minutesNotifier.setMinutes(category, currentMinutes + elapsedMinutes);
-          
-          // Show completion message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${category.label} timer completed: ${elapsedMinutes}m'),
-              backgroundColor: AppTheme.primaryGreen,
-            ),
-          );
-        }
-      }
-    });
-  }
 
   @override
   void dispose() {
@@ -306,21 +281,24 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
             const SizedBox(height: AppTheme.spaceLG),
             _buildActiveCategoryBadge(context, activeCategory, timerState.isPaused),
           ] else ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (final category in HabitCategory.values)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceXS),
-                    child: ZenButton.outline(
-                      category.label,
-                      key: _categoryKey(category),
-                      onPressed: () {
-                        _startTimerForCategory(context, timerManager, category);
-                      },
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (final category in HabitCategory.values)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceXS),
+                      child: ZenButton.outline(
+                        category.label,
+                        key: _categoryKey(category),
+                        onPressed: () {
+                          _startTimerForCategory(context, timerManager, category);
+                        },
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ],
         ],
@@ -499,9 +477,9 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
   Future<void> _handleTimerCompletion(
     BuildContext context,
     HabitCategory category,
-    TimerStopResult result,
-    {bool fromCancellation = false},
-  ) async {
+    TimerStopResult result, {
+    bool fromCancellation = false,
+  }) async {
     if (result.wasCancelled || fromCancellation) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

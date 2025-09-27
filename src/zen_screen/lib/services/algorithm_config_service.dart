@@ -102,6 +102,7 @@ class AlgorithmConfigService {
     }
   }
 
+
   void dispose() {
     _controller?.close();
     _fileWatcher?.cancel();

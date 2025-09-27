@@ -63,6 +63,11 @@ class DailyHabitRepository {
     return _fromDbMap(rows.first);
   }
 
+  // Alias for getEntry to match expected interface
+  Future<DailyHabitEntry?> getEntryForDate({required String userId, required DateTime date}) async {
+    return getEntry(userId: userId, date: date);
+  }
+
   Future<List<DailyHabitEntry>> getEntriesWithinRange({
     required String userId,
     required DateTime start,

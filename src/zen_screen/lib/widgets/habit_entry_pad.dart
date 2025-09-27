@@ -50,6 +50,12 @@ class _HabitEntryPadState extends ConsumerState<HabitEntryPad> with SingleTicker
     _initializeFromState();
   }
 
+  /// Initialize state from current data
+  void _initializeFromState() {
+    // This method can be implemented to refresh state from database
+    // For now, it's a placeholder
+  }
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
@@ -221,8 +227,14 @@ class _CategoryEntryPaneState extends ConsumerState<_CategoryEntryPane> {
   /// Get daily maximum for this category from algorithm config
   int _getDailyMaximum() {
     final config = ref.read(algorithmConfigProvider);
-    final categoryConfig = config.category(widget.category.id);
-    return categoryConfig?.maxMinutes ?? 0;
+    return config.when(
+      data: (configData) {
+        final categoryConfig = configData.categories[widget.category.id];
+        return categoryConfig?.maxMinutes ?? 0;
+      },
+      loading: () => 0,
+      error: (_, __) => 0,
+    );
   }
 
   /// Get current daily total for this category
@@ -256,7 +268,7 @@ class _CategoryEntryPaneState extends ConsumerState<_CategoryEntryPane> {
     // Performance optimization: use cached values when possible
     final dailyMax = _cachedDailyMax ?? _getDailyMaximum();
     final currentTotal = _cachedCurrentTotal ?? _getCurrentDailyTotal();
-    final canEdit = _cachedCanEdit ?? ref.watch(canEditManuallyProvider(widget.category));
+    final canEdit = _cachedCanEdit ?? ref.watch(canEditManuallyProvider(widget.category)) ?? true;
     final activeCategory = ref.watch(activeTimerCategoryProvider);
     
     // Update cache if values changed

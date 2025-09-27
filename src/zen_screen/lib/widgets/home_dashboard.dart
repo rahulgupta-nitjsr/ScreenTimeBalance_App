@@ -244,9 +244,12 @@ class _DonutLegend extends StatelessWidget {
           children: [
             _legendDot(AppTheme.secondaryGreen),
             const SizedBox(width: AppTheme.spaceXS),
-            Text(
-              '${_format(earned)} earned',
-              style: theme.textTheme.titleMedium,
+            Flexible(
+              child: Text(
+                '${_format(earned)} earned',
+                style: theme.textTheme.titleMedium,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -256,9 +259,12 @@ class _DonutLegend extends StatelessWidget {
           children: [
             _legendDot(AppTheme.textLight.withOpacity(0.7)),
             const SizedBox(width: AppTheme.spaceXS),
-            Text(
-              '${_format(used)} used',
-              style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textLight),
+            Flexible(
+              child: Text(
+                '${_format(used)} used',
+                style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textLight),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -268,9 +274,13 @@ class _DonutLegend extends StatelessWidget {
           children: [
             _legendDot(AppTheme.borderLight),
             const SizedBox(width: AppTheme.spaceXS),
-            Text(
-              '${_format(remaining)} remaining · Cap ${_format(cap)}',
-              style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textLight),
+            Flexible(
+              child: Text(
+                '${_format(remaining)} remaining · Cap ${_format(cap)}',
+                style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textLight),
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),

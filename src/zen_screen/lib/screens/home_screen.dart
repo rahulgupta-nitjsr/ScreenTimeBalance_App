@@ -11,6 +11,7 @@ import '../utils/theme.dart';
 import '../providers/navigation_provider.dart';
 import '../widgets/home_dashboard.dart';
 import '../providers/algorithm_provider.dart';
+import '../services/algorithm_service.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -89,7 +90,7 @@ class HomeScreen extends ConsumerWidget {
                               _buildPowerModeIndicator(context, ref),
                               const SizedBox(height: AppTheme.spaceLG),
                               ZenLinearProgressBar(
-                                progress: _calculateProgress(algorithmResult),
+                                progress: _calculateProgress(ref, algorithmResult),
                                 showLabel: true,
                                 label: 'Daily Progress',
                               ),
@@ -180,7 +181,7 @@ class HomeScreen extends ConsumerWidget {
     return '${hours}h ${minutes}m';
   }
 
-  double _calculateProgress(AlgorithmResult result) {
+  double _calculateProgress(WidgetRef ref, AlgorithmResult result) {
     final config = ref.read(algorithmConfigProvider).value;
     if (config == null) return 0.0;
     

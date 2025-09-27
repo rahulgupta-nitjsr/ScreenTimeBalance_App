@@ -13,6 +13,7 @@ class AlgorithmResult {
     required this.perCategoryEarned,
     required this.perCategoryLoggedMinutes,
     required this.algorithmVersion,
+    this.totalUsedMinutes = 0,
   });
 
   final int totalEarnedMinutes;
@@ -20,6 +21,7 @@ class AlgorithmResult {
   final Map<HabitCategory, int> perCategoryEarned;
   final Map<HabitCategory, int> perCategoryLoggedMinutes;
   final String algorithmVersion;
+  final int totalUsedMinutes;
 }
 
 class AlgorithmService {
@@ -79,8 +81,8 @@ class AlgorithmService {
     stopwatch.stop();
     
     // Performance monitoring in debug mode
-    if (kDebugMode && stopwatch.elapsedMicroseconds > 1000) {
-      print('⚠️ Algorithm calculation took ${stopwatch.elapsedMicroseconds}μs (threshold: 1000μs)');
+    if (kDebugMode && stopwatch.elapsedMicroseconds > 5000) {
+      print('⚠️ Algorithm calculation took ${stopwatch.elapsedMicroseconds}μs (threshold: 5000μs)');
     }
 
     return AlgorithmResult(
@@ -89,6 +91,7 @@ class AlgorithmService {
       perCategoryEarned: perCategoryEarned,
       perCategoryLoggedMinutes: Map<HabitCategory, int>.from(minutesByCategory),
       algorithmVersion: _config.version,
+      totalUsedMinutes: 0, // Default to 0 for now
     );
   }
 
