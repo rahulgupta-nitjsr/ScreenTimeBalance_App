@@ -21,6 +21,7 @@ class DailyHabitRepository {
     required int usedScreenTime,
     required bool powerModeUnlocked,
     required String algorithmVersion,
+    int? manualAdjustmentMinutes,
   }) async {
     final sanitizedMinutes = _sanitizeMinutes(minutesByCategory);
     _validateInputs(
@@ -44,6 +45,7 @@ class DailyHabitRepository {
       algorithmVersion: algorithmVersion,
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
+      manualAdjustmentMinutes: manualAdjustmentMinutes ?? existing?.manualAdjustmentMinutes ?? 0,
     );
 
     await _database.insert(_table, _toDbMap(entry));

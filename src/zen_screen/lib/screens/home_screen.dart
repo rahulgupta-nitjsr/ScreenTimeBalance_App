@@ -10,12 +10,15 @@ import '../utils/app_keys.dart';
 import '../utils/theme.dart';
 import '../providers/navigation_provider.dart';
 import '../widgets/home_dashboard.dart';
+import '../providers/algorithm_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final algorithmResult = ref.watch(algorithmResultProvider);
+    
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -79,14 +82,14 @@ class HomeScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: AppTheme.spaceSM),
                               Text(
-                                '1h 23m',
+                                _formatMinutes(algorithmResult.totalEarnedMinutes),
                                 style: Theme.of(context).textTheme.headlineLarge,
                               ),
                               const SizedBox(height: AppTheme.spaceMD),
-                              _buildPowerModeIndicator(context),
+                              _buildPowerModeIndicator(context, ref),
                               const SizedBox(height: AppTheme.spaceLG),
                               ZenLinearProgressBar(
-                                progress: 0.64,
+                                progress: _calculateProgress(algorithmResult),
                                 showLabel: true,
                                 label: 'Daily Progress',
                               ),
@@ -110,24 +113,27 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPowerModeIndicator(BuildContext context) {
+  Widget _buildPowerModeIndicator(BuildContext context, WidgetRef ref) {
+    final algorithmResult = ref.watch(algorithmResultProvider);
+    final isActive = algorithmResult.powerModeUnlocked;
+    
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
           width: 8,
           height: 8,
-          decoration: const BoxDecoration(
-            color: AppTheme.secondaryGreen,
+          decoration: BoxDecoration(
+            color: isActive ? AppTheme.secondaryGreen : AppTheme.textLight,
             shape: BoxShape.circle,
           ),
         ),
         const SizedBox(width: 8),
         Text(
-          'POWER+ Mode: Active',
+          isActive ? 'POWER+ Mode: Active' : 'POWER+ Mode: Locked',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.w500,
-            color: AppTheme.textDark,
+            color: isActive ? AppTheme.textDark : AppTheme.textLight,
           ),
         ),
       ],
@@ -164,5 +170,25 @@ class HomeScreen extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  String _formatMinutes(int totalMinutes) {
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    if (hours == 0) return '${minutes}m';
+    if (minutes == 0) return '${hours}h';
+    return '${hours}h ${minutes}m';
+  }
+
+  double _calculateProgress(AlgorithmResult result) {
+    final config = ref.read(algorithmConfigProvider).value;
+    if (config == null) return 0.0;
+    
+    final cap = result.powerModeUnlocked 
+        ? config.dailyCaps.powerPlusMinutes 
+        : config.dailyCaps.baseMinutes;
+    
+    if (cap <= 0) return 0.0;
+    return (result.totalEarnedMinutes / cap).clamp(0.0, 1.0);
   }
 }

@@ -113,6 +113,7 @@ class AlgorithmService {
       minutesByCategory: minutesByCategory,
       earnedScreenTime: result.totalEarnedMinutes,
       usedScreenTime: usedScreenTime,
+      manualAdjustmentMinutes: 0,
       powerModeUnlocked: result.powerModeUnlocked,
       algorithmVersion: result.algorithmVersion,
       createdAt: now,

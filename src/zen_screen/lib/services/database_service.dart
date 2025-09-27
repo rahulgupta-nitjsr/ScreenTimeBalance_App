@@ -10,7 +10,7 @@ class DatabaseService {
 
   Database? _database;
   static const _dbName = 'zen_screen.db';
-  static const _dbVersion = 2;
+  static const _dbVersion = 3;
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -63,6 +63,7 @@ class DatabaseService {
         minutes_productive INTEGER NOT NULL,
         earned_screen_time INTEGER NOT NULL,
         used_screen_time INTEGER NOT NULL,
+        manual_adjustment_minutes INTEGER NOT NULL DEFAULT 0,
         power_mode_unlocked INTEGER NOT NULL,
         algorithm_version TEXT NOT NULL,
         created_at TEXT NOT NULL,
@@ -93,6 +94,7 @@ class DatabaseService {
         duration_minutes INTEGER,
         status TEXT NOT NULL,
         created_at TEXT NOT NULL,
+        updated_at TEXT,
         synced_at TEXT,
         notes TEXT,
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -140,6 +142,14 @@ class DatabaseService {
           ''');
           await db.execute('''
             CREATE UNIQUE INDEX IF NOT EXISTS idx_daily_user_unique ON daily_habit_entries(user_id, entry_date)
+          ''');
+          break;
+        case 2:
+          await db.execute('''
+            ALTER TABLE timer_sessions ADD COLUMN updated_at TEXT
+          ''');
+          await db.execute('''
+            ALTER TABLE daily_habit_entries ADD COLUMN manual_adjustment_minutes INTEGER NOT NULL DEFAULT 0
           ''');
           break;
       }

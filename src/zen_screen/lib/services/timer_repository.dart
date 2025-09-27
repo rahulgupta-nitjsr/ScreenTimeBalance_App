@@ -19,13 +19,15 @@ class TimerRepository {
     DateTime? startTime,
   }) async {
     _validateUser(userId);
+    final now = DateTime.now();
     final session = TimerSession(
       id: _uuid.v4(),
       userId: userId,
       category: category,
-      startTime: startTime ?? DateTime.now(),
+      startTime: startTime ?? now,
       status: TimerSessionStatus.running,
-      createdAt: DateTime.now(),
+      createdAt: now,
+      updatedAt: now,
     );
     await _database.insert(_table, session.toDbMap());
     return session;
@@ -35,8 +37,13 @@ class TimerRepository {
     _validateUser(userId);
     final rows = await _database.query(
       _table,
-      where: 'user_id = ? AND status = ?',
-      whereArgs: [userId, TimerSessionStatus.running.name],
+      where: 'user_id = ? AND status IN (?, ?)',
+      whereArgs: [
+        userId,
+        TimerSessionStatus.running.name,
+        TimerSessionStatus.paused.name,
+      ],
+      orderBy: 'created_at DESC',
       limit: 1,
     );
     if (rows.isEmpty) return null;
@@ -53,14 +60,48 @@ class TimerRepository {
     if (durationMinutes != null && durationMinutes < 0) {
       throw ArgumentError('durationMinutes cannot be negative');
     }
+    final now = DateTime.now();
     final updated = session.copyWith(
       status: status,
       endTime: endTime ?? DateTime.now(),
       durationMinutes: durationMinutes,
+      updatedAt: now,
       notes: notes,
     );
     await _database.insert(_table, updated.toDbMap());
     return updated;
+  }
+
+  Future<void> updateStatus({
+    required String sessionId,
+    required TimerSessionStatus status,
+    DateTime? timestamp,
+    int? durationMinutes,
+    String? notes,
+  }) async {
+    final now = timestamp ?? DateTime.now();
+    final values = <String, Object?>{
+      'status': status.name,
+      'updated_at': now.toIso8601String(),
+    };
+
+    if (durationMinutes != null) {
+      if (durationMinutes < 0) {
+        throw ArgumentError('durationMinutes cannot be negative');
+      }
+      values['duration_minutes'] = durationMinutes;
+    }
+
+    if (notes != null) {
+      values['notes'] = notes;
+    }
+
+    await _database.update(
+      _table,
+      values,
+      where: 'id = ?',
+      whereArgs: [sessionId],
+    );
   }
 
   TimerSession _fromDbMap(Map<String, dynamic> map) => TimerSession.fromDbMap(map);

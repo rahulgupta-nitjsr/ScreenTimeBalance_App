@@ -1,6 +1,6 @@
 import 'habit_category.dart';
 
-enum TimerSessionStatus { running, completed, cancelled }
+enum TimerSessionStatus { running, paused, completed, cancelled }
 
 class TimerSession {
   TimerSession({
@@ -12,6 +12,7 @@ class TimerSession {
     this.durationMinutes,
     required this.status,
     required this.createdAt,
+    this.updatedAt,
     this.syncedAt,
     this.notes,
   });
@@ -24,25 +25,31 @@ class TimerSession {
   final int? durationMinutes;
   final TimerSessionStatus status;
   final DateTime createdAt;
+  final DateTime? updatedAt;
   final DateTime? syncedAt;
   final String? notes;
 
   TimerSession copyWith({
+    String? id,
+    DateTime? startTime,
     DateTime? endTime,
     int? durationMinutes,
     TimerSessionStatus? status,
+    DateTime? createdAt,
+    DateTime? updatedAt,
     DateTime? syncedAt,
     String? notes,
   }) {
     return TimerSession(
-      id: id,
+      id: id ?? this.id,
       userId: userId,
       category: category,
-      startTime: startTime,
+      startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
       durationMinutes: durationMinutes ?? this.durationMinutes,
       status: status ?? this.status,
-      createdAt: createdAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       syncedAt: syncedAt ?? this.syncedAt,
       notes: notes ?? this.notes,
     );
@@ -58,6 +65,7 @@ class TimerSession {
       'durationMinutes': durationMinutes,
       'status': status.name,
       'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
       'syncedAt': syncedAt?.toIso8601String(),
       'notes': notes,
     };
@@ -73,6 +81,7 @@ class TimerSession {
       durationMinutes: map['durationMinutes'] != null ? (map['durationMinutes'] as num).toInt() : null,
       status: TimerSessionStatus.values.byName(map['status'] as String),
       createdAt: DateTime.parse(map['createdAt'] as String),
+      updatedAt: map['updatedAt'] != null ? DateTime.parse(map['updatedAt'] as String) : null,
       syncedAt: map['syncedAt'] != null ? DateTime.parse(map['syncedAt'] as String) : null,
       notes: map['notes'] as String?,
     );
@@ -88,6 +97,7 @@ class TimerSession {
       'duration_minutes': durationMinutes,
       'status': status.name,
       'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
       'synced_at': syncedAt?.toIso8601String(),
       'notes': notes,
     };
@@ -103,6 +113,7 @@ class TimerSession {
       durationMinutes: map['duration_minutes'] != null ? (map['duration_minutes'] as num).toInt() : null,
       status: TimerSessionStatus.values.byName(map['status'] as String),
       createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: map['updated_at'] != null ? DateTime.parse(map['updated_at'] as String) : null,
       syncedAt: map['synced_at'] != null ? DateTime.parse(map['synced_at'] as String) : null,
       notes: map['notes'] as String?,
     );

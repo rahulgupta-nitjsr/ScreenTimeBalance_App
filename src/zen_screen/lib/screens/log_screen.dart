@@ -6,6 +6,7 @@ import '../models/habit_category.dart';
 import '../providers/algorithm_provider.dart';
 import '../providers/minutes_provider.dart';
 import '../providers/timer_provider.dart';
+import '../utils/app_keys.dart';
 import '../utils/app_router.dart';
 import '../utils/theme.dart';
 import '../widgets/bottom_navigation.dart';
@@ -137,45 +138,7 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Center(
-                          child: GlassCard(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppTheme.spaceXL,
-                              vertical: AppTheme.spaceLG,
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  '00:00:00',
-                                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                        fontFamily: 'Spline Sans',
-                                        letterSpacing: 2,
-                                      ),
-                                ),
-                                const SizedBox(height: AppTheme.spaceSM),
-                                Text(
-                                  'Sleep Timer',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                const SizedBox(height: AppTheme.spaceLG),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    ZenButton.success(
-                                      'Start Timer',
-                                      onPressed: () {},
-                                    ),
-                                    const SizedBox(width: AppTheme.spaceMD),
-                                    ZenButton.secondary(
-                                      'Stop',
-                                      onPressed: () {},
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                        _buildActiveTimerBanner(context),
                         const SizedBox(height: AppTheme.spaceXL),
                         TabBar(
                           controller: _tabController,
@@ -284,7 +247,7 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
           const SizedBox(height: AppTheme.spaceSM),
           Text(
             activeCategory != null 
-                ? '${activeCategory.label} Timer'
+                ? '${activeCategory.label} Timer${_getTimerStatusText(timerState)}'
                 : 'Select a category to start timer',
             style: Theme.of(context).textTheme.bodySmall,
           ),
@@ -293,15 +256,55 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ZenButton.secondary('Stop', onPressed: () {
-                  timerManager.stopTimer();
-                }),
+                ZenButton.secondary(
+                  'Stop',
+                  key: AppKeys.timerStopButton,
+                  onPressed: () async {
+                    final result = await timerManager.stopTimer();
+                    if (!mounted) return;
+                    await _handleTimerCompletion(
+                      context,
+                      activeCategory,
+                      result,
+                    );
+                  },
+                ),
                 const SizedBox(width: AppTheme.spaceMD),
-                ZenButton.success('Pause', onPressed: () {
-                  timerManager.pauseTimer();
-                }),
+                if (timerState.isPaused)
+                  ZenButton.success(
+                    'Resume',
+                    key: AppKeys.timerResumeButton,
+                    onPressed: () {
+                      timerManager.resumeTimer();
+                    },
+                  )
+                else
+                  ZenButton.success(
+                    'Pause',
+                    key: AppKeys.timerPauseButton,
+                    onPressed: () {
+                      timerManager.pauseTimer();
+                    },
+                  ),
+                const SizedBox(width: AppTheme.spaceMD),
+                ZenButton.outline(
+                  'Cancel',
+                  key: AppKeys.timerCancelButton,
+                  onPressed: () async {
+                    final result = await timerManager.cancelTimer(reason: 'User cancelled');
+                    if (!mounted) return;
+                    await _handleTimerCompletion(
+                      context,
+                      activeCategory,
+                      result,
+                      fromCancellation: true,
+                    );
+                  },
+                ),
               ],
             ),
+            const SizedBox(height: AppTheme.spaceLG),
+            _buildActiveCategoryBadge(context, activeCategory, timerState.isPaused),
           ] else ...[
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -311,17 +314,9 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
                     padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceXS),
                     child: ZenButton.outline(
                       category.label,
+                      key: _categoryKey(category),
                       onPressed: () {
-                        try {
-                          timerManager.startTimer(category);
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(e.toString()),
-                              backgroundColor: Colors.orange,
-                            ),
-                          );
-                        }
+                        _startTimerForCategory(context, timerManager, category);
                       },
                     ),
                   ),
@@ -333,6 +328,237 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
     );
   }
 
+  Widget _buildActiveTimerBanner(BuildContext context) {
+    final timerState = ref.watch(timerManagerProvider);
+    final activeCategory = timerState.activeCategory;
+    if (activeCategory == null) {
+      return const SizedBox.shrink();
+    }
+
+    return GlassCard(
+      key: AppKeys.timerStartBanner,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spaceXL,
+        vertical: AppTheme.spaceLG,
+      ),
+      child: Column(
+        children: [
+          Text(
+            _formatTimerDisplay(timerState.elapsedSeconds),
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontFamily: 'Spline Sans',
+                  letterSpacing: 2,
+                ),
+          ),
+          const SizedBox(height: AppTheme.spaceSM),
+          Text(
+            '${activeCategory.label} Timer ${timerState.isPaused ? '(Paused)' : ''}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getTimerStatusText(TimerState timerState) {
+    if (timerState.isPaused) {
+      return ' (Paused)';
+    } else if (timerState.elapsedSeconds > 8 * 60 * 60) { // 8+ hours
+      return ' (Long Session)';
+    } else if (timerState.elapsedSeconds > 4 * 60 * 60) { // 4+ hours  
+      return ' (Extended)';
+    }
+    return '';
+  }
+
+  Widget _buildActiveCategoryBadge(BuildContext context, HabitCategory category, bool isPaused) {
+    final theme = Theme.of(context);
+    final color = isPaused ? Colors.orange : AppTheme.primaryGreen;
+    final label = isPaused ? 'Paused' : 'Running';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spaceMD,
+        vertical: AppTheme.spaceSM,
+      ),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLG),
+        border: Border.all(color: color.withOpacity(0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(category.icon, color: color),
+          const SizedBox(width: AppTheme.spaceSM),
+          Text(
+            '${category.label} Timer $label',
+            style: theme.textTheme.bodyMedium?.copyWith(color: color, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _startTimerForCategory(
+    BuildContext context,
+    TimerManager timerManager,
+    HabitCategory category,
+  ) async {
+    try {
+      await timerManager.startTimer(category);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${category.label} timer started'),
+          backgroundColor: AppTheme.primaryGreen,
+        ),
+      );
+    } on TimerConflictException catch (e) {
+      // Show dialog offering to switch timers
+      final shouldSwitch = await _showTimerSwitchDialog(context, category);
+      if (shouldSwitch == true) {
+        await _switchToTimer(context, timerManager, category);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to start timer: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<bool?> _showTimerSwitchDialog(BuildContext context, HabitCategory newCategory) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Timer Already Running'),
+        content: Text(
+          'You already have a timer running. Would you like to stop the current timer and start the ${newCategory.label} timer instead?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Switch Timer'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _switchToTimer(
+    BuildContext context,
+    TimerManager timerManager,
+    HabitCategory category,
+  ) async {
+    try {
+      // Stop current timer first
+      final timerState = ref.read(timerManagerProvider);
+      final currentCategory = timerState.activeCategory;
+      final result = await timerManager.stopTimer();
+      if (result.earnedMinutes > 0 && currentCategory != null) {
+        await _handleTimerCompletion(context, currentCategory, result);
+      }
+      
+      // Start new timer
+      await timerManager.startTimer(category);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Switched to ${category.label} timer'),
+          backgroundColor: AppTheme.primaryGreen,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to switch timer: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Key _categoryKey(HabitCategory category) {
+    switch (category) {
+      case HabitCategory.sleep:
+        return AppKeys.timerStartSleepButton;
+      case HabitCategory.exercise:
+        return AppKeys.timerStartExerciseButton;
+      case HabitCategory.outdoor:
+        return AppKeys.timerStartOutdoorButton;
+      case HabitCategory.productive:
+        return AppKeys.timerStartProductiveButton;
+    }
+  }
+
+  Future<void> _handleTimerCompletion(
+    BuildContext context,
+    HabitCategory category,
+    TimerStopResult result,
+    {bool fromCancellation = false},
+  ) async {
+    if (result.wasCancelled || fromCancellation) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${category.label} timer cancelled. No time recorded.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final earnedMinutes = result.earnedMinutes;
+    if (earnedMinutes <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${category.label} timer stopped with no time recorded'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final minutesNotifier = ref.read(minutesByCategoryProvider.notifier);
+    final config = await ref.read(algorithmConfigProvider.future);
+    final categoryConfig = config.category(category.id);
+    final maxMinutes = categoryConfig?.maxMinutes;
+
+    final currentMinutes = ref.read(minutesByCategoryProvider)[category] ?? 0;
+    final totalMinutes = currentMinutes + earnedMinutes;
+    minutesNotifier.setMinutesWithValidation(
+      category,
+      totalMinutes,
+      maxMinutes: maxMinutes,
+    );
+
+    final minutesMap = ref.read(minutesByCategoryProvider);
+    final algorithmService = ref.read(algorithmServiceProvider);
+    final repository = ref.read(dailyHabitRepositoryProvider);
+    final algorithmResult = algorithmService.calculate(minutesByCategory: minutesMap);
+
+    await repository.upsertEntry(
+      userId: 'local-user',
+      date: DateTime.now(),
+      minutesByCategory: minutesMap,
+      earnedScreenTime: algorithmResult.totalEarnedMinutes,
+      usedScreenTime: 0,
+      powerModeUnlocked: algorithmResult.powerModeUnlocked,
+      algorithmVersion: algorithmResult.algorithmVersion,
+    );
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${category.label} timer saved: ${_formatMinutes(earnedMinutes)}'),
+        backgroundColor: AppTheme.primaryGreen,
+      ),
+    );
+  }
   String _formatTimerDisplay(int seconds) {
     final hours = seconds ~/ 3600;
     final minutes = (seconds % 3600) ~/ 60;

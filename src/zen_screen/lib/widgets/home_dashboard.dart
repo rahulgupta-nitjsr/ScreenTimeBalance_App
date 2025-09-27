@@ -7,6 +7,7 @@ import '../models/algorithm_config.dart';
 import '../models/habit_category.dart';
 import '../providers/algorithm_provider.dart';
 import '../utils/theme.dart';
+import '../utils/app_keys.dart';
 
 class HomeDashboard extends ConsumerWidget {
   const HomeDashboard({super.key});
@@ -24,7 +25,11 @@ class HomeDashboard extends ConsumerWidget {
 
     return Column(
       children: [
-        _DonutChart(earned: result.totalEarnedMinutes, used: 0, cap: cap),
+        _DonutChart(
+          earned: result.totalEarnedMinutes,
+          used: result.totalUsedMinutes,
+          cap: cap,
+        ),
         const SizedBox(height: AppTheme.spaceXL),
         Wrap(
           spacing: AppTheme.spaceMD,
@@ -73,27 +78,45 @@ class _DonutChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final earnedFraction = cap == 0 ? 0.0 : earned / cap;
-    final usedFraction = cap == 0 ? 0.0 : used / cap;
-    return SizedBox(
-      width: 220,
-      height: 220,
-      child: CustomPaint(
-        painter: _DonutPainter(
-          earnedFraction: earnedFraction.clamp(0, 1),
-          usedFraction: usedFraction.clamp(0, 1),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('${earned ~/ 60}h ${earned % 60}m', style: theme.textTheme.headlineLarge),
-              const SizedBox(height: AppTheme.spaceXS),
-              Text('Earned', style: theme.textTheme.bodyMedium),
-              const SizedBox(height: AppTheme.spaceXS),
-              Text('Cap: ${cap ~/ 60}h ${cap % 60}m', style: theme.textTheme.labelMedium),
-            ],
-          ),
+    final normalizedCap = cap <= 0 ? (earned + used) : cap;
+    final earnedClamped = earned.clamp(0, normalizedCap);
+    final usedAvailable = normalizedCap - earnedClamped;
+    final usedClamped = used.clamp(0, usedAvailable);
+    final remainingRaw = normalizedCap - (earnedClamped + usedClamped);
+    final remaining = remainingRaw < 0 ? 0 : remainingRaw;
+
+    final earnedFraction = normalizedCap == 0 ? 0.0 : earnedClamped / normalizedCap;
+    final usedFraction = normalizedCap == 0 ? 0.0 : usedClamped / normalizedCap;
+    final remainingFraction = normalizedCap == 0 ? 0.0 : remaining / normalizedCap;
+
+    return Semantics(
+      label: 'Daily screen time donut chart',
+      child: SizedBox(
+        key: AppKeys.dashboardDonutChart,
+        width: 240,
+        height: 240,
+        child: Column(
+          children: [
+            Expanded(
+              child: CustomPaint(
+                painter: _DonutPainter(
+                  earnedFraction: earnedFraction,
+                  usedFraction: usedFraction,
+                  remainingFraction: remainingFraction,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppTheme.spaceSM),
+            Semantics(
+              label: 'Legend showing earned, used, and remaining screen time values',
+              child: _DonutLegend(
+                earned: earnedClamped,
+                used: usedClamped,
+                remaining: remaining,
+                cap: normalizedCap,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -101,10 +124,15 @@ class _DonutChart extends StatelessWidget {
 }
 
 class _DonutPainter extends CustomPainter {
-  _DonutPainter({required this.earnedFraction, required this.usedFraction});
+  _DonutPainter({
+    required this.earnedFraction,
+    required this.usedFraction,
+    required this.remainingFraction,
+  });
 
   final double earnedFraction;
   final double usedFraction;
+  final double remainingFraction;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -127,7 +155,13 @@ class _DonutPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final usedPaint = Paint()
-      ..color = AppTheme.textLight
+      ..color = AppTheme.textLight.withOpacity(0.7)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final remainingPaint = Paint()
+      ..color = AppTheme.borderLight
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
@@ -140,26 +174,128 @@ class _DonutPainter extends CustomPainter {
       basePaint,
     );
 
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
-      -math.pi / 2,
-      earnedFraction * 2 * math.pi,
-      false,
-      earnedPaint,
-    );
+    double startAngle = -math.pi / 2;
 
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
-      -math.pi / 2,
-      usedFraction * 2 * math.pi,
-      false,
-      usedPaint,
-    );
+    final earnedSweep = earnedFraction * 2 * math.pi;
+    if (earnedSweep > 0) {
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+        startAngle,
+        earnedSweep,
+        false,
+        earnedPaint,
+      );
+      startAngle += earnedSweep;
+    }
+
+    final usedSweep = usedFraction * 2 * math.pi;
+    if (usedSweep > 0) {
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+        startAngle,
+        usedSweep,
+        false,
+        usedPaint,
+      );
+      startAngle += usedSweep;
+    }
+
+    final remainingSweep = remainingFraction * 2 * math.pi;
+    if (remainingSweep > 0) {
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+        startAngle,
+        remainingSweep,
+        false,
+        remainingPaint,
+      );
+    }
   }
 
   @override
   bool shouldRepaint(_DonutPainter oldDelegate) {
-    return oldDelegate.earnedFraction != earnedFraction || oldDelegate.usedFraction != usedFraction;
+    return oldDelegate.earnedFraction != earnedFraction ||
+        oldDelegate.usedFraction != usedFraction ||
+        oldDelegate.remainingFraction != remainingFraction;
+  }
+}
+
+class _DonutLegend extends StatelessWidget {
+  const _DonutLegend({
+    required this.earned,
+    required this.used,
+    required this.remaining,
+    required this.cap,
+  });
+
+  final int earned;
+  final int used;
+  final int remaining;
+  final int cap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      key: AppKeys.dashboardDonutLegend,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _legendDot(AppTheme.secondaryGreen),
+            const SizedBox(width: AppTheme.spaceXS),
+            Text(
+              '${_format(earned)} earned',
+              style: theme.textTheme.titleMedium,
+            ),
+          ],
+        ),
+        const SizedBox(height: AppTheme.spaceXS),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _legendDot(AppTheme.textLight.withOpacity(0.7)),
+            const SizedBox(width: AppTheme.spaceXS),
+            Text(
+              '${_format(used)} used',
+              style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textLight),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppTheme.spaceXS),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _legendDot(AppTheme.borderLight),
+            const SizedBox(width: AppTheme.spaceXS),
+            Text(
+              '${_format(remaining)} remaining · Cap ${_format(cap)}',
+              style: theme.textTheme.bodySmall?.copyWith(color: AppTheme.textLight),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _legendDot(Color color) {
+    return Container(
+      width: 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+
+  String _format(int minutes) {
+    final safeMinutes = minutes < 0 ? 0 : minutes;
+    final hours = safeMinutes ~/ 60;
+    final mins = safeMinutes % 60;
+    if (hours == 0) return '${mins}m';
+    if (mins == 0) return '${hours}h';
+    return '${hours}h ${mins}m';
   }
 }
 

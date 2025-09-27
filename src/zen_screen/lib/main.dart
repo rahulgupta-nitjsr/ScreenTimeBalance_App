@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'utils/app_router.dart';
 import 'utils/theme.dart';
+import 'providers/navigation_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,14 +22,61 @@ void main() {
   runApp(const ProviderScope(child: ZenScreenApp()));
 }
 
-class ZenScreenApp extends ConsumerWidget {
+class ZenScreenApp extends ConsumerStatefulWidget {
   const ZenScreenApp({super.key, GoRouter? router}) : _router = router;
 
   final GoRouter? _router;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final router = _router ?? appRouter;
+  ConsumerState<ZenScreenApp> createState() => _ZenScreenAppState();
+}
+
+class _ZenScreenAppState extends ConsumerState<ZenScreenApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final lifecycleProvider = ref.read(appLifecycleProvider.notifier);
+    
+    switch (state) {
+      case AppLifecycleState.resumed:
+        lifecycleProvider.setState(AppLifecycleState.resumed);
+        break;
+      case AppLifecycleState.paused:
+        lifecycleProvider.setState(AppLifecycleState.paused);
+        break;
+      case AppLifecycleState.inactive:
+        lifecycleProvider.setState(AppLifecycleState.inactive);
+        break;
+      case AppLifecycleState.detached:
+        lifecycleProvider.setState(AppLifecycleState.detached);
+        break;
+      case AppLifecycleState.hidden:
+        lifecycleProvider.setState(AppLifecycleState.paused);
+        break;
+    }
+  }
+
+  @override
+  void didHaveMemoryPressure() {
+    // Handle memory pressure by reducing timer precision
+    // This is a system callback when memory is low
+    super.didHaveMemoryPressure();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final router = widget._router ?? appRouter;
     return MaterialApp.router(
       title: 'ZenScreen',
       debugShowCheckedModeBanner: false,

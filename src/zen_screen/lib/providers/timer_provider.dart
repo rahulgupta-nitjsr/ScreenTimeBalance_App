@@ -1,115 +1,306 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../models/habit_category.dart';
+import '../models/timer_session.dart';
+import '../services/timer_repository.dart';
+import 'repository_providers.dart';
+import 'navigation_provider.dart';
+import 'algorithm_provider.dart';
 
 part 'timer_provider.g.dart';
 
 /// Timer state for tracking active timers
 class TimerState {
   const TimerState({
-    this.activeCategory,
-    this.startTime,
+    this.session,
     this.elapsedSeconds = 0,
   });
 
-  final HabitCategory? activeCategory;
-  final DateTime? startTime;
+  final TimerSession? session;
   final int elapsedSeconds;
 
+  HabitCategory? get activeCategory => session?.category;
+  bool get isRunning => session?.status == TimerSessionStatus.running;
+  bool get isPaused => session?.status == TimerSessionStatus.paused;
+  bool get hasActiveOrPausedSession => session != null && (isRunning || isPaused);
+
   TimerState copyWith({
-    HabitCategory? activeCategory,
-    DateTime? startTime,
+    TimerSession? session,
     int? elapsedSeconds,
   }) {
     return TimerState(
-      activeCategory: activeCategory ?? this.activeCategory,
-      startTime: startTime ?? this.startTime,
+      session: session ?? this.session,
       elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,
     );
   }
+}
 
-  bool get isActive => activeCategory != null;
-  bool get isCategoryActive => (HabitCategory category) => activeCategory == category;
+class TimerStopResult {
+  const TimerStopResult({
+    required this.earnedMinutes,
+    required this.status,
+  });
+
+  final int earnedMinutes;
+  final TimerSessionStatus status;
+
+  bool get wasCompleted => status == TimerSessionStatus.completed;
+  bool get wasCancelled => status == TimerSessionStatus.cancelled;
 }
 
 /// Timer provider for managing active timers
 @riverpod
 class TimerManager extends _$TimerManager {
   Timer? _tickTimer;
+  TimerRepository? _repository;
+  String? _userId;
+  DateTime? _lastSystemTime;
+  bool _isLowBatteryMode = false;
 
   @override
   TimerState build() {
+    ref.onDispose(() {
+      _tickTimer?.cancel();
+    });
+
+    _repository = ref.read(timerRepositoryProvider);
+    _userId = ref.read(currentUserIdProvider);
+
+    // Listen to app lifecycle changes
+    ref.listen(appLifecycleProvider, (previous, next) {
+      _handleLifecycleChange(next);
+    });
+
+    // Attempt to restore any in-progress session on startup
+    _restoreSession();
+
     return const TimerState();
   }
 
+  void _handleLifecycleChange(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // App resumed - restore timer if it was running
+        _restoreSession();
+        break;
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+        // App backgrounded - timer continues but we pause the ticker
+        // The actual timer continues based on startTime, ticker is just for UI
+        break;
+      case AppLifecycleState.detached:
+        // App is being destroyed - cleanup
+        _tickTimer?.cancel();
+        break;
+    }
+  }
+
+  Future<void> _restoreSession() async {
+    final repo = _repository;
+    final userId = _userId;
+    if (repo == null || userId == null) return;
+
+    final existing = await repo.getActiveSession(userId);
+    if (existing != null) {
+      final now = DateTime.now();
+      final elapsed = now.difference(existing.startTime).inSeconds;
+      state = TimerState(
+        session: existing,
+        elapsedSeconds: elapsed,
+      );
+      _startTicker(resume: existing.status == TimerSessionStatus.running);
+    }
+  }
+
+  void _startTicker({bool resume = true}) {
+    _tickTimer?.cancel();
+    if (!resume) return;
+
+    _tickTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      final session = state.session;
+      if (session == null) {
+        timer.cancel();
+        return;
+      }
+      final now = DateTime.now();
+      
+      // Check for system time changes (timezone/clock adjustments)
+      if (_lastSystemTime != null) {
+        final timeDiff = now.difference(_lastSystemTime!);
+        if (timeDiff.inSeconds.abs() > 2) { // More than 2 seconds difference
+          timer.cancel();
+          _autoStopTimer('Timer stopped due to system time change');
+          return;
+        }
+      }
+      _lastSystemTime = now;
+      
+      final elapsed = now.difference(session.startTime).inSeconds;
+      
+      // Auto-stop timer after 24 hours for safety
+      if (elapsed >= 24 * 60 * 60) {
+        timer.cancel();
+        _autoStopTimer('Timer auto-stopped after 24 hours for safety');
+        return;
+      }
+      
+      // Check for day rollover (timer started yesterday)
+      final startDate = DateTime(session.startTime.year, session.startTime.month, session.startTime.day);
+      final currentDate = DateTime(now.year, now.month, now.day);
+      if (startDate != currentDate) {
+        timer.cancel();
+        _autoStopTimer('Timer stopped due to day rollover');
+        return;
+      }
+      
+      // Battery optimization: reduce tick frequency in low battery mode
+      if (_isLowBatteryMode && elapsed % 5 != 0) {
+        return; // Only update every 5 seconds in low battery mode
+      }
+      
+      state = state.copyWith(elapsedSeconds: elapsed);
+    });
+  }
+
+  Future<void> _autoStopTimer(String reason) async {
+    final result = await stopTimer(notes: reason);
+    // Auto-stopped timers are treated as completed with earned time
+    if (result.earnedMinutes > 0) {
+      // Update the daily habit entry
+      final category = state.session?.category;
+      if (category != null) {
+        final minutesNotifier = ref.read(minutesByCategoryProvider.notifier);
+        final currentMinutes = ref.read(minutesByCategoryProvider)[category] ?? 0;
+        minutesNotifier.setMinutesWithValidation(category, currentMinutes + result.earnedMinutes);
+      }
+    }
+  }
+
   /// Start a timer for the specified category
-  void startTimer(HabitCategory category) {
-    if (state.isActive && state.activeCategory != category) {
-      // Another timer is already running
+  Future<void> startTimer(HabitCategory category) async {
+    if (state.session != null && state.session!.category != category && state.hasActiveOrPausedSession) {
       throw TimerConflictException(
-        'Only one timer can be active at once. '
-        'Stop the current ${state.activeCategory!.label} timer first.',
+        'Only one timer can be active at once. Stop the current ${state.session!.category.label} timer first.',
       );
     }
 
-    if (state.isActive && state.activeCategory == category) {
-      // Timer for this category is already running
-      return;
+    final repo = _repository;
+    final userId = _userId;
+    if (repo == null || userId == null) {
+      throw StateError('Timer repository not available');
     }
 
-    _tickTimer?.cancel();
-    _tickTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        final now = DateTime.now();
-        final elapsed = state.startTime != null 
-            ? now.difference(state.startTime!).inSeconds
-            : 0;
-        
-        state = state.copyWith(elapsedSeconds: elapsed);
-      }
-    });
+    TimerSession session;
+    if (state.session != null && state.session!.category == category) {
+      // Resume existing session if paused
+      final existing = state.session!;
+      session = existing.copyWith(status: TimerSessionStatus.running);
+      await repo.updateStatus(sessionId: session.id, status: TimerSessionStatus.running);
+    } else {
+      session = await repo.startSession(userId: userId, category: category);
+    }
 
-    state = state.copyWith(
-      activeCategory: category,
-      startTime: DateTime.now(),
-      elapsedSeconds: 0,
-    );
+    state = TimerState(session: session, elapsedSeconds: 0);
+    _startTicker();
   }
 
   /// Stop the current timer
-  void stopTimer() {
+  Future<TimerStopResult> stopTimer({
+    TimerSessionStatus completionStatus = TimerSessionStatus.completed,
+    String? notes,
+  }) async {
     _tickTimer?.cancel();
     _tickTimer = null;
-    
+
+    final repo = _repository;
+    final session = state.session;
+    if (repo == null || session == null) {
+      state = const TimerState();
+      return TimerStopResult(earnedMinutes: 0, status: completionStatus);
+    }
+
+    final now = DateTime.now();
+    final elapsedSeconds = now.difference(session.startTime).inSeconds;
+    final earnedMinutes = (elapsedSeconds / 60).floor();
+
+    await repo.endSession(
+      session: session,
+      status: completionStatus,
+      endTime: now,
+      durationMinutes: earnedMinutes,
+      notes: notes,
+    );
+
     state = const TimerState();
+    return TimerStopResult(earnedMinutes: earnedMinutes, status: completionStatus);
   }
 
   /// Pause the current timer
-  void pauseTimer() {
+  Future<void> pauseTimer() async {
+    final session = state.session;
+    if (session == null) return;
+
+    await _repository?.updateStatus(
+      sessionId: session.id,
+      status: TimerSessionStatus.paused,
+      timestamp: DateTime.now(),
+    );
+
     _tickTimer?.cancel();
     _tickTimer = null;
-    
-    // Keep the state but stop the tick timer
+
+    state = state.copyWith(
+      session: session.copyWith(status: TimerSessionStatus.paused),
+    );
+  }
+
+  /// Cancel the current timer without logging time
+  Future<TimerStopResult> cancelTimer({String? reason}) async {
+    final session = state.session;
+    final result = await stopTimer(
+      completionStatus: TimerSessionStatus.cancelled,
+      notes: reason != null ? 'Cancelled: $reason' : 'Cancelled by user',
+    );
+
+    if (session != null) {
+      final now = DateTime.now();
+      final elapsedSeconds = now.difference(session.startTime).inSeconds;
+      final elapsedMinutes = (elapsedSeconds / 60).floor();
+      await _repository?.updateStatus(
+        sessionId: session.id,
+        status: TimerSessionStatus.cancelled,
+        timestamp: now,
+        durationMinutes: elapsedMinutes,
+        notes: reason,
+      );
+    }
+
+    return result;
   }
 
   /// Resume the current timer
-  void resumeTimer() {
-    if (!state.isActive) return;
-    
-    _tickTimer?.cancel();
-    _tickTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        final now = DateTime.now();
-        final elapsed = state.startTime != null 
-            ? now.difference(state.startTime!).inSeconds
-            : 0;
-        
-        state = state.copyWith(elapsedSeconds: elapsed);
-      }
-    });
+  Future<void> resumeTimer() async {
+    final session = state.session;
+    if (session == null) return;
+
+    await _repository?.updateStatus(
+      sessionId: session.id,
+      status: TimerSessionStatus.running,
+      timestamp: DateTime.now(),
+    );
+
+    _startTicker();
+    state = state.copyWith(
+      session: session.copyWith(status: TimerSessionStatus.running),
+    );
   }
 
   /// Get the current elapsed time in minutes
@@ -117,11 +308,46 @@ class TimerManager extends _$TimerManager {
 
   /// Check if a specific category can be manually edited
   bool canEditManually(HabitCategory category) {
-    return !state.isCategoryActive(category);
+    final session = state.session;
+    if (session == null) return true;
+    final active = session.category == category &&
+        (session.status == TimerSessionStatus.running || session.status == TimerSessionStatus.paused);
+    return !active;
   }
 
   /// Get the active timer category if any
-  HabitCategory? get activeCategory => state.activeCategory;
+  HabitCategory? get activeCategory => state.session?.category;
+
+  /// Enable low battery mode for timer optimization
+  void setLowBatteryMode(bool enabled) {
+    _isLowBatteryMode = enabled;
+    if (enabled && _tickTimer != null) {
+      // Restart ticker with battery optimization
+      _startTicker(resume: state.isRunning);
+    }
+  }
+
+  /// Handle memory pressure by reducing timer precision
+  void handleMemoryPressure() {
+    if (_tickTimer != null && state.isRunning) {
+      // Reduce tick frequency to every 10 seconds during memory pressure
+      _tickTimer?.cancel();
+      _tickTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+        if (!mounted) {
+          timer.cancel();
+          return;
+        }
+        final session = state.session;
+        if (session == null) {
+          timer.cancel();
+          return;
+        }
+        final now = DateTime.now();
+        final elapsed = now.difference(session.startTime).inSeconds;
+        state = state.copyWith(elapsedSeconds: elapsed);
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -150,5 +376,6 @@ bool canEditManually(CanEditManuallyRef ref, HabitCategory category) {
 @riverpod
 HabitCategory? activeTimerCategory(ActiveTimerCategoryRef ref) {
   final timerState = ref.watch(timerManagerProvider);
-  return timerState.activeCategory;
+  return timerState.session?.category;
 }
+

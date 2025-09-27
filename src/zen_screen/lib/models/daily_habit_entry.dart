@@ -12,6 +12,7 @@ class DailyHabitEntry {
     required this.algorithmVersion,
     required this.createdAt,
     required this.updatedAt,
+    this.manualAdjustmentMinutes = 0,
   });
 
   final String id;
@@ -24,6 +25,7 @@ class DailyHabitEntry {
   final String algorithmVersion;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final int manualAdjustmentMinutes;
 
   DailyHabitEntry copyWith({
     Map<HabitCategory, int>? minutesByCategory,
@@ -32,6 +34,7 @@ class DailyHabitEntry {
     bool? powerModeUnlocked,
     String? algorithmVersion,
     DateTime? updatedAt,
+    int? manualAdjustmentMinutes,
   }) {
     return DailyHabitEntry(
       id: id,
@@ -44,6 +47,7 @@ class DailyHabitEntry {
       algorithmVersion: algorithmVersion ?? this.algorithmVersion,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      manualAdjustmentMinutes: manualAdjustmentMinutes ?? this.manualAdjustmentMinutes,
     );
   }
 
@@ -59,6 +63,7 @@ class DailyHabitEntry {
       'algorithmVersion': algorithmVersion,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'manualAdjustmentMinutes': manualAdjustmentMinutes,
     };
   }
 
@@ -77,6 +82,7 @@ class DailyHabitEntry {
       'algorithm_version': algorithmVersion,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      'manual_adjustment_minutes': manualAdjustmentMinutes,
     };
   }
 
@@ -95,6 +101,7 @@ class DailyHabitEntry {
       algorithmVersion: map['algorithmVersion'] as String,
       createdAt: DateTime.parse(map['createdAt'] as String),
       updatedAt: DateTime.parse(map['updatedAt'] as String),
+      manualAdjustmentMinutes: (map['manualAdjustmentMinutes'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -117,6 +124,7 @@ class DailyHabitEntry {
       algorithmVersion: map['algorithm_version'] as String,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
+      manualAdjustmentMinutes: (map['manual_adjustment_minutes'] as num?)?.toInt() ?? 0,
     );
   }
 }
