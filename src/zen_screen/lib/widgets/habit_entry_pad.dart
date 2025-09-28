@@ -279,9 +279,10 @@ class _CategoryEntryPaneState extends ConsumerState<_CategoryEntryPane> {
     final isValid = _isValidTimeEntry(totalMinutes);
     final remainingMinutes = _getRemainingMinutes();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
         // Timer conflict warning
         if (!canEdit && activeCategory != null)
           Container(
@@ -388,6 +389,7 @@ class _CategoryEntryPaneState extends ConsumerState<_CategoryEntryPane> {
           ),
         ),
       ],
+      ),
     );
   }
 

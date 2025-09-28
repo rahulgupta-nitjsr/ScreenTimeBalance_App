@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,23 +46,23 @@ class _ZenScreenAppState extends ConsumerState<ZenScreenApp> with WidgetsBinding
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(ui.AppLifecycleState state) {
     final lifecycleProvider = ref.read(appLifecycleProvider.notifier);
     
     switch (state) {
-      case AppLifecycleState.resumed:
+      case ui.AppLifecycleState.resumed:
         lifecycleProvider.setState(AppLifecycleState.resumed);
         break;
-      case AppLifecycleState.paused:
+      case ui.AppLifecycleState.paused:
         lifecycleProvider.setState(AppLifecycleState.paused);
         break;
-      case AppLifecycleState.inactive:
+      case ui.AppLifecycleState.inactive:
         lifecycleProvider.setState(AppLifecycleState.inactive);
         break;
-      case AppLifecycleState.detached:
+      case ui.AppLifecycleState.detached:
         lifecycleProvider.setState(AppLifecycleState.detached);
         break;
-      case AppLifecycleState.hidden:
+      case ui.AppLifecycleState.hidden:
         lifecycleProvider.setState(AppLifecycleState.paused);
         break;
     }
