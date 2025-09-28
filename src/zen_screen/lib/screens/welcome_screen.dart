@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../utils/app_router.dart';
-import '../utils/app_keys.dart';
 import '../utils/theme.dart';
 import '../providers/navigation_provider.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/zen_button.dart';
 
@@ -13,6 +13,8 @@ class WelcomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authControllerProvider);
+    final isAuthenticated = authState is Authenticated;
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -69,7 +71,9 @@ class WelcomeScreen extends ConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Welcome to ZenScreen',
+                              isAuthenticated
+                                  ? 'Welcome back'
+                                  : 'Welcome to ZenScreen',
                               style: Theme.of(context).textTheme.headlineMedium,
                               textAlign: TextAlign.center,
                             ),
@@ -80,17 +84,33 @@ class WelcomeScreen extends ConsumerWidget {
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: AppTheme.spaceXL),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ZenButton.primary(
-                                'Get Started',
-                                key: AppKeys.welcomeGetStartedButton,
+                            if (isAuthenticated) ...[
+                              ZenButton.primary(
+                                'Continue to Dashboard',
                                 onPressed: () {
-                                  ref.read(navigationHistoryProvider.notifier).pushRoute(AppRoutes.home);
+                                  ref
+                                      .read(navigationHistoryProvider.notifier)
+                                      .pushRoute(AppRoutes.home);
                                   context.go(AppRoutes.home);
                                 },
                               ),
-                            ),
+                            ] else ...[
+                              SizedBox(
+                                width: double.infinity,
+                                child: ZenButton.primary(
+                                  'Create Account',
+                                  onPressed: () => context.go(AppRoutes.register),
+                                ),
+                              ),
+                              const SizedBox(height: AppTheme.spaceMD),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ZenButton.secondary(
+                                  'Sign In',
+                                  onPressed: () => context.go(AppRoutes.login),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),

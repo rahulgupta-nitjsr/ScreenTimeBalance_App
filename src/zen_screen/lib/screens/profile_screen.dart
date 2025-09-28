@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../utils/theme.dart';
+import '../utils/app_router.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/zen_button.dart';
 import '../widgets/zen_progress.dart';
+import '../providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -153,6 +156,16 @@ class ProfileScreen extends ConsumerWidget {
                                 icon: Icons.info_outline,
                                 title: 'About',
                                 subtitle: 'App version and info',
+                              ),
+                              const SizedBox(height: AppTheme.spaceLG),
+                              ZenButton.secondary(
+                                'Sign Out',
+                                onPressed: () async {
+                                  await ref.read(authControllerProvider.notifier).signOut();
+                                  if (context.mounted) {
+                                    context.go(AppRoutes.welcome);
+                                  }
+                                },
                               ),
                             ],
                           ),

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "211336002267",
+    "project_id": "zenscreen-efc9f",
+    "storage_bucket": "zenscreen-efc9f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211336002267:android:8507ba098fb5a9f5622afe",
+        "android_client_info": {
+          "package_name": "com.zenscreen.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnYSRYnp61xIfZDmv8LGmCyoXP77pdH64"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

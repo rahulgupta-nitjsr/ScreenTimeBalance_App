@@ -170,7 +170,7 @@ class _CanEditManuallyProviderElement extends AutoDisposeProviderElement<bool>
 }
 
 String _$activeTimerCategoryHash() =>
-    r'c9d0408dd511122b4ba561014e400a025d1a872b';
+    r'640c54e34956422312e043c4547f815e211424f9';
 
 /// Provider to get the active timer category
 ///
@@ -190,7 +190,7 @@ final activeTimerCategoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ActiveTimerCategoryRef = AutoDisposeProviderRef<HabitCategory?>;
-String _$timerManagerHash() => r'9d0e29266dea0d9456b68a899a54f040103e237e';
+String _$timerManagerHash() => r'5e5c142ab29ac58b81fdb7ed25f303402e926bb4';
 
 /// Timer provider for managing active timers
 ///

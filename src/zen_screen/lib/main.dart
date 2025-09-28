@@ -2,13 +2,18 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:go_router/go_router.dart';
+import 'firebase_options.dart';
 import 'utils/app_router.dart';
 import 'utils/theme.dart';
 import 'providers/navigation_provider.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
@@ -33,10 +38,13 @@ class ZenScreenApp extends ConsumerStatefulWidget {
 }
 
 class _ZenScreenAppState extends ConsumerState<ZenScreenApp> with WidgetsBindingObserver {
+  late final GoRouter _router;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _router = widget._router ?? appRouterFactory(ref: ref);
   }
 
   @override
@@ -77,12 +85,11 @@ class _ZenScreenAppState extends ConsumerState<ZenScreenApp> with WidgetsBinding
 
   @override
   Widget build(BuildContext context) {
-    final router = widget._router ?? appRouter;
     return MaterialApp.router(
       title: 'ZenScreen',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      routerConfig: router,
+      routerConfig: _router,
     );
   }
 }
