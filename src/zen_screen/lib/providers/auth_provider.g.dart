@@ -24,7 +24,7 @@ final authServiceProvider = AutoDisposeProvider<AuthService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AuthServiceRef = AutoDisposeProviderRef<AuthService>;
-String _$authControllerHash() => r'8212e2f2464be0b1cdfb4759927aaf0393e30fbe';
+String _$authControllerHash() => r'904ed15c5a43ff2bbbce801e4ae504cb1bf0e0d9';
 
 /// Notifier that bridges Firebase auth changes into app state.
 ///

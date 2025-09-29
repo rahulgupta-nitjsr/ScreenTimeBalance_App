@@ -8,6 +8,8 @@ import '../widgets/bottom_navigation.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/zen_button.dart';
 import '../widgets/zen_progress.dart';
+import '../widgets/sync_status_indicator.dart';
+import '../widgets/sync_stats_widget.dart';
 import '../providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -52,7 +54,7 @@ class ProfileScreen extends ConsumerWidget {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      const SizedBox(width: 48),
+                      const SyncStatusButton(),
                     ],
                   ),
                 ),
@@ -158,6 +160,18 @@ class ProfileScreen extends ConsumerWidget {
                                 subtitle: 'App version and info',
                               ),
                               const SizedBox(height: AppTheme.spaceLG),
+                              
+                              // Sync Status Section
+                              Text(
+                                'Data Sync',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: AppTheme.spaceMD),
+                              const SyncStatsWidget(),
+                              const SizedBox(height: AppTheme.spaceLG),
+                              
                               ZenButton.secondary(
                                 'Sign Out',
                                 onPressed: () async {

@@ -52,6 +52,31 @@ class UserProfile {
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
   }
+
+  /// Convert to Firestore document format
+  Map<String, dynamic> toFirestore() {
+    return {
+      'id': id,
+      'email': email,
+      'displayName': displayName,
+      'avatarUrl': avatarUrl,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'lastModified': updatedAt, // For sync tracking
+    };
+  }
+
+  /// Create from Firestore document
+  factory UserProfile.fromFirestore(Map<String, dynamic> data) {
+    return UserProfile(
+      id: data['id'] as String,
+      email: data['email'] as String,
+      displayName: data['displayName'] as String,
+      avatarUrl: data['avatarUrl'] as String?,
+      createdAt: (data['createdAt'] as DateTime),
+      updatedAt: (data['updatedAt'] as DateTime),
+    );
+  }
 }
 
 

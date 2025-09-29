@@ -127,4 +127,42 @@ class DailyHabitEntry {
       manualAdjustmentMinutes: (map['manual_adjustment_minutes'] as num?)?.toInt() ?? 0,
     );
   }
+
+  /// Convert to Firestore document format
+  Map<String, dynamic> toFirestore() {
+    return {
+      'id': id,
+      'userId': userId,
+      'date': date,
+      'minutesByCategory': minutesByCategory.map((key, value) => MapEntry(key.id, value)),
+      'earnedScreenTime': earnedScreenTime,
+      'usedScreenTime': usedScreenTime,
+      'powerModeUnlocked': powerModeUnlocked,
+      'algorithmVersion': algorithmVersion,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'lastModified': updatedAt, // For sync tracking
+      'manualAdjustmentMinutes': manualAdjustmentMinutes,
+    };
+  }
+
+  /// Create from Firestore document
+  factory DailyHabitEntry.fromFirestore(Map<String, dynamic> data) {
+    final minutes = (data['minutesByCategory'] as Map<String, dynamic>? ?? const {})
+        .map((key, value) => MapEntry(HabitCategoryX.fromId(key), (value as num).toInt()));
+
+    return DailyHabitEntry(
+      id: data['id'] as String,
+      userId: data['userId'] as String,
+      date: (data['date'] as DateTime),
+      minutesByCategory: minutes,
+      earnedScreenTime: (data['earnedScreenTime'] as num).toInt(),
+      usedScreenTime: (data['usedScreenTime'] as num).toInt(),
+      powerModeUnlocked: data['powerModeUnlocked'] as bool,
+      algorithmVersion: data['algorithmVersion'] as String,
+      createdAt: (data['createdAt'] as DateTime),
+      updatedAt: (data['updatedAt'] as DateTime),
+      manualAdjustmentMinutes: (data['manualAdjustmentMinutes'] as num?)?.toInt() ?? 0,
+    );
+  }
 }

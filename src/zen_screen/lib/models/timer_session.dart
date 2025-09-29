@@ -118,4 +118,39 @@ class TimerSession {
       notes: map['notes'] as String?,
     );
   }
+
+  /// Convert to Firestore document format
+  Map<String, dynamic> toFirestore() {
+    return {
+      'id': id,
+      'userId': userId,
+      'category': category.id,
+      'startTime': startTime,
+      'endTime': endTime,
+      'durationMinutes': durationMinutes,
+      'status': status.name,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'lastModified': updatedAt ?? createdAt, // For sync tracking
+      'syncedAt': syncedAt,
+      'notes': notes,
+    };
+  }
+
+  /// Create from Firestore document
+  factory TimerSession.fromFirestore(Map<String, dynamic> data) {
+    return TimerSession(
+      id: data['id'] as String,
+      userId: data['userId'] as String,
+      category: HabitCategoryX.fromId(data['category'] as String),
+      startTime: (data['startTime'] as DateTime),
+      endTime: data['endTime'] as DateTime?,
+      durationMinutes: (data['durationMinutes'] as num?)?.toInt(),
+      status: TimerSessionStatus.values.byName(data['status'] as String),
+      createdAt: (data['createdAt'] as DateTime),
+      updatedAt: data['updatedAt'] as DateTime?,
+      syncedAt: data['syncedAt'] as DateTime?,
+      notes: data['notes'] as String?,
+    );
+  }
 }

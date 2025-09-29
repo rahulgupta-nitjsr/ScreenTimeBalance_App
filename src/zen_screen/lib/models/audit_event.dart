@@ -119,4 +119,37 @@ class AuditEvent {
       return {};
     }
   }
+
+  /// Convert to Firestore document format
+  Map<String, dynamic> toFirestore() {
+    return {
+      'id': id,
+      'userId': userId,
+      'eventType': eventType,
+      'targetDate': targetDate,
+      'category': category,
+      'oldValue': oldValue,
+      'newValue': newValue,
+      'reason': reason,
+      'createdAt': createdAt ?? DateTime.now(),
+      'lastModified': createdAt ?? DateTime.now(), // For sync tracking
+      'metadata': metadata,
+    };
+  }
+
+  /// Create from Firestore document
+  factory AuditEvent.fromFirestore(Map<String, dynamic> data) {
+    return AuditEvent(
+      id: data['id'] as String,
+      userId: data['userId'] as String,
+      eventType: data['eventType'] as String,
+      targetDate: (data['targetDate'] as DateTime),
+      category: data['category'] as String?,
+      oldValue: (data['oldValue'] as num?)?.toInt(),
+      newValue: (data['newValue'] as num?)?.toInt(),
+      reason: data['reason'] as String?,
+      createdAt: (data['createdAt'] as DateTime),
+      metadata: data['metadata'] as Map<String, dynamic>?,
+    );
+  }
 }
