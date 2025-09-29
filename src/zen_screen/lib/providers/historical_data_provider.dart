@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../models/habit_category.dart';
+import '../providers/auth_provider.dart';
 import '../providers/repository_providers.dart';
 
 part 'historical_data_provider.g.dart';
@@ -10,11 +11,18 @@ part 'historical_data_provider.g.dart';
 @riverpod
 Future<int> yesterdaySleepMinutes(YesterdaySleepMinutesRef ref) async {
   final repository = ref.read(dailyHabitRepositoryProvider);
+  final authState = ref.read(authControllerProvider);
+  
+  // Return 0 if not authenticated
+  if (authState is! Authenticated) {
+    return 0;
+  }
+  
   final yesterday = DateTime.now().subtract(const Duration(days: 1));
   
   try {
     final entry = await repository.getEntryForDate(
-      userId: 'local-user',
+      userId: authState.user.id, // ✅ Use authenticated user ID
       date: yesterday,
     );
     
@@ -33,13 +41,20 @@ Future<int> yesterdaySleepMinutes(YesterdaySleepMinutesRef ref) async {
 @riverpod
 Future<int> lastSleepMinutes(LastSleepMinutesRef ref) async {
   final repository = ref.read(dailyHabitRepositoryProvider);
+  final authState = ref.read(authControllerProvider);
+  
+  // Return 0 if not authenticated
+  if (authState is! Authenticated) {
+    return 0;
+  }
+  
   final today = DateTime.now();
   final yesterday = today.subtract(const Duration(days: 1));
   
   try {
     // Try to get today's data first
     final todayEntry = await repository.getEntryForDate(
-      userId: 'local-user',
+      userId: authState.user.id, // ✅ Use authenticated user ID
       date: today,
     );
     
@@ -49,7 +64,7 @@ Future<int> lastSleepMinutes(LastSleepMinutesRef ref) async {
     
     // If no data for today, try yesterday
     final yesterdayEntry = await repository.getEntryForDate(
-      userId: 'local-user',
+      userId: authState.user.id, // ✅ Use authenticated user ID
       date: yesterday,
     );
     
@@ -68,13 +83,20 @@ Future<int> lastSleepMinutes(LastSleepMinutesRef ref) async {
 @riverpod
 Future<Map<HabitCategory, int>> lastCategoryMinutes(LastCategoryMinutesRef ref, HabitCategory category) async {
   final repository = ref.read(dailyHabitRepositoryProvider);
+  final authState = ref.read(authControllerProvider);
+  
+  // Return empty map if not authenticated
+  if (authState is! Authenticated) {
+    return {category: 0};
+  }
+  
   final today = DateTime.now();
   final yesterday = today.subtract(const Duration(days: 1));
   
   try {
     // Try to get today's data first
     final todayEntry = await repository.getEntryForDate(
-      userId: 'local-user',
+      userId: authState.user.id, // ✅ Use authenticated user ID
       date: today,
     );
     
@@ -84,7 +106,7 @@ Future<Map<HabitCategory, int>> lastCategoryMinutes(LastCategoryMinutesRef ref, 
     
     // If no data for today, try yesterday
     final yesterdayEntry = await repository.getEntryForDate(
-      userId: 'local-user',
+      userId: authState.user.id, // ✅ Use authenticated user ID
       date: yesterday,
     );
     

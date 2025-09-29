@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../models/app_user.dart';
+import '../models/user_profile.dart';
 import '../services/auth_service.dart';
+import '../providers/repository_providers.dart';
 
 part 'auth_provider.g.dart';
 
@@ -62,7 +64,9 @@ class AuthController extends _$AuthController {
       if (firebaseUser == null) {
         state = const AuthState.unauthenticated();
       } else {
-        state = AuthState.authenticated(AppUser.fromFirebase(firebaseUser));
+        final appUser = AppUser.fromFirebase(firebaseUser);
+        state = AuthState.authenticated(appUser);
+        _ensureUserProfile(appUser);
       }
     });
 
@@ -85,7 +89,9 @@ class AuthController extends _$AuthController {
         password: password,
       );
       if (user != null) {
-        state = AuthState.authenticated(AppUser.fromFirebase(user));
+        final appUser = AppUser.fromFirebase(user);
+        state = AuthState.authenticated(appUser);
+        await _ensureUserProfile(appUser);
       } else {
         state = const AuthState.unauthenticated();
       }
@@ -106,7 +112,9 @@ class AuthController extends _$AuthController {
         password: password,
       );
       if (user != null) {
-        state = AuthState.authenticated(AppUser.fromFirebase(user));
+        final appUser = AppUser.fromFirebase(user);
+        state = AuthState.authenticated(appUser);
+        await _ensureUserProfile(appUser);
       } else {
         state = const AuthState.unauthenticated();
       }
@@ -127,6 +135,46 @@ class AuthController extends _$AuthController {
       await authService.sendPasswordResetEmail(email: email);
     } on AuthServiceException catch (error) {
       state = AuthState.error(error);
+    }
+  }
+}
+
+extension on AuthController {
+  Future<void> _ensureUserProfile(AppUser appUser) async {
+    try {
+      final userRepo = ref.read(userRepositoryProvider);
+      final firestore = ref.read(firestoreServiceProvider);
+
+      // If local profile exists, just ensure cloud is up to date
+      final existing = await userRepo.getUserProfile(userId: appUser.id);
+      final now = DateTime.now();
+
+      final profile = existing ?? UserProfile(
+        id: appUser.id,
+        email: appUser.email,
+        displayName: appUser.displayName?.trim().isNotEmpty == true
+            ? appUser.displayName!.trim()
+            : appUser.email.split('@').first,
+        avatarUrl: appUser.photoUrl,
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      // Update local store (sets updatedAt)
+      await userRepo.upsert(
+        profile.copyWith(
+          displayName: profile.displayName,
+          avatarUrl: profile.avatarUrl,
+          updatedAt: now,
+        ),
+      );
+
+      // Upsert in Firestore
+      await firestore.upsertUserProfile(
+        profile.copyWith(updatedAt: now),
+      );
+    } catch (_) {
+      // Swallow errors to avoid blocking auth flow; surfaced via sync/status elsewhere
     }
   }
 }

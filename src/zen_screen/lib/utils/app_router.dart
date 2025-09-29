@@ -126,4 +126,5 @@ GoRouter appRouterFactory({
 }
 
 /// Default application router instance.
-final GoRouter appRouter = appRouterFactory();
+/// Note: This should not be used directly as it doesn't have access to providers.
+/// Use appRouterFactory with a proper Ref instead.

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/algorithm_config.dart';
 import '../models/habit_category.dart';
 import '../providers/algorithm_provider.dart';
+import '../providers/auth_provider.dart';
 import '../providers/historical_data_provider.dart';
 import '../providers/minutes_provider.dart';
 import '../providers/repository_providers.dart';
@@ -729,12 +730,25 @@ class _CategoryEntryPaneState extends ConsumerState<_CategoryEntryPane> {
           minutesNotifier.setMinutesWithValidation(widget.category, totalMinutes, maxMinutes: dailyMax);
           final minutesMap = ref.read(minutesByCategoryProvider);
 
+          // Get authenticated user ID
+          final authState = ref.read(authControllerProvider);
+          if (authState is! Authenticated) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please log in to save your data'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+          final userId = authState.user.id;
+
           final algorithmService = ref.read(algorithmServiceProvider);
           final repository = ref.read(dailyHabitRepositoryProvider);
           final result = algorithmService.calculate(minutesByCategory: minutesMap);
 
           await repository.upsertEntry(
-            userId: 'local-user',
+            userId: userId, // ✅ Use authenticated user ID
             date: DateTime.now(),
             minutesByCategory: minutesMap,
             earnedScreenTime: result.totalEarnedMinutes,
@@ -743,9 +757,18 @@ class _CategoryEntryPaneState extends ConsumerState<_CategoryEntryPane> {
             algorithmVersion: result.algorithmVersion,
           );
 
+          // Trigger sync after data save
+          try {
+            final syncService = ref.read(syncServiceProvider);
+            await syncService.manualSync();
+          } catch (e) {
+            // Sync failure shouldn't block the user experience
+            print('Sync failed: $e');
+          }
+
           // Verify data persistence
           final savedEntry = await repository.getEntryForDate(
-            userId: 'local-user',
+            userId: userId, // ✅ Use authenticated user ID
             date: DateTime.now(),
           );
           

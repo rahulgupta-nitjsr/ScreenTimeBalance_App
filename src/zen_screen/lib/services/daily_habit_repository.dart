@@ -124,4 +124,16 @@ class DailyHabitRepository {
       throw ArgumentError('Habit minutes cannot be negative');
     }
   }
+
+  /// Get all entries for a user
+  Future<List<DailyHabitEntry>> getAllEntries({required String userId}) async {
+    final results = await _database.query(
+      _table,
+      where: 'user_id = ?',
+      whereArgs: [userId],
+      orderBy: 'entry_date DESC',
+    );
+
+    return results.map((row) => DailyHabitEntry.fromMap(row)).toList();
+  }
 }

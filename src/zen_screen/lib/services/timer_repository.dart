@@ -111,4 +111,44 @@ class TimerRepository {
       throw ArgumentError('userId is required');
     }
   }
+
+  /// Get all sessions for a user
+  Future<List<TimerSession>> getAllSessions({required String userId}) async {
+    _validateUser(userId);
+    final results = await _database.query(
+      _table,
+      where: 'user_id = ?',
+      whereArgs: [userId],
+      orderBy: 'created_at DESC',
+    );
+
+    return results.map((row) => _fromDbMap(row)).toList();
+  }
+
+  /// Upsert a session (insert or update)
+  Future<TimerSession> upsertSession(TimerSession session) async {
+    _validateUser(session.userId);
+    
+    // Check if session exists
+    final existing = await _database.query(
+      _table,
+      where: 'id = ?',
+      whereArgs: [session.id],
+    );
+
+    if (existing.isNotEmpty) {
+      // Update existing session
+      await _database.update(
+        _table,
+        session.toDbMap(),
+        where: 'id = ?',
+        whereArgs: [session.id],
+      );
+    } else {
+      // Insert new session
+      await _database.insert(_table, session.toDbMap());
+    }
+
+    return session;
+  }
 }

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/daily_habit_entry.dart';
 import '../models/timer_session.dart';
@@ -23,12 +22,14 @@ class SyncService {
     AuditRepository? auditRepository,
     UserRepository? userRepository,
     Connectivity? connectivity,
+    String? userId,
   }) : _firestore = firestoreService ?? FirestoreService(),
        _dailyHabitRepo = dailyHabitRepository ?? DailyHabitRepository(),
        _timerRepo = timerRepository ?? TimerRepository(),
        _auditRepo = auditRepository ?? AuditRepository(),
        _userRepo = userRepository ?? UserRepository(),
-       _connectivity = connectivity ?? Connectivity();
+       _connectivity = connectivity ?? Connectivity(),
+       _userId = userId;
 
   final FirestoreService _firestore;
   final DailyHabitRepository _dailyHabitRepo;
@@ -36,6 +37,7 @@ class SyncService {
   final AuditRepository _auditRepo;
   final UserRepository _userRepo;
   final Connectivity _connectivity;
+  final String? _userId;
 
   StreamController<SyncStatus>? _statusController;
   Timer? _syncTimer;
@@ -142,8 +144,8 @@ class SyncService {
   /// Sync user profile
   Future<SyncResult> _syncUserProfile() async {
     try {
-      // Get local profile - TODO: Implement getUserProfile method
-      final localProfile = null; // await _userRepo.getUserProfile();
+      // Get local profile
+      final localProfile = await _userRepo.getUserProfile(userId: _getCurrentUserId());
       if (localProfile == null) return SyncResult.success;
 
       // Get cloud profile
@@ -159,8 +161,7 @@ class SyncService {
       final resolvedProfile = _resolveUserProfileConflict(localProfile, cloudProfile);
       
       // Update both local and cloud with resolved data
-      // TODO: Implement updateUserProfile method
-      // await _userRepo.updateUserProfile(resolvedProfile);
+      await _userRepo.updateUserProfile(resolvedProfile);
       await _firestore.upsertUserProfile(resolvedProfile);
       
       return SyncResult.success;
@@ -172,8 +173,8 @@ class SyncService {
   /// Sync daily habit entries
   Future<SyncResult> _syncDailyHabitEntries() async {
     try {
-      // Get local entries - need to implement getAllEntries method
-      final localEntries = <DailyHabitEntry>[]; // TODO: Implement getAllEntries
+      // Get local entries
+      final localEntries = await _dailyHabitRepo.getAllEntries(userId: _getCurrentUserId());
       
       // Get cloud entries
       final cloudEntries = await _firestore.getDailyHabitEntries();
@@ -253,8 +254,8 @@ class SyncService {
   /// Sync timer sessions
   Future<SyncResult> _syncTimerSessions() async {
     try {
-      // Get local sessions - TODO: Implement getSessions method
-      final localSessions = <TimerSession>[]; // await _timerRepo.getSessions();
+      // Get local sessions
+      final localSessions = await _timerRepo.getAllSessions(userId: _getCurrentUserId());
       
       // Get cloud sessions
       final cloudSessions = await _firestore.getTimerSessions();
@@ -293,8 +294,7 @@ class SyncService {
         final cloudSession = cloudMap[conflictId]!;
         final resolvedSession = _resolveTimerSessionConflict(localSession, cloudSession);
         
-        // TODO: Implement upsertSession method
-        // await _timerRepo.upsertSession(resolvedSession);
+        await _timerRepo.upsertSession(resolvedSession);
         await _firestore.upsertTimerSession(resolvedSession);
       }
 
@@ -305,8 +305,7 @@ class SyncService {
 
       // Download new cloud sessions to local
       for (final session in newLocalSessions) {
-        // TODO: Implement upsertSession method
-        // await _timerRepo.upsertSession(session);
+        await _timerRepo.upsertSession(session);
       }
 
       return SyncResult.success;
@@ -318,8 +317,8 @@ class SyncService {
   /// Sync audit events
   Future<SyncResult> _syncAuditEvents() async {
     try {
-      // Get local events - TODO: Implement getEvents method
-      final localEvents = <AuditEvent>[]; // await _auditRepo.getEvents();
+      // Get local events
+      final localEvents = await _auditRepo.getAllEvents(userId: _getCurrentUserId());
       
       // Get cloud events
       final cloudEvents = await _firestore.getAuditEvents();
@@ -353,8 +352,7 @@ class SyncService {
 
       // Download new cloud events to local
       for (final event in newLocalEvents) {
-        // TODO: Implement createEvent method
-        // await _auditRepo.createEvent(event);
+        await _auditRepo.createEvent(event);
       }
 
       return SyncResult.success;
@@ -403,13 +401,20 @@ class SyncService {
     return await syncAll();
   }
 
+  /// Get current authenticated user ID
+  String _getCurrentUserId() {
+    if (_userId == null) {
+      throw StateError('User ID not provided to SyncService');
+    }
+    return _userId!;
+  }
+
   /// Get sync statistics
   Future<SyncStats> getSyncStats() async {
     try {
-      // TODO: Implement these methods in repositories
-      final localEntries = <DailyHabitEntry>[]; // await _dailyHabitRepo.getEntries();
-      final localSessions = <TimerSession>[]; // await _timerRepo.getSessions();
-      final localEvents = <AuditEvent>[]; // await _auditRepo.getEvents();
+      final localEntries = await _dailyHabitRepo.getAllEntries(userId: _getCurrentUserId());
+      final localSessions = await _timerRepo.getAllSessions(userId: _getCurrentUserId());
+      final localEvents = await _auditRepo.getAllEvents(userId: _getCurrentUserId());
       
       final cloudEntries = await _firestore.getDailyHabitEntries();
       final cloudSessions = await _firestore.getTimerSessions();
@@ -481,10 +486,3 @@ class SyncStats {
   final bool isOnline;
 }
 
-/// Provider for SyncService
-final syncServiceProvider = Provider<SyncService>((ref) {
-  final service = SyncService();
-  service.initialize();
-  ref.onDispose(() => service.dispose());
-  return service;
-});

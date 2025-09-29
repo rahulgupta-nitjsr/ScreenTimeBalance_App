@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../models/habit_category.dart';
 import '../providers/algorithm_provider.dart';
+import '../providers/auth_provider.dart';
 import '../providers/minutes_provider.dart';
 import '../providers/timer_provider.dart';
 import '../providers/repository_providers.dart';
@@ -501,6 +502,19 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
       return;
     }
 
+    // Get authenticated user ID
+    final authState = ref.read(authControllerProvider);
+    if (authState is! Authenticated) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please log in to save your data'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    final userId = authState.user.id;
+
     final minutesNotifier = ref.read(minutesByCategoryProvider.notifier);
     final config = await ref.read(algorithmConfigProvider.future);
     final categoryConfig = config.category(category.id);
@@ -520,7 +534,7 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
     final algorithmResult = algorithmService.calculate(minutesByCategory: minutesMap);
 
     await repository.upsertEntry(
-      userId: 'local-user',
+      userId: userId, // ✅ Use authenticated user ID
       date: DateTime.now(),
       minutesByCategory: minutesMap,
       earnedScreenTime: algorithmResult.totalEarnedMinutes,
@@ -528,6 +542,15 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
       powerModeUnlocked: algorithmResult.powerModeUnlocked,
       algorithmVersion: algorithmResult.algorithmVersion,
     );
+
+    // Trigger sync after data save
+    try {
+      final syncService = ref.read(syncServiceProvider);
+      await syncService.manualSync();
+    } catch (e) {
+      // Sync failure shouldn't block the user experience
+      print('Sync failed: $e');
+    }
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(

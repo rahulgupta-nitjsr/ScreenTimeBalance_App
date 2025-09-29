@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/sync_service.dart';
+import '../providers/repository_providers.dart';
 import '../utils/theme.dart';
 
 /// Widget that displays sync status with visual indicators

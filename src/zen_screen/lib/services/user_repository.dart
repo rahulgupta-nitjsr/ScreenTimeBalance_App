@@ -46,6 +46,22 @@ class UserRepository {
       whereArgs: [id],
     );
   }
+
+  /// Get user profile by user ID (alias for getById for sync service)
+  Future<UserProfile?> getUserProfile({required String userId}) async {
+    return getById(userId);
+  }
+
+  /// Update user profile
+  Future<UserProfile> updateUserProfile(UserProfile profile) async {
+    await _database.update(
+      _table,
+      profile.toDbMap(),
+      where: 'id = ?',
+      whereArgs: [profile.id],
+    );
+    return profile;
+  }
 }
 
 

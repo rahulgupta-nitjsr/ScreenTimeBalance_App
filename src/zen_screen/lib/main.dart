@@ -44,7 +44,7 @@ class _ZenScreenAppState extends ConsumerState<ZenScreenApp> with WidgetsBinding
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _router = widget._router ?? appRouterFactory(ref: ref);
+    _router = widget._router ?? appRouterFactory(ref: ref as Ref);
   }
 
   @override

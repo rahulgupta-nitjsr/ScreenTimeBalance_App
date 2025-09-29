@@ -11,6 +11,7 @@ import '../widgets/zen_progress.dart';
 import '../widgets/sync_status_indicator.dart';
 import '../widgets/sync_stats_widget.dart';
 import '../providers/auth_provider.dart';
+import '../providers/repository_providers.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -175,6 +176,14 @@ class ProfileScreen extends ConsumerWidget {
                               ZenButton.secondary(
                                 'Sign Out',
                                 onPressed: () async {
+                                  // Trigger final sync before sign out
+                                  try {
+                                    final syncService = ref.read(syncServiceProvider);
+                                    await syncService.manualSync();
+                                  } catch (e) {
+                                    print('Final sync failed: $e');
+                                  }
+                                  
                                   await ref.read(authControllerProvider.notifier).signOut();
                                   if (context.mounted) {
                                     context.go(AppRoutes.welcome);
