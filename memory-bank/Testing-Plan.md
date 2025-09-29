@@ -301,11 +301,13 @@ AI re-executes test until it passes
   - **Test Cases Location**: `tests/test-cases.md` lines 148-164
   - **Test Data**: User accounts from `tests/data/test-users.json`
   - **Success Criteria**: Authentication system works securely
+  - **Status**: ✅ Implemented; registration, login, password reset, and session persistence verified. Profile upsert on auth events covered by integration tests.
 
 - **Feature 10**: Data Sync & Cloud Backup (Tests: TC091-TC100)
   - **Test Cases Location**: `tests/test-cases.md` lines 165-181
   - **Test Data**: Sync scenarios with user data
   - **Success Criteria**: Data syncs correctly to cloud
+  - **Status**: ✅ Implemented; automatic triggers on data save and sign-out verified; conflict resolution unit-tested; stats widget validates counts.
 
 #### **Iteration 6: Progress & Visualization**
 - **Feature 11**: Progress Tracking Display (Tests: TC101-TC110)

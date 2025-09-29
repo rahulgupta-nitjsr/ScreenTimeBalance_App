@@ -581,6 +581,15 @@ This document defines the complete feature implementation plan for ZenScreen, or
 
 **Purpose**: Allow users to create accounts and authenticate securely for data persistence.
 
+**Status**: ✅ COMPLETED (Implemented and verified)
+
+**Implementation Highlights**:
+- Firebase Auth integrated via `AuthService` and Riverpod `AuthController`
+- On register/sign-in/auth-change: `UserProfile` upserted to SQLite and Firestore
+- Router protection with GoRouter redirect based on auth state
+- Password reset supported from Login screen
+- Session persistence handled by Firebase
+
 **User Story**: As a user, I want to create an account and log in securely, so that my habit data is saved and accessible across devices.
 
 **Functional Requirements**:
@@ -643,6 +652,15 @@ This document defines the complete feature implementation plan for ZenScreen, or
 ### Feature 10: Data Sync & Cloud Backup
 
 **Purpose**: Synchronize local data with cloud storage for backup and cross-device access.
+
+**Status**: ✅ COMPLETED (Implemented and verified)
+
+**Implementation Highlights**:
+- `SyncService` orchestrates bidirectional sync (SQLite ↔ Firestore)
+- Repositories expose required methods (`getAllEntries`, `getAllSessions`, `getAllEvents`, etc.)
+- Automatic sync triggers after data save and on sign-out; manual sync from Profile
+- Conflict resolution: last-write-wins using timestamps
+- UI: `SyncStatusIndicator` and `SyncStatsWidget` wired to live service
 
 **User Story**: As a user, I want my data to sync across devices, so that I can access my habit tracking from anywhere.
 

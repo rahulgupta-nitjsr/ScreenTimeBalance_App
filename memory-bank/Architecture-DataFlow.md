@@ -27,7 +27,7 @@ ZenScreen uses a **hybrid offline-first architecture** combining Firebase (cloud
 
 ### **Local Authentication (Flutter)**
 - **AuthService**: Wraps Firebase Auth with custom error handling
-- **AuthController**: Manages authentication state with Riverpod
+- **AuthController**: Manages authentication state with Riverpod and ensures `UserProfile` upsert locally and in Firestore on register/sign-in/auth-change
 - **AppUser Model**: Clean user representation for the app
 - **Session Management**: Automatic login persistence
 
@@ -94,7 +94,7 @@ User Input → Firebase Auth → Load Local Data → Background Sync
 2. **Firebase Auth**: `signInWithEmailAndPassword()`
 3. **Firebase Response**: Returns authenticated user
 4. **Local Data Load**: Load user's data from SQLite
-5. **Background Sync**: Sync local ↔ cloud data
+5. **Background Sync**: Sync local ↔ cloud data (triggered automatically)
 
 ### **3. Data Entry (Offline-First)**
 ```
@@ -105,7 +105,7 @@ User Action → SQLite Storage → Background Sync → Firestore
 1. **User Action**: Taps sleep timer, logs 8 hours
 2. **Immediate Storage**: Data saved to SQLite instantly
 3. **App Continues**: Full functionality without internet
-4. **Background Sync**: Data uploaded to Firestore (within 5 minutes)
+4. **Background Sync**: Data uploaded to Firestore (on change and scheduled)
 5. **Conflict Resolution**: If conflicts exist, last-write-wins
 
 ---
@@ -116,7 +116,7 @@ User Action → SQLite Storage → Background Sync → Firestore
 - **Every 5 minutes**: Background sync when online
 - **Network restoration**: Sync when back online
 - **App startup**: Sync if authenticated
-- **Data changes**: After major operations
+- **Data changes**: Immediately after saving entries and before sign-out
 
 ### **Manual Sync Triggers**
 - **User-initiated**: Sync button in profile screen
