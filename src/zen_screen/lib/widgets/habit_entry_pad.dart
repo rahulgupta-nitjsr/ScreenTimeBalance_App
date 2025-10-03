@@ -66,11 +66,10 @@ class _HabitEntryPadState extends ConsumerState<HabitEntryPad> with SingleTicker
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _buildTabs(context),
-          const SizedBox(height: AppTheme.spaceMD),
+          const SizedBox(height: AppTheme.spaceSM),
           _buildRealTimeDisplay(context),
-          const SizedBox(height: AppTheme.spaceMD),
-          SizedBox(
-            height: 280,
+          const SizedBox(height: AppTheme.spaceSM),
+          Expanded(
             child: TabBarView(
               controller: _tabController,
               children: [
@@ -584,65 +583,134 @@ class _CategoryEntryPaneState extends ConsumerState<_CategoryEntryPane> {
     final isOverLimit = totalMinutes > remainingMinutes;
     
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Semantics(
+        // Selected Time Display - Simplified and Cleaner
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppTheme.spaceMD,
+            vertical: AppTheme.spaceSM,
+          ),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryGreen.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Selected: ',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.textMedium,
+                ),
+              ),
+              Semantics(
                 label: 'Current selection: ${_hours} hours ${_minutes} minutes',
                 child: Text(
                   '${_hours}h ${_minutes}m',
-                  style: theme.textTheme.titleMedium,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: AppTheme.primaryGreen,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            Semantics(
-              label: widget.category == HabitCategory.sleep 
-                  ? 'Use same time as last night'
-                  : 'Use same time as last entry',
-              hint: widget.category == HabitCategory.sleep 
-                  ? 'Tap to copy yesterday\'s sleep time'
-                  : 'Tap to copy previous time',
-              button: true,
-              child: TextButton(
-                onPressed: _applySameAsLastTime,
-                child: Text(widget.category == HabitCategory.sleep 
-                    ? 'Same as last night'
-                    : 'Same as last time'),
-              ),
-            ),
-            const SizedBox(width: AppTheme.spaceSM),
-            Semantics(
-              label: 'Save ${_hours} hours ${_minutes} minutes for ${widget.category.label}',
-              hint: _isSaving ? 'Saving...' : (isValid ? 'Tap to save' : 'Cannot save - exceeds daily limit'),
-              button: true,
-              enabled: (totalMinutes >= 0 && isValid && !_isSaving),
-              child: FilledButton(
-                onPressed: (totalMinutes >= 0 && isValid && !_isSaving) 
-                    ? () => _save(totalMinutes) 
-                    : null,
-                child: _isSaving 
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Save'),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
+        const SizedBox(height: AppTheme.spaceSM),
+        
+        // Warning message if over limit
         if (isOverLimit && remainingMinutes > 0)
-          Padding(
-            padding: const EdgeInsets.only(top: AppTheme.spaceXS),
-            child: Text(
-              'Only ${_formatMinutes(remainingMinutes)} available today',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.orange,
-              ),
+          Container(
+            padding: const EdgeInsets.all(AppTheme.spaceSM),
+            margin: const EdgeInsets.only(bottom: AppTheme.spaceSM),
+            decoration: BoxDecoration(
+              color: Colors.orange.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+              border: Border.all(color: Colors.orange.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.warning, color: Colors.orange, size: 16),
+                const SizedBox(width: AppTheme.spaceXS),
+                Expanded(
+                  child: Text(
+                    'Only ${_formatMinutes(remainingMinutes)} available today',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.orange,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
+        
+        // Primary Save Button - Large and Prominent
+        SizedBox(
+          width: double.infinity,
+          height: 56, // Fixed height for consistency
+          child: Semantics(
+            label: 'Save ${_hours} hours ${_minutes} minutes for ${widget.category.label}',
+            hint: _isSaving ? 'Saving...' : (isValid ? 'Tap to save' : 'Cannot save - exceeds daily limit'),
+            button: true,
+            enabled: (totalMinutes >= 0 && isValid && !_isSaving),
+            child: ElevatedButton(
+              onPressed: (totalMinutes >= 0 && isValid && !_isSaving) 
+                  ? () => _save(totalMinutes) 
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryGreen,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: AppTheme.textLight.withOpacity(0.3),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMD),
+                ),
+              ),
+              child: _isSaving 
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.check_circle, size: 24),
+                        const SizedBox(width: AppTheme.spaceSM),
+                        Text(
+                          'Save ${widget.category.label} Time',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppTheme.spaceSM),
+        
+        // Secondary Quick Action Button
+        OutlinedButton.icon(
+          onPressed: _applySameAsLastTime,
+          icon: const Icon(Icons.history, size: 18),
+          label: Text(
+            widget.category == HabitCategory.sleep 
+                ? 'Same as last night'
+                : 'Same as last time',
+          ),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppTheme.primaryGreen,
+            side: BorderSide(color: AppTheme.primaryGreen.withOpacity(0.5)),
+            padding: const EdgeInsets.symmetric(vertical: 12),
+          ),
+        ),
       ],
     );
   }
@@ -748,7 +816,7 @@ class _CategoryEntryPaneState extends ConsumerState<_CategoryEntryPane> {
           final result = algorithmService.calculate(minutesByCategory: minutesMap);
 
           await repository.upsertEntry(
-            userId: userId, // ✅ Use authenticated user ID
+            userId: userId,
             date: DateTime.now(),
             minutesByCategory: minutesMap,
             earnedScreenTime: result.totalEarnedMinutes,
@@ -763,12 +831,12 @@ class _CategoryEntryPaneState extends ConsumerState<_CategoryEntryPane> {
             await syncService.manualSync();
           } catch (e) {
             // Sync failure shouldn't block the user experience
-            print('Sync failed: $e');
+            // Log sync errors for debugging but don't fail the save
           }
 
           // Verify data persistence
           final savedEntry = await repository.getEntryForDate(
-            userId: userId, // ✅ Use authenticated user ID
+            userId: userId,
             date: DateTime.now(),
           );
           

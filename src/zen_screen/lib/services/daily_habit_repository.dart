@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../models/daily_habit_entry.dart';
 import '../models/habit_category.dart';
@@ -48,7 +49,19 @@ class DailyHabitRepository {
       manualAdjustmentMinutes: manualAdjustmentMinutes ?? existing?.manualAdjustmentMinutes ?? 0,
     );
 
-    await _database.insert(_table, _toDbMap(entry));
+    if (existing != null) {
+      // Update existing entry
+      await _database.update(
+        _table,
+        _toDbMap(entry),
+        where: 'id = ?',
+        whereArgs: [entry.id],
+      );
+    } else {
+      // Insert new entry
+      await _database.insert(_table, _toDbMap(entry));
+    }
+    
     return entry;
   }
 
@@ -134,6 +147,6 @@ class DailyHabitRepository {
       orderBy: 'entry_date DESC',
     );
 
-    return results.map((row) => DailyHabitEntry.fromMap(row)).toList();
+    return results.map((row) => DailyHabitEntry.fromDbMap(row)).toList();
   }
 }

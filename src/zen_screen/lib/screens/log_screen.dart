@@ -128,7 +128,7 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
                         ),
                         const SizedBox(height: AppTheme.spaceMD),
                         SizedBox(
-                          height: 420,
+                          height: 550, // Increased height for better manual entry experience
                           child: TabBarView(
                             controller: _tabController,
                             physics: const NeverScrollableScrollPhysics(),

@@ -265,18 +265,76 @@ class PlatformDatabaseService {
       if (jsonString != null) {
         final data = jsonDecode(jsonString) as Map<String, dynamic>;
         
-        // Simple where clause matching (for basic cases)
+        // Improved where clause matching
         bool matches = true;
-        if (where != null && whereArgs != null) {
-          // This is a simplified implementation
-          // For production, you'd want more sophisticated query parsing
-          for (int i = 0; i < whereArgs.length; i++) {
-            final placeholder = '?';
-            if (where.contains(placeholder)) {
-              final field = where.split(' ')[0]; // Simplified field extraction
-              if (data[field] != whereArgs[i]) {
-                matches = false;
-                break;
+        if (where != null && whereArgs != null && whereArgs.isNotEmpty) {
+          // Parse WHERE clause properly
+          // Split by AND/OR operators
+          final conditions = where.split(RegExp(r'\s+AND\s+|\s+OR\s+', caseSensitive: false));
+          final isOr = where.toUpperCase().contains(' OR ');
+          
+          if (isOr) {
+            // OR logic - at least one condition must match
+            matches = false;
+            for (int i = 0; i < conditions.length && i < whereArgs.length; i++) {
+              final condition = conditions[i].trim();
+              final parts = condition.split(RegExp(r'\s*=\s*|\s+BETWEEN\s+', caseSensitive: false));
+              
+              if (parts.isNotEmpty) {
+                final field = parts[0].trim();
+                final value = whereArgs[i];
+                
+                if (data.containsKey(field) && data[field] == value) {
+                  matches = true;
+                  break;
+                }
+              }
+            }
+          } else {
+            // AND logic - all conditions must match
+            int argIndex = 0;
+            for (final condition in conditions) {
+              if (argIndex >= whereArgs.length) break;
+              
+              final trimmed = condition.trim();
+              
+              // Handle BETWEEN clause
+              if (trimmed.toUpperCase().contains(' BETWEEN ')) {
+                final parts = trimmed.split(RegExp(r'\s+BETWEEN\s+', caseSensitive: false));
+                if (parts.isNotEmpty && argIndex + 1 < whereArgs.length) {
+                  final field = parts[0].trim();
+                  final startValue = whereArgs[argIndex];
+                  final endValue = whereArgs[argIndex + 1];
+                  argIndex += 2;
+                  
+                  if (data.containsKey(field)) {
+                    final fieldValue = data[field];
+                    if (fieldValue is Comparable) {
+                      if (startValue is Comparable && endValue is Comparable) {
+                        if (fieldValue.compareTo(startValue) < 0 || fieldValue.compareTo(endValue) > 0) {
+                          matches = false;
+                          break;
+                        }
+                      }
+                    }
+                  } else {
+                    matches = false;
+                    break;
+                  }
+                }
+              } else {
+                // Handle simple = comparison
+                final parts = trimmed.split(RegExp(r'\s*=\s*'));
+                if (parts.isNotEmpty) {
+                  final field = parts[0].trim();
+                  final value = whereArgs[argIndex];
+                  argIndex++;
+                  
+                  if (!data.containsKey(field) || data[field] != value) {
+                    matches = false;
+                    break;
+                  }
+                }
               }
             }
           }
