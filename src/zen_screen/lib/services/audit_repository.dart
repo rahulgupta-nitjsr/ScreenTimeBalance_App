@@ -1,13 +1,13 @@
 import 'package:uuid/uuid.dart';
 
 import '../models/audit_event.dart';
-import 'database_service.dart';
+import 'platform_database_service.dart';
 
 class AuditRepository {
-  AuditRepository({DatabaseService? databaseService})
-      : _database = databaseService ?? DatabaseService.instance;
+  AuditRepository({PlatformDatabaseService? databaseService})
+      : _database = databaseService ?? PlatformDatabaseService.instance;
 
-  final DatabaseService _database;
+  final PlatformDatabaseService _database;
   final _uuid = const Uuid();
 
   static const _table = 'audit_events';

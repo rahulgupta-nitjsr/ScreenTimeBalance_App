@@ -546,10 +546,9 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
     // Trigger sync after data save
     try {
       final syncService = ref.read(syncServiceProvider);
-      await syncService.manualSync();
+      final result = await syncService.manualSync();
     } catch (e) {
       // Sync failure shouldn't block the user experience
-      print('Sync failed: $e');
     }
 
     if (!mounted) return;

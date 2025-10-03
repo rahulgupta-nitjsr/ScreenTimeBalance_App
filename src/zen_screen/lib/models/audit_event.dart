@@ -143,13 +143,24 @@ class AuditEvent {
       id: data['id'] as String,
       userId: data['userId'] as String,
       eventType: data['eventType'] as String,
-      targetDate: (data['targetDate'] as DateTime),
+      targetDate: _convertTimestamp(data['targetDate']),
       category: data['category'] as String?,
       oldValue: (data['oldValue'] as num?)?.toInt(),
       newValue: (data['newValue'] as num?)?.toInt(),
       reason: data['reason'] as String?,
-      createdAt: (data['createdAt'] as DateTime),
+      createdAt: _convertTimestamp(data['createdAt']),
       metadata: data['metadata'] as Map<String, dynamic>?,
     );
+  }
+
+  static DateTime _convertTimestamp(dynamic timestamp) {
+    if (timestamp is DateTime) {
+      return timestamp;
+    } else if (timestamp != null) {
+      // Handle Firestore Timestamp
+      return timestamp.toDate();
+    } else {
+      return DateTime.now();
+    }
   }
 }

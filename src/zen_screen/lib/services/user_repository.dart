@@ -1,11 +1,11 @@
 import '../models/user_profile.dart';
-import 'database_service.dart';
+import 'platform_database_service.dart';
 
 class UserRepository {
-  UserRepository({DatabaseService? databaseService})
-      : _database = databaseService ?? DatabaseService.instance;
+  UserRepository({PlatformDatabaseService? databaseService})
+      : _database = databaseService ?? PlatformDatabaseService.instance;
 
-  final DatabaseService _database;
+  final PlatformDatabaseService _database;
   static const _table = 'users';
 
   Future<void> upsert(UserProfile profile) async {

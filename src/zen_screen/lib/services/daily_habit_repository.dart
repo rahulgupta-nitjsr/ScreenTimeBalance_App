@@ -2,13 +2,13 @@ import 'package:uuid/uuid.dart';
 
 import '../models/daily_habit_entry.dart';
 import '../models/habit_category.dart';
-import 'database_service.dart';
+import 'platform_database_service.dart';
 
 class DailyHabitRepository {
-  DailyHabitRepository({DatabaseService? databaseService})
-      : _database = databaseService ?? DatabaseService.instance;
+  DailyHabitRepository({PlatformDatabaseService? databaseService})
+      : _database = databaseService ?? PlatformDatabaseService.instance;
 
-  final DatabaseService _database;
+  final PlatformDatabaseService _database;
   final _uuid = const Uuid();
 
   static const _table = 'daily_habit_entries';

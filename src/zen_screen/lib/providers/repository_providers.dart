@@ -6,7 +6,12 @@ import '../services/audit_repository.dart';
 import '../services/user_repository.dart';
 import '../services/sync_service.dart';
 import '../services/firestore_service.dart';
+import '../services/platform_database_service.dart';
 import 'auth_provider.dart';
+
+final platformDatabaseProvider = Provider<PlatformDatabaseService>((ref) {
+  return PlatformDatabaseService.instance;
+});
 
 final currentUserIdProvider = Provider<String>((ref) {
   final authState = ref.watch(authControllerProvider);

@@ -143,14 +143,36 @@ class TimerSession {
       id: data['id'] as String,
       userId: data['userId'] as String,
       category: HabitCategoryX.fromId(data['category'] as String),
-      startTime: (data['startTime'] as DateTime),
-      endTime: data['endTime'] as DateTime?,
+      startTime: _convertTimestamp(data['startTime']),
+      endTime: _convertTimestampNullable(data['endTime']),
       durationMinutes: (data['durationMinutes'] as num?)?.toInt(),
       status: TimerSessionStatus.values.byName(data['status'] as String),
-      createdAt: (data['createdAt'] as DateTime),
-      updatedAt: data['updatedAt'] as DateTime?,
-      syncedAt: data['syncedAt'] as DateTime?,
+      createdAt: _convertTimestamp(data['createdAt']),
+      updatedAt: _convertTimestampNullable(data['updatedAt']),
+      syncedAt: _convertTimestampNullable(data['syncedAt']),
       notes: data['notes'] as String?,
     );
+  }
+
+  static DateTime _convertTimestamp(dynamic timestamp) {
+    if (timestamp is DateTime) {
+      return timestamp;
+    } else if (timestamp != null) {
+      // Handle Firestore Timestamp
+      return timestamp.toDate();
+    } else {
+      return DateTime.now();
+    }
+  }
+
+  static DateTime? _convertTimestampNullable(dynamic timestamp) {
+    if (timestamp is DateTime) {
+      return timestamp;
+    } else if (timestamp != null) {
+      // Handle Firestore Timestamp
+      return timestamp.toDate();
+    } else {
+      return null;
+    }
   }
 }

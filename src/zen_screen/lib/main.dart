@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:go_router/go_router.dart';
@@ -8,9 +9,15 @@ import 'firebase_options.dart';
 import 'utils/app_router.dart';
 import 'utils/theme.dart';
 import 'providers/navigation_provider.dart';
+import 'services/platform_database_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  
+  // Initialize platform database service
+  await PlatformDatabaseService.instance.initialize();
+  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -44,7 +51,7 @@ class _ZenScreenAppState extends ConsumerState<ZenScreenApp> with WidgetsBinding
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _router = widget._router ?? appRouterFactory(ref: ref as Ref);
+    _router = widget._router ?? appRouterFactory(ref: ref);
   }
 
   @override

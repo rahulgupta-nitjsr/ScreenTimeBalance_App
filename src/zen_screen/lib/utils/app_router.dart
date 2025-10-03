@@ -29,7 +29,7 @@ class AppRoutes {
 /// without reusing global navigation state between runs.
 GoRouter appRouterFactory({
   String initialLocation = AppRoutes.welcome,
-  required Ref ref,
+  required WidgetRef ref,
 }) {
   return GoRouter(
     initialLocation: initialLocation,
@@ -37,10 +37,16 @@ GoRouter appRouterFactory({
     redirect: (context, state) {
       final authState = ref.read(authControllerProvider);
       final isAuthenticated = authState is Authenticated;
+      final isLoading = authState is AuthLoading;
       final isOnAuthScreen = state.fullPath == AppRoutes.login || 
                             state.fullPath == AppRoutes.register ||
                             state.fullPath == AppRoutes.welcome ||
                             state.fullPath == AppRoutes.howItWorks;
+      
+      // If loading, stay on current route
+      if (isLoading) {
+        return null;
+      }
       
       // If not authenticated and trying to access protected route
       if (!isAuthenticated && !isOnAuthScreen) {

@@ -11,6 +11,9 @@ class AuthService {
   /// Stream of authentication changes exposed for the rest of the app.
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
+  /// Gets the current user if signed in, otherwise returns null.
+  User? get currentUser => _auth.currentUser;
+
   /// Creates a new user account with the provided email and password.
   Future<User?> registerWithEmail({
     required String email,

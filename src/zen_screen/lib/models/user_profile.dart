@@ -73,9 +73,20 @@ class UserProfile {
       email: data['email'] as String,
       displayName: data['displayName'] as String,
       avatarUrl: data['avatarUrl'] as String?,
-      createdAt: (data['createdAt'] as DateTime),
-      updatedAt: (data['updatedAt'] as DateTime),
+      createdAt: _convertTimestamp(data['createdAt']),
+      updatedAt: _convertTimestamp(data['updatedAt']),
     );
+  }
+
+  static DateTime _convertTimestamp(dynamic timestamp) {
+    if (timestamp is DateTime) {
+      return timestamp;
+    } else if (timestamp != null) {
+      // Handle Firestore Timestamp
+      return timestamp.toDate();
+    } else {
+      return DateTime.now();
+    }
   }
 }
 

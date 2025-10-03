@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/daily_habit_entry.dart';
 import '../models/timer_session.dart';
@@ -86,25 +87,37 @@ class SyncService {
   Future<bool> get isOnline async {
     try {
       final result = await _connectivity.checkConnectivity();
-      if (result == ConnectivityResult.none) return false;
+      if (result == ConnectivityResult.none) {
+        return false;
+      }
       
-      // Additional check with actual network request
+      // For web, just trust the connectivity result
+      // For mobile, do additional network check
+      if (kIsWeb) {
+        return true;
+      }
+      
+      // Additional check with actual network request for mobile
       final result2 = await InternetAddress.lookup('google.com');
-      return result2.isNotEmpty && result2[0].rawAddress.isNotEmpty;
-    } catch (_) {
+      final isOnline = result2.isNotEmpty && result2[0].rawAddress.isNotEmpty;
+      return isOnline;
+    } catch (e) {
       return false;
     }
   }
 
   /// Sync all data types
   Future<SyncResult> syncAll() async {
-    if (_isSyncing) return SyncResult.alreadyInProgress;
+    if (_isSyncing) {
+      return SyncResult.alreadyInProgress;
+    }
     
     _isSyncing = true;
     _updateStatus(SyncStatus.syncing);
 
     try {
-      if (!await isOnline) {
+      final online = await isOnline;
+      if (!online) {
         _updateStatus(SyncStatus.offline);
         return SyncResult.offline;
       }
@@ -146,7 +159,9 @@ class SyncService {
     try {
       // Get local profile
       final localProfile = await _userRepo.getUserProfile(userId: _getCurrentUserId());
-      if (localProfile == null) return SyncResult.success;
+      if (localProfile == null) {
+        return SyncResult.success;
+      }
 
       // Get cloud profile
       final cloudProfile = await _firestore.getUserProfile();
@@ -175,9 +190,15 @@ class SyncService {
     try {
       // Get local entries
       final localEntries = await _dailyHabitRepo.getAllEntries(userId: _getCurrentUserId());
+      for (int i = 0; i < localEntries.length; i++) {
+        final entry = localEntries[i];
+      }
       
       // Get cloud entries
       final cloudEntries = await _firestore.getDailyHabitEntries();
+      for (int i = 0; i < cloudEntries.length; i++) {
+        final entry = cloudEntries[i];
+      }
 
       // Create maps for easier lookup
       final localMap = {for (var entry in localEntries) entry.id: entry};
@@ -310,6 +331,9 @@ class SyncService {
 
       return SyncResult.success;
     } catch (e) {
+      if (e.toString().contains('index')) {
+        return SyncResult.failure; // Still return failure but with context
+      }
       return SyncResult.failure;
     }
   }

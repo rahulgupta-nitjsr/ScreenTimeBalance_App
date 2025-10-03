@@ -91,16 +91,16 @@ class DailyHabitEntry {
         .map((key, value) => MapEntry(HabitCategoryX.fromId(key), (value as num).toInt()));
 
     return DailyHabitEntry(
-      id: map['id'] as String,
-      userId: map['userId'] as String,
-      date: DateTime.parse(map['date'] as String),
+      id: map['id'] as String? ?? '',
+      userId: map['userId'] as String? ?? '',
+      date: DateTime.parse(map['date'] as String? ?? DateTime.now().toIso8601String()),
       minutesByCategory: minutes,
-      earnedScreenTime: (map['earnedScreenTime'] as num).toInt(),
-      usedScreenTime: (map['usedScreenTime'] as num).toInt(),
-      powerModeUnlocked: (map['powerModeUnlocked'] as num) == 1,
-      algorithmVersion: map['algorithmVersion'] as String,
-      createdAt: DateTime.parse(map['createdAt'] as String),
-      updatedAt: DateTime.parse(map['updatedAt'] as String),
+      earnedScreenTime: (map['earnedScreenTime'] as num?)?.toInt() ?? 0,
+      usedScreenTime: (map['usedScreenTime'] as num?)?.toInt() ?? 0,
+      powerModeUnlocked: (map['powerModeUnlocked'] as num?) == 1,
+      algorithmVersion: map['algorithmVersion'] as String? ?? '1.0.0-unknown',
+      createdAt: DateTime.parse(map['createdAt'] as String? ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(map['updatedAt'] as String? ?? DateTime.now().toIso8601String()),
       manualAdjustmentMinutes: (map['manualAdjustmentMinutes'] as num?)?.toInt() ?? 0,
     );
   }
@@ -152,17 +152,28 @@ class DailyHabitEntry {
         .map((key, value) => MapEntry(HabitCategoryX.fromId(key), (value as num).toInt()));
 
     return DailyHabitEntry(
-      id: data['id'] as String,
-      userId: data['userId'] as String,
-      date: (data['date'] as DateTime),
+      id: data['id'] as String? ?? '',
+      userId: data['userId'] as String? ?? '',
+      date: _convertTimestamp(data['date']),
       minutesByCategory: minutes,
-      earnedScreenTime: (data['earnedScreenTime'] as num).toInt(),
-      usedScreenTime: (data['usedScreenTime'] as num).toInt(),
-      powerModeUnlocked: data['powerModeUnlocked'] as bool,
-      algorithmVersion: data['algorithmVersion'] as String,
-      createdAt: (data['createdAt'] as DateTime),
-      updatedAt: (data['updatedAt'] as DateTime),
+      earnedScreenTime: (data['earnedScreenTime'] as num?)?.toInt() ?? 0,
+      usedScreenTime: (data['usedScreenTime'] as num?)?.toInt() ?? 0,
+      powerModeUnlocked: data['powerModeUnlocked'] as bool? ?? false,
+      algorithmVersion: data['algorithmVersion'] as String? ?? '1.0.0-unknown',
+      createdAt: _convertTimestamp(data['createdAt']),
+      updatedAt: _convertTimestamp(data['updatedAt']),
       manualAdjustmentMinutes: (data['manualAdjustmentMinutes'] as num?)?.toInt() ?? 0,
     );
+  }
+
+  static DateTime _convertTimestamp(dynamic timestamp) {
+    if (timestamp is DateTime) {
+      return timestamp;
+    } else if (timestamp != null) {
+      // Handle Firestore Timestamp
+      return timestamp.toDate();
+    } else {
+      return DateTime.now();
+    }
   }
 }

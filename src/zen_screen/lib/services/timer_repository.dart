@@ -2,13 +2,13 @@ import 'package:uuid/uuid.dart';
 
 import '../models/habit_category.dart';
 import '../models/timer_session.dart';
-import 'database_service.dart';
+import 'platform_database_service.dart';
 
 class TimerRepository {
-  TimerRepository({DatabaseService? databaseService})
-      : _database = databaseService ?? DatabaseService.instance;
+  TimerRepository({PlatformDatabaseService? databaseService})
+      : _database = databaseService ?? PlatformDatabaseService.instance;
 
-  final DatabaseService _database;
+  final PlatformDatabaseService _database;
   final _uuid = const Uuid();
 
   static const _table = 'timer_sessions';
@@ -68,7 +68,12 @@ class TimerRepository {
       updatedAt: now,
       notes: notes,
     );
-    await _database.insert(_table, updated.toDbMap());
+    await _database.update(
+      _table,
+      updated.toDbMap(),
+      where: 'id = ?',
+      whereArgs: [session.id],
+    );
     return updated;
   }
 

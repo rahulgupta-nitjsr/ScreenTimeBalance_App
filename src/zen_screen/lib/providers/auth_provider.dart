@@ -60,6 +60,14 @@ class AuthController extends _$AuthController {
   AuthState build() {
     final authService = ref.watch(authServiceProvider);
 
+    // Check current auth state immediately
+    final currentUser = authService.currentUser;
+    if (currentUser != null) {
+      final appUser = AppUser.fromFirebase(currentUser);
+      _ensureUserProfile(appUser);
+      return AuthState.authenticated(appUser);
+    }
+
     _authSubscription = authService.authStateChanges().listen((firebaseUser) {
       if (firebaseUser == null) {
         state = const AuthState.unauthenticated();
@@ -74,7 +82,7 @@ class AuthController extends _$AuthController {
       _authSubscription?.cancel();
     });
 
-    return const AuthState.initial();
+    return const AuthState.unauthenticated();
   }
 
   Future<void> register({
@@ -173,8 +181,9 @@ extension on AuthController {
       await firestore.upsertUserProfile(
         profile.copyWith(updatedAt: now),
       );
-    } catch (_) {
-      // Swallow errors to avoid blocking auth flow; surfaced via sync/status elsewhere
+    } catch (e) {
+      // Don't swallow errors - let them surface for debugging
+      rethrow;
     }
   }
 }

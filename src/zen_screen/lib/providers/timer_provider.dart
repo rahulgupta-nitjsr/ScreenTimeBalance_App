@@ -111,13 +111,16 @@ class TimerManager extends _$TimerManager {
 
     final existing = await repo.getActiveSession(userId);
     if (existing != null) {
-      final now = DateTime.now();
-      final elapsed = now.difference(existing.startTime).inSeconds;
-      state = TimerState(
-        session: existing,
-        elapsedSeconds: elapsed,
-      );
-      _startTicker(resume: existing.status == TimerSessionStatus.running);
+      // Only restore if session is actually running or paused
+      if (existing.status == TimerSessionStatus.running || existing.status == TimerSessionStatus.paused) {
+        final now = DateTime.now();
+        final elapsed = now.difference(existing.startTime).inSeconds;
+        state = TimerState(
+          session: existing,
+          elapsedSeconds: elapsed,
+        );
+        _startTicker(resume: existing.status == TimerSessionStatus.running);
+      }
     }
   }
 
@@ -135,6 +138,7 @@ class TimerManager extends _$TimerManager {
     const maxTestTicks = 5; // Auto-cancel after 250ms in tests
 
     _tickTimer = Timer.periodic(tickInterval, (timer) {
+      
       // In test environment, auto-cancel after max ticks to prevent hanging
       if (isTest) {
         tickCount++;
@@ -159,16 +163,8 @@ class TimerManager extends _$TimerManager {
       }
       final now = DateTime.now();
       
-      // Check for system time changes (timezone/clock adjustments)
-      if (_lastSystemTime != null) {
-        final timeDiff = now.difference(_lastSystemTime!);
-        if (timeDiff.inSeconds.abs() > 2) { // More than 2 seconds difference
-          timer.cancel();
-          _autoStopTimer('Timer stopped due to system time change');
-          return;
-        }
-      }
-      _lastSystemTime = now;
+      // Remove the faulty system time change detection
+      // This was causing false positives and auto-stopping timers
       
       final elapsed = now.difference(session.startTime).inSeconds;
       
@@ -213,6 +209,7 @@ class TimerManager extends _$TimerManager {
 
   /// Start a timer for the specified category
   Future<void> startTimer(HabitCategory category) async {
+    
     if (state.session != null && state.session!.category != category && state.hasActiveOrPausedSession) {
       throw TimerConflictException(
         'Only one timer can be active at once. Stop the current ${state.session!.category.label} timer first.',
@@ -258,6 +255,9 @@ class TimerManager extends _$TimerManager {
     final elapsedSeconds = now.difference(session.startTime).inSeconds;
     final earnedMinutes = (elapsedSeconds / 60).floor();
 
+    // Clear state immediately to prevent race conditions
+    state = const TimerState();
+
     await repo.endSession(
       session: session,
       status: completionStatus,
@@ -266,7 +266,6 @@ class TimerManager extends _$TimerManager {
       notes: notes,
     );
 
-    state = const TimerState();
     return TimerStopResult(earnedMinutes: earnedMinutes, status: completionStatus);
   }
 
@@ -380,10 +379,10 @@ class TimerManager extends _$TimerManager {
   /// Detects if we're running in a test environment
   bool _isTestEnvironment() {
     try {
+      // Only consider it a test environment if explicitly set via environment variables
+      // Don't rely on script paths as they can be misleading in web/production builds
       return Platform.environment.containsKey('FLUTTER_TEST') ||
-             Platform.environment.containsKey('DART_TEST') ||
-             Platform.script.toString().contains('test') ||
-             Platform.script.toString().contains('flutter_test');
+             Platform.environment.containsKey('DART_TEST');
     } catch (e) {
       return false;
     }
