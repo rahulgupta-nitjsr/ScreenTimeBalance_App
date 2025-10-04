@@ -137,7 +137,7 @@ This document tracks the progress of the ZenScreen project through all phases of
 
 ---
 
-## Phase 5: Development (75% COMPLETE - 12/16 Features)
+## Phase 5: Development (87.5% COMPLETE - 14/16 Features)
 
 ### 5.1 Development Phases
 - [x] **Environment Setup** - Development tools and project initialization ✅
@@ -153,7 +153,9 @@ This document tracks the progress of the ZenScreen project through all phases of
 - [x] **Feature 10: User Authentication** - Complete Firebase Auth integration ✅
 - [x] **Feature 11: Progress Tracking Display** - Complete progress visualization system ✅
 - [x] **Feature 12: POWER+ Mode Celebration** - Complete gamification system ✅
-- [ ] **Features 13-16** - Remaining core features implementation
+- [x] **Feature 13: Historical Data Display** - Complete 7-day history timeline ✅
+- [x] **Feature 14: User Profile & Settings** - Complete profile management and settings ✅
+- [ ] **Features 15-16** - Remaining core features implementation
 
 ### 5.1.6 Feature 5: Manual Time Entry ✅ COMPLETED
 - [x] **HabitEntryPad Widget** - Complete implementation with all 4 category tabs
