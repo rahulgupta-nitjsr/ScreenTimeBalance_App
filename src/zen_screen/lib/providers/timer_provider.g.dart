@@ -190,7 +190,7 @@ final activeTimerCategoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ActiveTimerCategoryRef = AutoDisposeProviderRef<HabitCategory?>;
-String _$timerManagerHash() => r'5e5c142ab29ac58b81fdb7ed25f303402e926bb4';
+String _$timerManagerHash() => r'48cf4623b851cfbd3b31bdf44c426769681ef772';
 
 /// Timer provider for managing active timers
 ///

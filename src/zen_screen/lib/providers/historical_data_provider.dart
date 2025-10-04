@@ -120,3 +120,90 @@ Future<Map<HabitCategory, int>> lastCategoryMinutes(LastCategoryMinutesRef ref, 
     return {category: 0};
   }
 }
+
+/// Provider to get 7-day historical data for sparklines
+@riverpod
+Future<List<int>> historicalData7Days(HistoricalData7DaysRef ref, HabitCategory category) async {
+  final repository = ref.read(dailyHabitRepositoryProvider);
+  final authState = ref.read(authControllerProvider);
+  
+  // Return empty list if not authenticated
+  if (authState is! Authenticated) {
+    return List.filled(7, 0);
+  }
+  
+  final today = DateTime.now();
+  final List<int> historicalData = [];
+  
+  try {
+    // Get data for last 7 days (including today)
+    for (int i = 6; i >= 0; i--) {
+      final date = today.subtract(Duration(days: i));
+      final entry = await repository.getEntryForDate(
+        userId: authState.user.id,
+        date: date,
+      );
+      
+      final minutes = entry?.minutesByCategory[category] ?? 0;
+      historicalData.add(minutes);
+    }
+    
+    return historicalData;
+  } catch (e) {
+    // If there's an error, return empty data
+    return List.filled(7, 0);
+  }
+}
+
+/// Provider to check if POWER+ Mode was achieved on a specific date
+@riverpod
+Future<bool> powerModeAchievedOnDate(PowerModeAchievedOnDateRef ref, DateTime date) async {
+  final repository = ref.read(dailyHabitRepositoryProvider);
+  final authState = ref.read(authControllerProvider);
+  
+  if (authState is! Authenticated) {
+    return false;
+  }
+  
+  try {
+    final entry = await repository.getEntryForDate(
+      userId: authState.user.id,
+      date: date,
+    );
+    
+    return entry?.powerModeUnlocked ?? false;
+  } catch (e) {
+    return false;
+  }
+}
+
+/// Provider to get POWER+ Mode achievement streak
+@riverpod
+Future<int> powerModeStreak(PowerModeStreakRef ref) async {
+  final authState = ref.read(authControllerProvider);
+  
+  if (authState is! Authenticated) {
+    return 0;
+  }
+  
+  final today = DateTime.now();
+  int streak = 0;
+  
+  try {
+    // Check consecutive days starting from today
+    for (int i = 0; i < 30; i++) { // Check up to 30 days
+      final date = today.subtract(Duration(days: i));
+      final wasAchieved = await ref.read(powerModeAchievedOnDateProvider(date).future);
+      
+      if (wasAchieved) {
+        streak++;
+      } else {
+        break; // Streak broken
+      }
+    }
+    
+    return streak;
+  } catch (e) {
+    return 0;
+  }
+}
