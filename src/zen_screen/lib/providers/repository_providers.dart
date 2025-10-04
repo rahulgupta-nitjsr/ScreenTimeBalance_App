@@ -4,9 +4,13 @@ import '../services/daily_habit_repository.dart';
 import '../services/timer_repository.dart';
 import '../services/audit_repository.dart';
 import '../services/user_repository.dart';
+import '../services/settings_repository.dart';
 import '../services/sync_service.dart';
 import '../services/firestore_service.dart';
 import '../services/platform_database_service.dart';
+import '../services/image_picker_service.dart';
+import '../services/storage_service.dart';
+import '../services/data_export_service.dart';
 import 'auth_provider.dart';
 
 final platformDatabaseProvider = Provider<PlatformDatabaseService>((ref) {
@@ -35,6 +39,22 @@ final auditRepositoryProvider = Provider<AuditRepository>((ref) {
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {
   return UserRepository();
+});
+
+final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
+  return SettingsRepository();
+});
+
+final imagePickerServiceProvider = Provider<ImagePickerService>((ref) {
+  return ImagePickerService();
+});
+
+final storageServiceProvider = Provider<StorageService>((ref) {
+  return StorageService();
+});
+
+final dataExportServiceProvider = Provider<DataExportService>((ref) {
+  return DataExportService();
 });
 
 final firestoreServiceProvider = Provider<FirestoreService>((ref) {

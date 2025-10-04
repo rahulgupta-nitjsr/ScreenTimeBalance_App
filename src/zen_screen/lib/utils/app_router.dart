@@ -9,6 +9,10 @@ import '../screens/profile_screen.dart';
 import '../screens/how_it_works_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/register_screen.dart';
+import '../screens/history_screen.dart';
+import '../screens/edit_profile_screen.dart';
+import '../screens/settings_notifications_screen.dart';
+import '../screens/settings_privacy_screen.dart';
 import '../providers/auth_provider.dart';
 
 /// Route names for type-safe navigation
@@ -20,6 +24,10 @@ class AppRoutes {
   static const String log = '/log';
   static const String progress = '/progress';
   static const String profile = '/profile';
+  static const String editProfile = '/edit-profile';
+  static const String history = '/history';
+  static const String settingsNotifications = '/settings/notifications';
+  static const String settingsPrivacy = '/settings/privacy';
   static const String howItWorks = '/how-it-works';
 }
 
@@ -97,6 +105,26 @@ GoRouter appRouterFactory({
         path: AppRoutes.profile,
         name: 'profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.editProfile,
+        name: 'edit-profile',
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.history,
+        name: 'history',
+        builder: (context, state) => const HistoryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.settingsNotifications,
+        name: 'settings-notifications',
+        builder: (context, state) => const SettingsNotificationsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.settingsPrivacy,
+        name: 'settings-privacy',
+        builder: (context, state) => const SettingsPrivacyScreen(),
       ),
       GoRoute(
         path: AppRoutes.howItWorks,

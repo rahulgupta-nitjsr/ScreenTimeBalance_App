@@ -21,7 +21,7 @@ class PlatformDatabaseService {
   bool get _isWeb => kIsWeb;
 
   static const _dbName = 'zen_screen.db';
-  static const _dbVersion = 3;
+  static const _dbVersion = 4;
 
   Future<void> initialize() async {
     if (!_isWeb) {
@@ -195,6 +195,19 @@ class PlatformDatabaseService {
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE user_settings (
+        user_id TEXT PRIMARY KEY,
+        daily_reminders INTEGER NOT NULL DEFAULT 1,
+        power_mode_alerts INTEGER NOT NULL DEFAULT 1,
+        daily_streak_reminders INTEGER NOT NULL DEFAULT 0,
+        weekly_reports INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    ''');
   }
 
   Future<void> _migrate(Database db, int oldVersion, int newVersion) async {
@@ -229,6 +242,21 @@ class PlatformDatabaseService {
           ''');
           await db.execute('''
             ALTER TABLE daily_habit_entries ADD COLUMN manual_adjustment_minutes INTEGER NOT NULL DEFAULT 0
+          ''');
+          break;
+        case 3:
+          // Add user_settings table
+          await db.execute('''
+            CREATE TABLE IF NOT EXISTS user_settings (
+              user_id TEXT PRIMARY KEY,
+              daily_reminders INTEGER NOT NULL DEFAULT 1,
+              power_mode_alerts INTEGER NOT NULL DEFAULT 1,
+              daily_streak_reminders INTEGER NOT NULL DEFAULT 0,
+              weekly_reports INTEGER NOT NULL DEFAULT 0,
+              created_at TEXT NOT NULL,
+              updated_at TEXT NOT NULL,
+              FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
           ''');
           break;
       }
