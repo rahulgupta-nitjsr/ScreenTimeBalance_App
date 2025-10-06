@@ -55,3 +55,13 @@ class MinutesByCategoryNotifier extends StateNotifier<Map<HabitCategory, int>> {
 final minutesByCategoryProvider = StateNotifierProvider<MinutesByCategoryNotifier, Map<HabitCategory, int>>((ref) {
   return MinutesByCategoryNotifier();
 });
+
+/// Refresh minutes from repository (useful after edits)
+Future<void> refreshMinutesFromRepository(WidgetRef ref, String userId, DateTime date) async {
+  // This would reload the current day's data from the repository
+  // Implementation depends on having the repository data available
+  final notifier = ref.read(minutesByCategoryProvider.notifier);
+  // For now, this is a placeholder that triggers recalculation
+  // The actual implementation would fetch from repository and update state
+  notifier.resetAll();
+}

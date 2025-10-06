@@ -31,6 +31,15 @@ class PlatformDatabaseService {
     }
   }
 
+  /// Initialize database for testing
+  Future<void> initializeForTesting() async {
+    if (!_isWeb) {
+      await _initSqlite();
+    } else {
+      _prefs = await SharedPreferences.getInstance();
+    }
+  }
+
   Future<void> _initSqlite() async {
     final databasesPath = await getDatabasesPath();
     final dbPath = path.join(databasesPath, _dbName);

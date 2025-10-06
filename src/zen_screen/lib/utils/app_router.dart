@@ -13,6 +13,7 @@ import '../screens/history_screen.dart';
 import '../screens/edit_profile_screen.dart';
 import '../screens/settings_notifications_screen.dart';
 import '../screens/settings_privacy_screen.dart';
+import '../screens/audit_trail_screen.dart';
 import '../providers/auth_provider.dart';
 
 /// Route names for type-safe navigation
@@ -26,6 +27,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';
   static const String history = '/history';
+  static const String auditTrail = '/audit-trail';
   static const String settingsNotifications = '/settings/notifications';
   static const String settingsPrivacy = '/settings/privacy';
   static const String howItWorks = '/how-it-works';
@@ -115,6 +117,11 @@ GoRouter appRouterFactory({
         path: AppRoutes.history,
         name: 'history',
         builder: (context, state) => const HistoryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.auditTrail,
+        name: 'audit-trail',
+        builder: (context, state) => const AuditTrailScreen(),
       ),
       GoRoute(
         path: AppRoutes.settingsNotifications,

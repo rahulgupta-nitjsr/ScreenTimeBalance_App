@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/habit_category.dart';
+import '../models/daily_habit_entry.dart';
 import '../providers/algorithm_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/minutes_provider.dart';
@@ -14,6 +15,12 @@ import '../utils/theme.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/habit_entry_pad.dart';
+import '../widgets/edit_habit_dialog.dart';
+import '../widgets/glass_snack_bar.dart';
+import '../widgets/undo_banner.dart';
+import '../providers/habit_edit_provider.dart';
+import '../providers/undo_provider.dart';
+import '../services/habit_edit_service.dart';
 import '../widgets/zen_button.dart';
 
 class LogScreen extends ConsumerStatefulWidget {
@@ -568,22 +575,266 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
 
   Widget _buildTotalsList(BuildContext context) {
     final minutesByCategory = ref.watch(minutesByCategoryProvider);
+    final editService = ref.watch(habitEditServiceProvider);
+
     return Column(
       children: [
         for (final category in HabitCategory.values)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppTheme.spaceXS),
-            child: Row(
-              children: [
-                Icon(category.icon, size: 20, color: category.primaryColor(context)),
-                const SizedBox(width: AppTheme.spaceSM),
-                Expanded(child: Text(category.label)),
-                Text(_formatMinutes(minutesByCategory[category] ?? 0)),
-              ],
+          InkWell(
+            borderRadius: BorderRadius.circular(AppTheme.radiusSM),
+            onTap: () => _showEditDialog(
+              context,
+              category,
+              minutesByCategory[category] ?? 0,
+              editService,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: AppTheme.spaceXS,
+                horizontal: AppTheme.spaceSM,
+              ),
+              child: Row(
+                children: [
+                  Icon(category.icon, size: 20, color: category.primaryColor(context)),
+                  const SizedBox(width: AppTheme.spaceSM),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(category.label),
+                        const SizedBox(height: AppTheme.spaceXS),
+                        FutureBuilder<bool>(
+                          future: _hasCategoryBeenEdited(
+                            service: editService,
+                            category: category,
+                          ),
+                          builder: (context, snapshot) {
+                            final edited = snapshot.data ?? false;
+                            if (!edited) return const SizedBox.shrink();
+                            return Row(
+                              children: [
+                                Icon(
+                                  Icons.history,
+                                  size: 12,
+                                  color: AppTheme.textMedium.withOpacity(0.7),
+                                ),
+                                const SizedBox(width: AppTheme.spaceXS),
+                                Text(
+                                  'Edited',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: AppTheme.textMedium.withOpacity(0.7),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        _formatMinutes(minutesByCategory[category] ?? 0),
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(width: AppTheme.spaceSM),
+                      Icon(
+                        Icons.edit_outlined,
+                        size: 18,
+                        color: AppTheme.textMedium.withOpacity(0.6),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
       ],
     );
+  }
+
+  String get _currentUserId {
+    final authState = ref.read(authControllerProvider);
+    if (authState is Authenticated) return authState.user.id;
+    return '';
+  }
+
+  Future<void> _showEditDialog(
+    BuildContext context,
+    HabitCategory category,
+    int currentMinutes,
+    HabitEditService editService,
+  ) async {
+    final userId = _currentUserId;
+    if (userId.isEmpty) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        GlassSnackBar.error(
+          context,
+          title: 'Sign in required',
+          message: 'Please sign in to edit habit entries.',
+        ),
+      );
+      return;
+    }
+
+    final canEdit = await editService.canEditEntry(
+      userId: userId,
+      entryDate: DateTime.now(),
+    );
+
+    if (!canEdit) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        GlassSnackBar.error(
+          context,
+          title: 'Editing unavailable',
+          message: 'You can edit today\'s habits up to ${HabitEditService.maxEditsPerDay} times.',
+        ),
+      );
+      return;
+    }
+    
+    // Get the current entry for undo
+    final habitRepo = ref.read(dailyHabitRepositoryProvider);
+    final currentEntry = await habitRepo.getEntry(userId: userId, date: DateTime.now());
+    if (currentEntry == null) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        GlassSnackBar.error(
+          context,
+          title: 'Error',
+          message: 'Could not load current habit data.',
+        ),
+      );
+      return;
+    }
+
+    if (!context.mounted) return;
+    final result = await showDialog<_PendingEditResult?>(
+      context: context,
+      builder: (ctx) => EditHabitDialog(
+        category: category,
+        currentMinutes: currentMinutes,
+        onSave: (minutes, reason) {
+          Navigator.of(ctx).pop(_PendingEditResult(minutes: minutes, reason: reason));
+        },
+      ),
+    );
+
+    if (result == null || !context.mounted) return;
+
+    final editResult = await editService.editHabitEntry(
+      userId: userId,
+      entryDate: DateTime.now(),
+      category: category,
+      newMinutes: result.minutes,
+      reason: result.reason,
+    );
+
+    if (!context.mounted) return;
+
+    if (editResult.requiresConfirmation) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => ConfirmLargeChangeDialog(
+          changeSummary: editResult.changeSummary ?? 'This is a significant change. Continue?',
+          onConfirm: () => Navigator.of(ctx).pop(true),
+        ),
+      );
+
+      if (confirmed != true) {
+        return;
+      }
+
+      final confirmedResult = await editService.editHabitEntry(
+        userId: userId,
+        entryDate: DateTime.now(),
+        category: category,
+        newMinutes: result.minutes,
+        reason: result.reason,
+        confirmed: true,
+      );
+
+      _handleEditResult(context, confirmedResult, category, result.minutes, currentMinutes, currentEntry);
+      return;
+    }
+
+    _handleEditResult(context, editResult, category, result.minutes, currentMinutes, currentEntry);
+  }
+
+  void _handleEditResult(
+    BuildContext context,
+    EditResult result,
+    HabitCategory category,
+    int newMinutes,
+    int oldMinutes,
+    DailyHabitEntry previousEntry,
+  ) {
+    if (!context.mounted) return;
+
+    if (result.success && result.updatedEntry != null) {
+      // Record action for undo
+      final undoService = ref.read(undoServiceProvider);
+      undoService.registerUndoableAction(
+        userId: _currentUserId,
+        entryDate: DateTime.now(),
+        category: category,
+        oldMinutes: oldMinutes,
+        newMinutes: newMinutes,
+        previousEntry: previousEntry,
+      );
+      
+      // Update the UI with the new value
+      ref.read(minutesByCategoryProvider.notifier).setMinutes(category, newMinutes);
+      
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        GlassSnackBar.success(
+          context,
+          title: 'Updated ${category.label}',
+          message: 'Set to ${_formatMinutes(newMinutes)}. Earned time recalculated.',
+        ),
+      );
+      
+      // Show undo banner
+      showUndoBanner(
+        context,
+        undoService: undoService,
+        onUndoComplete: () {
+          // Refresh UI after undo
+          _refreshFromRepository();
+        },
+      );
+      return;
+    }
+
+    if (result.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        GlassSnackBar.error(
+          context,
+          title: 'Edit failed',
+          message: result.errorMessage!,
+        ),
+      );
+    }
+  }
+  
+  Future<void> _refreshFromRepository() async {
+    // Reload today's data from repository
+    final userId = _currentUserId;
+    if (userId.isEmpty) return;
+    
+    final habitRepo = ref.read(dailyHabitRepositoryProvider);
+    final today = DateTime.now();
+    
+    final entry = await habitRepo.getEntry(userId: userId, date: today);
+    if (entry != null) {
+      // Update UI with repository data
+      ref.read(minutesByCategoryProvider.notifier).setAll(entry.minutesByCategory);
+    }
   }
 
   String _formatMinutes(int totalMinutes) {
@@ -592,4 +843,26 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
     if (hours == 0) return '${minutes}m';
     return '${hours}h ${minutes}m';
   }
+
+  Future<bool> _hasCategoryBeenEdited({
+    required HabitEditService service,
+    required HabitCategory category,
+  }) async {
+    final userId = _currentUserId;
+    if (userId.isEmpty) return false;
+
+    final events = await service.getEditHistory(
+      userId: userId,
+      date: DateTime.now(),
+    );
+
+    return events.any((event) => event.category == category.id);
+  }
+}
+
+class _PendingEditResult {
+  const _PendingEditResult({required this.minutes, this.reason});
+
+  final int minutes;
+  final String? reason;
 }

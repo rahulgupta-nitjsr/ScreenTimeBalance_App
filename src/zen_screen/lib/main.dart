@@ -9,11 +9,21 @@ import 'firebase_options.dart';
 import 'utils/app_router.dart';
 import 'utils/theme.dart';
 import 'providers/navigation_provider.dart';
+import 'providers/error_handler_provider.dart';
 import 'services/platform_database_service.dart';
+import 'widgets/error_boundary.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Set up global error handler
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    if (kDebugMode) {
+      print('Flutter Error: ${details.exception}');
+      print('Stack Trace: ${details.stack}');
+    }
+  };
   
   // Initialize platform database service
   await PlatformDatabaseService.instance.initialize();
@@ -92,11 +102,16 @@ class _ZenScreenAppState extends ConsumerState<ZenScreenApp> with WidgetsBinding
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'ZenScreen',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      routerConfig: _router,
+    // Initialize error handling
+    initializeErrorHandling(ref);
+    
+    return ErrorBoundary(
+      child: MaterialApp.router(
+        title: 'ZenScreen',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        routerConfig: _router,
+      ),
     );
   }
 }

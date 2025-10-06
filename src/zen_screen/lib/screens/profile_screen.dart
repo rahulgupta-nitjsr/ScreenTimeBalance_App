@@ -107,6 +107,13 @@ class ProfileScreen extends ConsumerWidget {
                               ),
                               _buildSettingItem(
                                 context,
+                                icon: Icons.history,
+                                title: 'Audit Trail',
+                                subtitle: 'View all habit edits and changes',
+                                onTap: () => context.push(AppRoutes.auditTrail),
+                              ),
+                              _buildSettingItem(
+                                context,
                                 icon: Icons.help_outline,
                                 title: 'Help & Support',
                                 subtitle: 'Get help and contact us',
