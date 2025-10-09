@@ -236,8 +236,11 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
           ),
           const SizedBox(height: AppTheme.spaceLG),
           if (activeCategory != null) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            // Use Wrap instead of Row to handle overflow gracefully
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: AppTheme.spaceMD,
+              runSpacing: AppTheme.spaceSM,
               children: [
                 ZenButton.secondary(
                   'Stop',
@@ -252,7 +255,6 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
                     );
                   },
                 ),
-                const SizedBox(width: AppTheme.spaceMD),
                 if (timerState.isPaused)
                   ZenButton.success(
                     'Resume',
@@ -269,7 +271,6 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
                       timerManager.pauseTimer();
                     },
                   ),
-                const SizedBox(width: AppTheme.spaceMD),
                 ZenButton.outline(
                   'Cancel',
                   key: AppKeys.timerCancelButton,

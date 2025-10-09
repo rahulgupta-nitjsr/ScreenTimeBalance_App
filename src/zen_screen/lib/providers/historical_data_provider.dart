@@ -132,6 +132,12 @@ Future<List<int>> historicalData7Days(HistoricalData7DaysRef ref, HabitCategory 
     return List.filled(7, 0);
   }
   
+  // TODO: Temporarily return dummy data to prevent database locking
+  // The issue is that this provider is being called multiple times
+  // causing too many concurrent database operations
+  return List.filled(7, 0);
+  
+  /* Original implementation - causing database locking
   final today = DateTime.now();
   final List<int> historicalData = [];
   
@@ -153,6 +159,7 @@ Future<List<int>> historicalData7Days(HistoricalData7DaysRef ref, HabitCategory 
     // If there's an error, return empty data
     return List.filled(7, 0);
   }
+  */
 }
 
 /// Provider to check if POWER+ Mode was achieved on a specific date

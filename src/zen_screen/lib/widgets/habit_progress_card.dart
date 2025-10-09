@@ -23,6 +23,7 @@ class HabitProgressCard extends StatelessWidget {
     this.maxMinutes,
     this.showTrend = false,
     this.trendData,
+    this.isCompact = false,
   });
 
   final HabitCategory category;
@@ -32,6 +33,7 @@ class HabitProgressCard extends StatelessWidget {
   final int? maxMinutes;
   final bool showTrend;
   final List<int>? trendData; // Last 7 days of data for sparkline
+  final bool isCompact; // Compact mode for 2x2 grid
 
   /// Calculate completion percentage (0.0 to 1.0)
   double get _progress {
@@ -64,6 +66,11 @@ class HabitProgressCard extends StatelessWidget {
     final goalHours = goalMinutes ~/ 60;
     final goalMins = goalMinutes % 60;
 
+    // Use smaller padding and sizing in compact mode
+    final padding = isCompact ? AppTheme.spaceXS : AppTheme.spaceMD;
+    final iconSize = isCompact ? 16.0 : 24.0;
+    final circleSize = isCompact ? 60.0 : 120.0;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.05),
@@ -76,7 +83,7 @@ class HabitProgressCard extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppTheme.spaceMD),
+        padding: EdgeInsets.all(padding),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -86,7 +93,7 @@ class HabitProgressCard extends StatelessWidget {
                 Icon(
                   category.icon,
                   color: category.primaryColor(context),
-                  size: 24,
+                  size: iconSize,
                 ),
                 const SizedBox(width: AppTheme.spaceSM),
                 Expanded(
@@ -117,18 +124,18 @@ class HabitProgressCard extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: AppTheme.spaceLG),
+            SizedBox(height: isCompact ? AppTheme.spaceXS : AppTheme.spaceLG),
 
             // Circular progress indicator with center text
             SizedBox(
-              width: 120,
-              height: 120,
+              width: circleSize,
+              height: circleSize,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   // Progress circle
                   CustomPaint(
-                    size: const Size(120, 120),
+                    size: Size(circleSize, circleSize),
                     painter: _CircularProgressPainter(
                       progress: _progress,
                       color: progressColor,
@@ -137,28 +144,32 @@ class HabitProgressCard extends StatelessWidget {
                   ),
                   // Center text showing percentage
                   Column(
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         '${(_progress * 100).toInt()}%',
-                        style: theme.textTheme.headlineMedium?.copyWith(
+                        style: (isCompact 
+                            ? theme.textTheme.titleLarge
+                            : theme.textTheme.headlineMedium)?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: progressColor,
                         ),
                       ),
-                      Text(
-                        _statusText,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: AppTheme.textLight,
+                      if (!isCompact) // Hide status text in compact mode
+                        Text(
+                          _statusText,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: AppTheme.textLight,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: AppTheme.spaceMD),
+            SizedBox(height: isCompact ? AppTheme.spaceXS : AppTheme.spaceMD),
 
             // Current vs Goal
             Row(
@@ -166,52 +177,59 @@ class HabitProgressCard extends StatelessWidget {
               children: [
                 Text(
                   '${hours}h ${mins}m',
-                  style: theme.textTheme.titleLarge?.copyWith(
+                  style: (isCompact 
+                      ? theme.textTheme.titleMedium 
+                      : theme.textTheme.titleLarge)?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   ' / ${goalHours}h ${goalMins}m',
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: (isCompact 
+                      ? theme.textTheme.bodyMedium 
+                      : theme.textTheme.titleMedium)?.copyWith(
                     color: AppTheme.textLight,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: AppTheme.spaceXS),
-
-            // Earned screen time
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppTheme.spaceMD,
-                vertical: AppTheme.spaceXS,
-              ),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryGreen.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppTheme.radiusMD),
-              ),
-              child: Text(
-                'Earned: $earnedMinutes min screen time',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: AppTheme.secondaryGreen,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-
-            // Maximum cap indicator (if applicable)
-            if (maxMinutes != null && maxMinutes! > 0) ...[
+            // Only show earned time and cap in non-compact mode
+            if (!isCompact) ...[
               const SizedBox(height: AppTheme.spaceXS),
-              Text(
-                'Cap: ${maxMinutes! ~/ 60}h ${maxMinutes! % 60}m max',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: AppTheme.textLight,
+
+              // Earned screen time
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppTheme.spaceMD,
+                  vertical: AppTheme.spaceXS,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryGreen.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMD),
+                ),
+                child: Text(
+                  'Earned: $earnedMinutes min screen time',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppTheme.secondaryGreen,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
+
+              // Maximum cap indicator (if applicable)
+              if (maxMinutes != null && maxMinutes! > 0) ...[
+                const SizedBox(height: AppTheme.spaceXS),
+                Text(
+                  'Cap: ${maxMinutes! ~/ 60}h ${maxMinutes! % 60}m max',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: AppTheme.textLight,
+                  ),
+                ),
+              ],
             ],
 
-            // Sparkline trend (if data available)
-            if (showTrend && trendData != null && trendData!.isNotEmpty) ...[
+            // Sparkline trend (if data available and not in compact mode)
+            if (!isCompact && showTrend && trendData != null && trendData!.isNotEmpty) ...[
               const SizedBox(height: AppTheme.spaceMD),
               _buildSparkline(context, trendData!),
             ],

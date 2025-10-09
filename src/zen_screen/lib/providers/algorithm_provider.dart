@@ -18,10 +18,8 @@ final algorithmConfigServiceProvider = Provider<AlgorithmConfigService>((ref) {
 final algorithmConfigProvider = FutureProvider<AlgorithmConfig>((ref) async {
   final service = ref.read(algorithmConfigServiceProvider);
   final config = await service.loadConfig();
-  final subscription = service.configStream.listen((updatedConfig) {
-    ref.invalidateSelf();
-  });
-  ref.onDispose(subscription.cancel);
+  // Remove the infinite loop by not invalidating self
+  // The config stream should be handled differently to avoid circular dependencies
   return config;
 });
 
