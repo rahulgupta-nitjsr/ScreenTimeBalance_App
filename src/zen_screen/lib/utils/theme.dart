@@ -308,7 +308,7 @@ class AppTheme {
   /// Primary button style
   static ButtonStyle get primaryButtonStyle {
     return ElevatedButton.styleFrom(
-      backgroundColor: primaryGreen,
+      backgroundColor: const Color(0xFF4AE896), // Lighter, brighter green
       foregroundColor: textDark,
       elevation: 8,
       shadowColor: primaryGreen.withOpacity(0.3),
