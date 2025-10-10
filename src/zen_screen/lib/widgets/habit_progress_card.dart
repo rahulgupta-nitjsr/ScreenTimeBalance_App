@@ -42,6 +42,13 @@ class HabitProgressCard extends StatelessWidget {
     return progress.clamp(0.0, 1.0);
   }
 
+  /// Get the actual percentage for display (can exceed 100%)
+  int get _displayPercentage {
+    if (goalMinutes <= 0) return 0;
+    final percentage = (currentMinutes / goalMinutes * 100).round();
+    return percentage;
+  }
+
   /// Get color based on progress level
   /// **UX Learning:** Color coding helps users quickly understand status without reading text
   Color _getProgressColor(BuildContext context) {
@@ -50,17 +57,31 @@ class HabitProgressCard extends StatelessWidget {
     return AppTheme.borderLight; // Not started
   }
 
+  /// Get enhanced color for over-achievement
+  Color _getEnhancedProgressColor(BuildContext context) {
+    if (_displayPercentage >= 150) return const Color(0xFF4CAF50); // Deep green for 150%+
+    if (_displayPercentage >= 120) return const Color(0xFF8BC34A); // Light green for 120%+
+    if (_displayPercentage >= 100) return AppTheme.secondaryGreen; // Standard green for 100%+
+    if (_displayPercentage >= 50) return Colors.amber; // Amber for 50%+
+    return AppTheme.borderLight; // Light for under 50%
+  }
+
   /// Get status text based on progress
   String get _statusText {
-    if (_progress >= 1.0) return 'Goal Complete! 🎉';
-    if (_progress >= 0.5) return 'Keep Going!';
+    if (_displayPercentage >= 200) return 'Incredible! 🚀';
+    if (_displayPercentage >= 150) return 'Amazing! ⭐';
+    if (_displayPercentage >= 120) return 'Excellent! 💪';
+    if (_displayPercentage >= 100) return 'Goal Complete! 🎉';
+    if (_displayPercentage >= 75) return 'Almost There! 🔥';
+    if (_displayPercentage >= 50) return 'Keep Going! 💪';
+    if (_displayPercentage >= 25) return 'Good Start! 🌱';
     return 'Get Started';
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final progressColor = _getProgressColor(context);
+    final progressColor = _getEnhancedProgressColor(context);
     final hours = currentMinutes ~/ 60;
     final mins = currentMinutes % 60;
     final goalHours = goalMinutes ~/ 60;
@@ -147,13 +168,18 @@ class HabitProgressCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        '${(_progress * 100).toInt()}%',
-                        style: (isCompact 
-                            ? theme.textTheme.titleLarge
-                            : theme.textTheme.headlineMedium)?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: progressColor,
+                      // Use FittedBox to ensure text always fits
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          '$_displayPercentage%',
+                          style: (isCompact 
+                              ? theme.textTheme.titleLarge
+                              : theme.textTheme.headlineMedium)?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: progressColor,
+                            fontSize: isCompact ? 16 : 24, // Fixed font sizes for consistency
+                          ),
                         ),
                       ),
                       if (!isCompact) // Hide status text in compact mode
@@ -287,16 +313,16 @@ class _CircularProgressPainter extends CustomPainter {
     final radius = size.width / 2;
     final strokeWidth = 12.0;
 
-    // Background circle
+    // Background circle with subtle shadow effect
     final bgPaint = Paint()
-      ..color = backgroundColor.withOpacity(0.3)
+      ..color = backgroundColor.withOpacity(0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
 
     canvas.drawCircle(center, radius - strokeWidth / 2, bgPaint);
 
-    // Progress arc
+    // Progress arc with enhanced visual appeal
     if (progress > 0) {
       final progressPaint = Paint()
         ..color = color
@@ -314,6 +340,23 @@ class _CircularProgressPainter extends CustomPainter {
         false,
         progressPaint,
       );
+
+      // Add a subtle highlight on the progress arc for depth
+      if (progress > 0.1) {
+        final highlightPaint = Paint()
+          ..color = Colors.white.withOpacity(0.3)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth * 0.3
+          ..strokeCap = StrokeCap.round;
+
+        canvas.drawArc(
+          Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+          startAngle,
+          sweepAngle,
+          false,
+          highlightPaint,
+        );
+      }
     }
   }
 

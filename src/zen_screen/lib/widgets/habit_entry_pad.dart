@@ -94,6 +94,9 @@ class _HabitEntryPadState extends ConsumerState<HabitEntryPad> with SingleTicker
         controller: _tabController,
         labelColor: AppTheme.primaryGreen,
         unselectedLabelColor: AppTheme.textLight,
+        labelPadding: const EdgeInsets.symmetric(horizontal: 1.0),
+        labelStyle: const TextStyle(fontSize: 12.0, fontWeight: FontWeight.bold),
+        unselectedLabelStyle: const TextStyle(fontSize: 12.0),
         indicator: BoxDecoration(
           borderRadius: BorderRadius.circular(AppTheme.radiusMD),
           color: AppTheme.primaryGreen.withOpacity(0.12),

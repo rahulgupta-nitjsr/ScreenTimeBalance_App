@@ -290,24 +290,56 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
             const SizedBox(height: AppTheme.spaceLG),
             _buildActiveCategoryBadge(context, activeCategory, timerState.isPaused),
           ] else ...[
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (final category in HabitCategory.values)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceXS),
+            Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
                       child: ZenButton.outline(
-                        category.label,
-                        key: _categoryKey(category),
+                        HabitCategory.sleep.label,
+                        key: _categoryKey(HabitCategory.sleep),
                         onPressed: () {
-                          _startTimerForCategory(context, timerManager, category);
+                          _startTimerForCategory(context, timerManager, HabitCategory.sleep);
                         },
                       ),
                     ),
-                ],
-              ),
+                    const SizedBox(width: AppTheme.spaceMD),
+                    Expanded(
+                      child: ZenButton.outline(
+                        HabitCategory.exercise.label,
+                        key: _categoryKey(HabitCategory.exercise),
+                        onPressed: () {
+                          _startTimerForCategory(context, timerManager, HabitCategory.exercise);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppTheme.spaceMD),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ZenButton.outline(
+                        HabitCategory.outdoor.label,
+                        key: _categoryKey(HabitCategory.outdoor),
+                        onPressed: () {
+                          _startTimerForCategory(context, timerManager, HabitCategory.outdoor);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: AppTheme.spaceMD),
+                    Expanded(
+                      child: ZenButton.outline(
+                        HabitCategory.productive.label,
+                        key: _categoryKey(HabitCategory.productive),
+                        onPressed: () {
+                          _startTimerForCategory(context, timerManager, HabitCategory.productive);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ],
