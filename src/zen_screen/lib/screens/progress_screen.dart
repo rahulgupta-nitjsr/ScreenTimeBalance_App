@@ -232,10 +232,10 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2, // Always show 2 columns for 2x2 grid
-      crossAxisSpacing: AppTheme.spaceSM,
-      mainAxisSpacing: AppTheme.spaceSM,
-      childAspectRatio: 0.75, // Give more height to prevent overflow
+      crossAxisCount: 2,
+      crossAxisSpacing: AppTheme.spaceMD,
+      mainAxisSpacing: AppTheme.spaceMD,
+      childAspectRatio: 0.9,
       children: HabitCategory.values.map((category) {
         final categoryConfig = config.categories[category.id];
         final goalMinutes = config.powerPlus.goals[category.id] ?? 0;

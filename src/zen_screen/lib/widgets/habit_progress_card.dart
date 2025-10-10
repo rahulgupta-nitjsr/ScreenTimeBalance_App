@@ -59,11 +59,9 @@ class HabitProgressCard extends StatelessWidget {
 
   /// Get enhanced color for over-achievement
   Color _getEnhancedProgressColor(BuildContext context) {
-    if (_displayPercentage >= 150) return const Color(0xFF4CAF50); // Deep green for 150%+
-    if (_displayPercentage >= 120) return const Color(0xFF8BC34A); // Light green for 120%+
-    if (_displayPercentage >= 100) return AppTheme.secondaryGreen; // Standard green for 100%+
-    if (_displayPercentage >= 50) return Colors.amber; // Amber for 50%+
-    return AppTheme.borderLight; // Light for under 50%
+    if (_displayPercentage >= 80) return AppTheme.statusGreenLight;
+    if (_displayPercentage >= 40) return AppTheme.statusYellowLight;
+    return AppTheme.statusRedLight;
   }
 
   /// Get status text based on progress
@@ -97,16 +95,14 @@ class HabitProgressCard extends StatelessWidget {
         color: Colors.white.withOpacity(0.05),
         borderRadius: BorderRadius.circular(AppTheme.radiusLG),
         border: Border.all(
-          color: _progress >= 1.0 
-              ? AppTheme.secondaryGreen.withOpacity(0.3)
-              : Colors.white.withOpacity(0.08),
-          width: _progress >= 1.0 ? 2 : 1,
+          color: progressColor.withOpacity(0.7),
+          width: _progress >= 1.0 ? 2 : 1.5,
         ),
       ),
       child: Padding(
         padding: EdgeInsets.all(padding),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             // Category icon and name
             Row(

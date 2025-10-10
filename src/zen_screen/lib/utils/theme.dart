@@ -19,6 +19,11 @@ class AppTheme {
   static const Color borderSubtle = Color(0xFFD1D5DB);
   static const Color overlay = Color(0x26FFFFFF);
 
+  // Status colors (lighter palette)
+  static const Color statusGreenLight = Color(0xFF6EE7B7); // A lighter, minty green
+  static const Color statusYellowLight = Color(0xFFFDE047); // A softer, sunnier yellow
+  static const Color statusRedLight = Color(0xFFFCA5A5); // A gentle, coral red
+
   // Spacing scale (in logical pixels)
   static const double spaceXS = 4;
   static const double spaceSM = 8;
