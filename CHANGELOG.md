@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2] - 2025-10-12
+
+### Added
+- Release 1.2 introduces "Device Screen Time Used" (Android-first, hybrid approach).
+- Display of Earned, Used (from OS), and Remaining across Home and Progress screens.
+
+### Technical
+- Android integration via Flutter package wrapping `UsageStatsManager` with permission education and deeplink to Usage Access.
+- Architecture adds `ScreenTimeService` abstraction and Riverpod provider for used/remaining values.
+- Data model persists aggregate daily `used_screen_time`; `remaining_screen_time` derived (clamped to 0).
+
+### Notes
+- iOS Screen Time integration scheduled for a later release using native Platform Channels and required entitlements.
+
+---
+
 ## [1.11] - 2025-10-09
 
 ### Added

@@ -325,6 +325,13 @@ User Action → Local SQLite → Background Sync → Firebase Firestore
 - **Version Tracking**: Active config version persisted with each `DailyHabitEntry` and exposed to UI/analytics layers
 - **Developer Hot Reload**: Debug-only hook to reload config without rebuilding app (supports rapid iteration)
 
+#### **Screen Time Used Pipeline (Release 1.2)**
+- **Source (Android)**: `UsageStatsManager` via Flutter package (hybrid approach)
+- **Service**: `ScreenTimeService` abstraction selects platform implementation
+- **Provider**: Riverpod provider exposes `usedScreenTime` and computed `remaining`
+- **Persistence**: Store aggregate daily used minutes in `DailyHabitEntry`
+- **Privacy**: No per-app details retained; local-first with optional sync
+
 ### 📊 **Data Models**
 
 #### **User Model**
@@ -352,6 +359,7 @@ class DailyHabitEntry {
   final int productiveMinutes;
   final int earnedScreenTime;
   final int usedScreenTime;
+  final int remainingScreenTime; // derived; persisted for history
   final bool powerModeUnlocked;
   final String algorithmVersion;
   final bool penaltyApplied;
@@ -517,6 +525,7 @@ class HomeScreen extends ConsumerWidget {
       body: Column(
         children: [
           EarnedTimeDisplay(earnedTime),
+          UsedRemainingDisplay(), // Release 1.2: shows used + remaining
           HabitList(habits),
           ActionButtons(),
         ],

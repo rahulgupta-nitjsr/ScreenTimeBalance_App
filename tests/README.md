@@ -553,3 +553,19 @@ Result = PASSED?
 ---
 
 **Note**: This testing workflow ensures comprehensive, automated testing of all features with clear quality gates and success criteria. The feature-driven approach guarantees that each feature is thoroughly tested before proceeding to the next.
+
+---
+
+## Release 1.2 Testing Notes — Device Screen Time Used (Android-first)
+
+### Scope
+- Validate Android Used time retrieval via Usage Access, permission flows, persistence, and UI display of Earned/Used/Remaining.
+
+### Execution Guidance
+- Use Android emulator/device with Usage Access toggled to test both education and granted flows.
+- Measure fetch latency (target < 2s) and UI update latency (target < 100ms).
+- Confirm fallback messaging on unsupported/OEM-restricted devices.
+
+### Related Artifacts
+- Test cases: TC181–TC190 in `tests/test-cases.md`.
+- Docs: PRD §11 (Release 1.2), Features “Feature 17,” Architecture (ScreenTimeService pipeline), Implementation Plan (R1.2), Testing Plan addendum.

@@ -7,11 +7,11 @@
 
 ## 📋 **CURRENT TESTING STATUS**
 
-**✅ Individual Feature Testing Complete:**
-- **Total Test Cases:** 180/180 executed (100%)
-- **Pass Rate:** 96% (A+ grade)
-- **Test Coverage:** 96% (exceeds 90% requirement)
-- **All Features:** 16/16 features individually tested and validated
+**📈 Status Update (Release 1.2 Added):**
+- **Total Test Cases:** 190 planned (180 baseline executed; +10 added for R1.2)
+- **Pass Rate (executed):** 96% (A+ grade) across baseline
+- **Test Coverage (executed):** 96% (exceeds 90% requirement)
+- **R1.2 State:** 10 new tests (TC181–TC190) PENDING execution
 
 **🏁 Next Phase: User Review & Monitoring**
 - **Holistic System Testing:** End-to-end workflows
@@ -550,6 +550,25 @@ AI generates final testing report
 - [ ] Security Requirements Met
 
 ---
+
+## Release 1.2 Testing Addendum — Device Screen Time Used (Android-first)
+
+### Scope
+- Validate retrieval, permission handling, persistence, and UI display of OS-reported Used time; verify Remaining calculation and performance.
+
+### Test Types
+- Unit: calculation (`remaining = max(earned − used, 0)`), permission state handling, provider logic.
+- Widget: Home and Progress screens showing Earned/Used/Remaining; permission education card; loading/empty/error states.
+- Integration: Android permission grant flow → fetch Used → persist → display; deeplink to Settings.
+
+### Quality Gates (R1.2)
+- Used fetch under 2s on supported Android devices.
+- UI updates within 100ms after Earned changes.
+- Clear fallback messaging when permission denied or API unsupported.
+
+### Test Data & Environment
+- Environments: Android emulator/device with Usage Access toggled on/off.
+- Data: simulate Earned values to verify Remaining calculations under edge cases.
 
 ## 🎯 Testing Success Criteria
 

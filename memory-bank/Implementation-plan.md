@@ -1013,3 +1013,34 @@ The implementation follows industry best practices and ensures a robust, maintai
 **Last Updated**: October 9, 2025
 **Version**: 1.0.0
 **Next Review**: November 2025
+
+---
+
+## Release 1.2 Implementation Plan — Device Screen Time Used (Android-first, Hybrid)
+
+### Goals
+- Add "Screen Time Used" (from OS) and "Remaining" alongside existing "Earned" across the app.
+- Android-first using hybrid approach (Flutter package wrapping `UsageStatsManager`), iOS later via native Platform Channels.
+
+### Tasks & Milestones
+1. Planning & Docs
+   - Update PRD, Features (Feature 17), Architecture, Testing Plan.
+2. Android Integration
+   - Add dependency (e.g., `app_usage`) and permission education flow (deeplink to Usage Access).
+   - Implement `ScreenTimeService` abstraction and Android provider wiring.
+   - Persist `used_screen_time`; compute and expose `remaining_screen_time`.
+3. UI Updates
+   - Home: show Earned, Used, Remaining in primary summary block.
+   - Progress: add Used/Remaining context; prepare history support.
+4. QA & Testing
+   - Unit tests: calculation and permission handling.
+   - Widget tests: Home/Progress displays, education state.
+   - Integration tests: permission grant flow; fetch → persist → display.
+
+### Acceptance Criteria
+- Used fetched within 2s when permission granted; clear education + deeplink when not.
+- Remaining = max(Earned − Used, 0), updates within 100ms on Earned change.
+- Data persists locally and syncs per existing strategy.
+
+### Risks
+- Permission friction, OEM variance → clear UX and graceful fallbacks.

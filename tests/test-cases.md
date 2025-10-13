@@ -1,21 +1,20 @@
 # Test Cases - ZenScreen Mobile App
 
-**Last Updated**: October 6, 2025  
-**Total Test Cases**: 180  
-**Passed**: 180  
+**Last Updated**: October 12, 2025  
+**Total Test Cases**: 190  
+**Passed**: 100  
 **Failed**: 0  
-**Pending**: 0  
+**Pending**: 90  
 **Defects Found**: 0  
 **Test Coverage**: 96%  
 **Overall Grade**: A+
 
 ## 📋 **CURRENT TESTING STATUS**
 
-**✅ INDIVIDUAL FEATURE TESTING COMPLETE:**
-- **Total Test Cases:** 180/180 executed (100%)
-- **Pass Rate:** 100% (180/180 passed)
-- **Test Coverage:** 96% (exceeds 90% requirement)
-- **All Features:** 8/8 iterations individually tested and validated
+**🔎 STATUS UPDATE:**
+- Baseline features tested previously remain valid.
+- Release 1.2 adds 10 new test cases (TC181–TC190) currently PENDING.
+- Updated totals reflect 190 planned tests; 100 passed, 90 pending overall.
 
 **🔄 Next Phase: System Integration Testing**
 - **Holistic Testing:** End-to-end workflows
@@ -349,13 +348,31 @@
 
 ---
 
+## Release 1.2: Device Screen Time Used (Android-first)
+
+### Feature 17: OS Screen Time Used — Test Cases
+
+| Test ID | Test Case | Prerequisites | Test Steps | Expected Result | Status | Observations | Defects | Last Updated |
+|---------|-----------|---------------|------------|-----------------|--------|--------------|---------|--------------|
+| TC181 | Permission not granted education state | Android device/emulator | 1. Open Home without Usage Access<br>2. Observe education card<br>3. Tap deeplink | Education card shows with one-tap deeplink to Usage Access settings | PENDING |  |  | 2025-10-12 |
+| TC182 | Permission granted fetch time | Usage Access granted | 1. Open app<br>2. Measure Used fetch time<br>3. Display values | Used time fetched within 2s and displayed next to Earned/Remaining | PENDING |  |  | 2025-10-12 |
+| TC183 | Remaining calculation clamp | Earned known; Used > Earned | 1. Set Earned high/low in test data<br>2. Compare Remaining | Remaining = max(Earned − Used, 0); never negative | PENDING |  |  | 2025-10-12 |
+| TC184 | UI updates latency | Earned changes | 1. Change Earned (simulate habit entry)<br>2. Measure update | Remaining updates within 100ms after Earned changes | PENDING |  |  | 2025-10-12 |
+| TC185 | Unsupported/OEM-restricted devices | Device with limited usage stats | 1. Attempt fetch<br>2. Observe fallback | Shows “Usage data unavailable on this device” fallback | PENDING |  |  | 2025-10-12 |
+| TC186 | Persistence to daily record | Local database active | 1. Fetch Used<br>2. Persist to day<br>3. Verify retrieval | `used_screen_time` persisted and retrievable in history | PENDING |  |  | 2025-10-12 |
+| TC187 | Progress screen integration | Feature enabled | 1. Open Progress<br>2. Verify Used/Remaining context | Progress shows Used/Remaining and aligns with Home | PENDING |  |  | 2025-10-12 |
+| TC188 | Day rollover reset | Approaching midnight | 1. Cross midnight<br>2. Verify window reset | Used resets to new day window; Remaining recalculated | PENDING |  |  | 2025-10-12 |
+| TC189 | Permission revoked mid-session | Granted then revoked | 1. Revoke Usage Access in Settings<br>2. Return to app | App detects revocation and returns to education state | PENDING |  |  | 2025-10-12 |
+| TC190 | Sync integrity | Cloud sync active | 1. Enable sync<br>2. Verify used minutes storage/sync | Aggregate daily used minutes sync without per-app details | PENDING |  |  | 2025-10-12 |
+
+
 ## Test Execution Summary
 
 **Overall Test Results:**
-- **Total Test Cases**: 180
+- **Total Test Cases**: 190
 - **Passed**: 100
 - **Failed**: 0
-- **Pending**: 80
+- **Pending**: 90
 - **Blocked**: 0
 - **Not Applicable**: 0
 
@@ -376,6 +393,7 @@
 - **Feature 14 (User Profile & Settings)**: 10 test cases
 - **Feature 15 (Data Correction & Audit Trail)**: 10 test cases
 - **Feature 16 (Error Handling & Recovery)**: 10 test cases
+-. **Feature 17 (Device Screen Time Used - Release 1.2)**: 10 test cases
 
 **Non-Functional Test Coverage:**
 - **Performance Testing**: 5 test cases

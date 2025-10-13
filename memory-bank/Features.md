@@ -1332,3 +1332,50 @@ Each feature is built completely before moving to the next, with thorough automa
 
 *This features document serves as the definitive specification for ZenScreen feature-based development. All features align with the Product Requirements Document and visual designs created in the design phase.*
 
+---
+
+## Release 1.2: Feature 17 — Device Screen Time Used (Android-first, Hybrid)
+
+### Purpose
+Display OS-reported "Screen Time Used" alongside existing "Screen Time Earned" and derived "Remaining" throughout the app, starting with Android. iOS will be implemented in a later release via native Platform Channels.
+
+### User Stories
+- As a user, I want to see how much screen time I have used today according to my device, so I can compare it with my earned balance.
+- As a user, I want to see Earned, Used, and Remaining clearly on the Home screen and Progress screen.
+
+### Functional Requirements
+- Retrieve today’s total device screen time from Android using a Flutter package that wraps `UsageStatsManager` (e.g., `app_usage`).
+- Implement permission flow for `PACKAGE_USAGE_STATS` with a clear explainer and deeplink to Settings.
+- Persist `used_screen_time` in the daily record; compute `remaining_screen_time = max(earned_screen_time − used_screen_time, 0)`.
+- Update UI components to show Earned, Used, Remaining on Home; add Used/Remaining context on Progress screen; reflect across any summary widgets.
+- Gracefully handle lack of permission or unsupported devices by showing informative messaging and fallback states.
+
+### Technical Requirements
+- Service layer: introduce `ScreenTimeService` abstraction with platform-specific implementation selection.
+- Android implementation: use `app_usage` package; if unavailable, provide a stub that returns 0 with explanatory state.
+- State management: Riverpod provider to expose used time and computed remaining time; update within 100ms when earned changes.
+- Data model: ensure `DailyHabitEntry` includes `used_screen_time` and `remaining_screen_time` persisted locally and synced.
+- Privacy: store only aggregate daily used minutes; no per-app breakdown.
+
+### Acceptance Criteria
+- Given permission is granted, when opening the app, then Used time for today is fetched within 2 seconds and shown next to Earned and Remaining.
+- Given permission is not granted, when viewing the Home screen, then an education card appears with a one-tap deeplink to enable “Usage Access.”
+- Remaining equals Earned minus Used, never negative, and responds within 100ms to Earned changes.
+- Progress screen shows Used/Remaining context and historical Used values once available.
+
+### Edge Cases
+- Permission revoked mid-session → provider re-checks, UI shows education state.
+- OEM restrictions on usage stats → show fallback copy: “Usage data unavailable on this device.”
+- Day rollover at midnight → resets Used fetch window and recalculates Remaining.
+- Negative Remaining → clamp to 0.
+
+### Non-Goals (for Release 1.2)
+- iOS Screen Time integration (planned next; requires native code and entitlements).
+- Per-app usage breakdown or controls.
+
+### Testing (see Testing Plan addendum)
+- Unit: calculations and clamping; permission state handling.
+- Widget: Home and Progress displays; education card; loading/empty/error states.
+- Integration: permission grant flow; end-to-end fetch → persist → display.
+
+

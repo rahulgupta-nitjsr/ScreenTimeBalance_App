@@ -75,3 +75,44 @@ Full, detailed logic and rationale in [ScreenTime-Earning-Algorithm.md](./memory
 - **Configuration Integrity:** Algorithm must remain transparent and easily changeable via documented JSON configuration with safe fallbacks.
 - **Algorithm Validation:** Early, ongoing review of time/points earned to prevent abuse and ensure engagement.
 - Store/Play Store policies must be followed (wellness claims, privacy, etc.), else approval risk.
+
+---
+
+## 11. Release 1.2: Device Screen Time Used (Android-first, Hybrid)
+
+### Overview
+Add OS-reported "Screen Time Used" to display alongside existing "Screen Time Earned" and derived "Remaining" throughout the app. Android implemented first via hybrid approach; iOS to follow later with native Platform Channels.
+
+### User Stories
+- As a user, I want to see my actual device screen time used today so I can compare it against my earned balance.
+- As a user, I want Earned, Used, and Remaining shown clearly on Home and Progress screens.
+
+### Scope (Phase 1: Android)
+- Implement Android data retrieval using a Flutter package that wraps `UsageStatsManager` (e.g., `app_usage`).
+- Add permission flow to guide the user to grant Usage Access in Android Settings.
+- Display new metrics across the UI: Earned, Used (from OS), Remaining (Earned − Used, floored at 0).
+
+### Out of Scope (for Release 1.2)
+- iOS Screen Time integration (planned for a subsequent release via native implementation with necessary entitlements).
+
+### Functional Requirements
+- Retrieve total device screen time used today on Android.
+- Detect and handle permission state; provide settings deeplink if not granted.
+- Persist `used_screen_time` in daily records for history and analytics.
+- Compute `remaining_screen_time = max(earned_screen_time − used_screen_time, 0)`.
+- Show Earned/Used/Remaining on Home; add Used/Remaining context to Progress.
+
+### Acceptance Criteria
+- Given permission is granted, when the app loads, then today’s Used time is fetched within 2s and shown next to Earned and Remaining.
+- Given permission is not granted, when the user attempts to view Used time, then a clear prompt explains the need and provides a one-tap deeplink to Settings.
+- Remaining equals Earned minus Used, never negative, and updates within 100ms after Earned changes.
+- Historical view includes Used time per day once available.
+
+### Risks & Mitigations
+- Android permission friction → Provide clear education and deeplink.
+- OEM variability in `UsageStatsManager` → Implement graceful fallback and messaging.
+- iOS entitlement restrictions → Plan native implementation later with clear limits.
+
+### Privacy
+- Only aggregate daily used minutes are stored; no per-app usage retained.
+- Local-first with optional encrypted sync per existing privacy framework.
