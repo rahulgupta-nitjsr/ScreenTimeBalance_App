@@ -1,15 +1,17 @@
 # ZenScreen - Feature-Based Implementation Specification
 
-**Last Updated:** October 9, 2025  
-**Project Status:** ✅ **ALL FEATURES IMPLEMENTED & DEPLOYED (APK)**  
-**Deployment Status:** ✅ **APK BUILT & INSTALLED ON ANDROID DEVICE**
+**Last Updated:** October 14, 2025  
+**Project Status:** ✅ **ALL FEATURES IMPLEMENTED & UNIT/WIDGET TESTED (APK)**  
+**Deployment Status:** 🚧 **AWAITING USER REVIEW & MONITORING**
 
 ## Overview
 This document defines the complete feature implementation plan for ZenScreen, organized by sequential iterations with detailed acceptance criteria, automated testing requirements, and cross-platform considerations. Each feature is built completely before moving to the next, with comprehensive automated testing at every step.
 
 **📋 CURRENT PROJECT STATUS:**
-- ✅ **8 Iterations Complete** (100% implementation)
-- ✅ **All Features Built** (individual testing complete)
+- ✅ **All Iterations Complete** (100% implementation)
+- ✅ **All Features Built and Unit/Widget Tested** (individual testing complete)
+- ✅ **Unit and Widget Testing Complete**
+- 🏁 **Next Phase:** Integration, Manual, Performance, and Regression Testing
 - 🏁 **Next Phase:** User review and monitoring
 - 🏁 **Next Phase:** Production deployment preparation
 
@@ -35,9 +37,10 @@ This document defines the complete feature implementation plan for ZenScreen, or
 7. [Iteration 6: Progress & Visualization](#7-iteration-6-progress--visualization)
 8. [Iteration 7: Historical Data & Profile](#8-iteration-7-historical-data--profile)
 9. [Iteration 8: Advanced Features](#9-iteration-8-advanced-features)
-10. [Automated Testing Framework](#10-automated-testing-framework)
-11. [Cross-Platform Development Strategy](#11-cross-platform-development-strategy)
-12. [Data Models & Technical Architecture](#12-data-models--technical-architecture)
+10. [Feature 17: Device Screen Time Used (Android-first, Hybrid)](#feature-17-device-screen-time-used-android-first-hybrid)
+11. [Automated Testing Framework](#10-automated-testing-framework)
+12. [Cross-Platform Development Strategy](#11-cross-platform-development-strategy)
+13. [Data Models & Technical Architecture](#12-data-models--technical-architecture)
 
 ---
 
@@ -1168,7 +1171,72 @@ This document defines the complete feature implementation plan for ZenScreen, or
 
 ---
 
-## 10. Automated Testing Framework
+## Feature 17: Device Screen Time Used (Android-first, Hybrid) ✅ **COMPLETED**
+
+### Purpose
+Display OS-reported "Screen Time Used" alongside existing "Screen Time Earned" and derived "Remaining" throughout the app, starting with Android. iOS will be implemented in a later release via native Platform Channels.
+
+### User Stories
+- As a user, I want to see how much screen time I have used today according to my device, so I can compare it with my earned balance.
+- As a user, I want to see Earned, Used, and Remaining clearly on the Home screen and Progress screen.
+
+### Functional Requirements
+- Retrieve today’s total device screen time from Android using a Flutter package that wraps `UsageStatsManager` (e.g., `app_usage`).
+- Implement permission flow for `PACKAGE_USAGE_STATS` with a clear explainer and deeplink to Settings.
+- Persist `used_screen_time` in the daily record; compute `remaining_screen_time = max(earned_screen_time − used_screen_time, 0)`.
+- Update UI components to show Earned, Used, Remaining on Home; add Used/Remaining context on Progress screen; reflect across any summary widgets.
+- Gracefully handle lack of permission or unsupported devices by showing informative messaging and fallback states.
+
+### Technical Requirements
+- Service layer: introduce `ScreenTimeService` abstraction with platform-specific implementation selection.
+- Android implementation: use `app_usage` package; if unavailable, provide a stub that returns 0 with explanatory state.
+- State management: Riverpod provider to expose used time and computed remaining time; update within 100ms when earned changes.
+- Data model: ensure `DailyHabitEntry` includes `used_screen_time` and `remaining_screen_time` persisted locally and synced.
+- Privacy: store only aggregate daily used minutes; no per-app breakdown.
+
+**✅ Implementation Status**:
+- **Phase 1: Dependencies & Configuration**: ✅ Complete
+- **Phase 2: Data Model Updates**: ✅ Complete
+- **Phase 3: Service Layer Implementation**: ✅ Complete
+- **Phase 4: State Management with Riverpod**: ✅ Complete
+- **Phase 5: Permission Dialog Implementation**: ✅ Complete
+- **Phase 6: UI Integration - Home Screen**: ✅ Complete
+- **Phase 7: UI Integration - Progress Screen**: ✅ Complete
+- **Phase 8: Data Persistence & Sync**: ✅ Complete (Daily update job integration)
+- **Phase 9: Error Handling & Edge Cases**: ✅ Complete (Permission revocation, OEM restrictions, negative remaining time, day rollover, first install)
+
+### Automated Testing Requirements
+- **Unit Tests**: calculations and clamping; permission state handling.
+- **Widget Tests**: Home and Progress displays; education card; loading/empty/error states.
+- **Integration Tests**: permission grant flow; end-to-end fetch → persist → display.
+
+**✅ Testing Status**:
+- **Unit Tests (TC181-TC190)**: ✅ All 10 test cases implemented and passing.
+- **Widget Tests**: ✅ All widget tests implemented and passing.
+- **Integration Tests**: 🚧 Pending
+- **Manual Testing**: 🚧 Pending
+- **Performance Testing**: 🚧 Pending
+- **Regression Testing**: 🚧 Pending
+
+### Acceptance Criteria
+- Given permission is granted, when opening the app, then Used time for today is fetched within 2 seconds and shown next to Earned and Remaining.
+- Given permission is not granted, when viewing the Home screen, then an education card appears with a one-tap deeplink to enable “Usage Access.”
+- Remaining equals Earned minus Used, never negative, and responds within 100ms to Earned changes.
+- Progress screen shows Used/Remaining context and historical Used values once available.
+
+### Edge Cases
+- Permission revoked mid-session → provider re-checks, UI shows education state.
+- OEM restrictions on usage stats → show fallback copy: “Usage data unavailable on this device.”
+- Day rollover at midnight → resets Used fetch window and recalculates Remaining.
+- Negative Remaining → clamp to 0.
+
+### Non-Goals (for Release 1.2)
+- iOS Screen Time integration (planned next; requires native code and entitlements).
+- Per-app usage breakdown or controls.
+
+---
+
+## Automated Testing Framework
 
 ### Testing Philosophy
 Every feature must have comprehensive automated tests before implementation. Testing is not an afterthought but a core part of the development process.
@@ -1176,7 +1244,7 @@ Every feature must have comprehensive automated tests before implementation. Tes
 ### Testing Types
 - **Unit Tests**: Individual functions and algorithms
 - **Widget Tests**: UI components and interactions
-- **Integration Tests**: Complete user flows
+- **Integration Tests**: End-to-end user flows, service interactions
 - **Performance Tests**: Speed and memory usage
 - **Accessibility Tests**: Screen reader and accessibility compliance
 - **Security Tests**: Data protection and access control
@@ -1203,7 +1271,7 @@ Every feature must have comprehensive automated tests before implementation. Tes
 
 ---
 
-## 11. Cross-Platform Development Strategy
+## Cross-Platform Development Strategy
 
 ### Android-First Approach
 - **Primary Platform**: Android development and testing
@@ -1226,7 +1294,7 @@ Every feature must have comprehensive automated tests before implementation. Tes
 
 ---
 
-## 12. Data Models & Technical Architecture
+## Data Models & Technical Architecture
 
 ### Core Data Models
 
@@ -1255,6 +1323,7 @@ DailyHabitEntry {
   productive_minutes: integer
   earned_screen_time: integer
   used_screen_time: integer
+  remaining_screen_time: integer
   power_mode_unlocked: boolean
   algorithm_version: string (e.g., "1.0.0")
   penalty_applied: boolean
@@ -1320,9 +1389,9 @@ AuditEvent {
 
 This feature-based implementation plan provides a structured approach to building ZenScreen with:
 
-1. **8 Iterations** with clear goals and feature groupings
-2. **16 Core Features** with detailed specifications
-3. **Comprehensive Testing** for every feature
+1. **All Iterations** with clear goals and feature groupings
+2. **17 Core Features** with detailed specifications
+3. **Comprehensive Unit Testing** for every feature
 4. **Cross-Platform Strategy** for Android-first, iOS-ready development
 5. **Quality Gates** to ensure high standards
 
@@ -1333,49 +1402,5 @@ Each feature is built completely before moving to the next, with thorough automa
 *This features document serves as the definitive specification for ZenScreen feature-based development. All features align with the Product Requirements Document and visual designs created in the design phase.*
 
 ---
-
-## Release 1.2: Feature 17 — Device Screen Time Used (Android-first, Hybrid)
-
-### Purpose
-Display OS-reported "Screen Time Used" alongside existing "Screen Time Earned" and derived "Remaining" throughout the app, starting with Android. iOS will be implemented in a later release via native Platform Channels.
-
-### User Stories
-- As a user, I want to see how much screen time I have used today according to my device, so I can compare it with my earned balance.
-- As a user, I want to see Earned, Used, and Remaining clearly on the Home screen and Progress screen.
-
-### Functional Requirements
-- Retrieve today’s total device screen time from Android using a Flutter package that wraps `UsageStatsManager` (e.g., `app_usage`).
-- Implement permission flow for `PACKAGE_USAGE_STATS` with a clear explainer and deeplink to Settings.
-- Persist `used_screen_time` in the daily record; compute `remaining_screen_time = max(earned_screen_time − used_screen_time, 0)`.
-- Update UI components to show Earned, Used, Remaining on Home; add Used/Remaining context on Progress screen; reflect across any summary widgets.
-- Gracefully handle lack of permission or unsupported devices by showing informative messaging and fallback states.
-
-### Technical Requirements
-- Service layer: introduce `ScreenTimeService` abstraction with platform-specific implementation selection.
-- Android implementation: use `app_usage` package; if unavailable, provide a stub that returns 0 with explanatory state.
-- State management: Riverpod provider to expose used time and computed remaining time; update within 100ms when earned changes.
-- Data model: ensure `DailyHabitEntry` includes `used_screen_time` and `remaining_screen_time` persisted locally and synced.
-- Privacy: store only aggregate daily used minutes; no per-app breakdown.
-
-### Acceptance Criteria
-- Given permission is granted, when opening the app, then Used time for today is fetched within 2 seconds and shown next to Earned and Remaining.
-- Given permission is not granted, when viewing the Home screen, then an education card appears with a one-tap deeplink to enable “Usage Access.”
-- Remaining equals Earned minus Used, never negative, and responds within 100ms to Earned changes.
-- Progress screen shows Used/Remaining context and historical Used values once available.
-
-### Edge Cases
-- Permission revoked mid-session → provider re-checks, UI shows education state.
-- OEM restrictions on usage stats → show fallback copy: “Usage data unavailable on this device.”
-- Day rollover at midnight → resets Used fetch window and recalculates Remaining.
-- Negative Remaining → clamp to 0.
-
-### Non-Goals (for Release 1.2)
-- iOS Screen Time integration (planned next; requires native code and entitlements).
-- Per-app usage breakdown or controls.
-
-### Testing (see Testing Plan addendum)
-- Unit: calculations and clamping; permission state handling.
-- Widget: Home and Progress displays; education card; loading/empty/error states.
-- Integration: permission grant flow; end-to-end fetch → persist → display.
 
 

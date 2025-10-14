@@ -6,13 +6,13 @@
 ZenScreen is a mindful screen time balance app built using Flutter, focusing on Android-first development with iOS readiness. This implementation plan provides a comprehensive, step-by-step roadmap for building the app through feature-driven development with automated testing integration.
 
 ### Implementation Strategy
-- **Feature-Driven Development (FDD)**: Sequential implementation of 16 core features across 8 iterations
+- **Feature-Driven Development (FDD)**: Sequential implementation of 17 core features across 8 iterations
 - **Test-Driven Development (TDD)**: Automated testing requirements for each feature
 - **Modular Architecture**: Component-based development with reusable components
 - **Quality Gates**: Testing must pass before moving to next feature
 
 ### Success Criteria
-- All 16 core features implemented and tested
+- All 17 core features implemented and tested
 - 100% test coverage across all features
 - Automated testing pipeline established
 - Production-ready APK generated
@@ -188,6 +188,7 @@ The implementation follows 8 iterations with 16 core features, as defined in Fea
 - **Iteration 6**: Progress & Visualization (Features 11, 12) ✅ **COMPLETED**
 - **Iteration 7**: Historical Data & Profile (Features 13, 14) ✅ **COMPLETED**
 - **Iteration 8**: Advanced Features (Features 15, 16) ✅ **COMPLETED**
+- **Iteration 8**: Device Screen Time Used (Features 17) ✅ **COMPLETED**
 
 ### Quality Gates
 **Each feature must meet these requirements before progression:**
@@ -1015,32 +1016,3 @@ The implementation follows industry best practices and ensures a robust, maintai
 **Next Review**: November 2025
 
 ---
-
-## Release 1.2 Implementation Plan — Device Screen Time Used (Android-first, Hybrid)
-
-### Goals
-- Add "Screen Time Used" (from OS) and "Remaining" alongside existing "Earned" across the app.
-- Android-first using hybrid approach (Flutter package wrapping `UsageStatsManager`), iOS later via native Platform Channels.
-
-### Tasks & Milestones
-1. Planning & Docs
-   - Update PRD, Features (Feature 17), Architecture, Testing Plan.
-2. Android Integration
-   - Add dependency (e.g., `app_usage`) and permission education flow (deeplink to Usage Access).
-   - Implement `ScreenTimeService` abstraction and Android provider wiring.
-   - Persist `used_screen_time`; compute and expose `remaining_screen_time`.
-3. UI Updates
-   - Home: show Earned, Used, Remaining in primary summary block.
-   - Progress: add Used/Remaining context; prepare history support.
-4. QA & Testing
-   - Unit tests: calculation and permission handling.
-   - Widget tests: Home/Progress displays, education state.
-   - Integration tests: permission grant flow; fetch → persist → display.
-
-### Acceptance Criteria
-- Used fetched within 2s when permission granted; clear education + deeplink when not.
-- Remaining = max(Earned − Used, 0), updates within 100ms on Earned change.
-- Data persists locally and syncs per existing strategy.
-
-### Risks
-- Permission friction, OEM variance → clear UX and graceful fallbacks.
