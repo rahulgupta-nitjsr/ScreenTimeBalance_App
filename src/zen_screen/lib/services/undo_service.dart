@@ -139,6 +139,7 @@ class UndoService {
         minutesByCategory: restoredMinutes,
         earnedScreenTime: algorithmResult.totalEarnedMinutes,
         usedScreenTime: action.previousEntry.usedScreenTime,
+        remainingScreenTime: action.previousEntry.remainingScreenTime,
         powerModeUnlocked: algorithmResult.powerModeUnlocked,
         algorithmVersion: algorithmResult.algorithmVersion,
       );

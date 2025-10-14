@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/algorithm_config.dart';
 import '../services/algorithm_config_service.dart';
 import '../services/algorithm_service.dart';
+import '../models/algorithm_result.dart'; // Explicitly import the model's AlgorithmResult
 import 'minutes_provider.dart';
 
 final algorithmConfigServiceProvider = Provider<AlgorithmConfigService>((ref) {
@@ -35,7 +36,12 @@ final algorithmServiceProvider = Provider<AlgorithmService>((ref) {
 final algorithmResultProvider = Provider<AlgorithmResult>((ref) {
   final service = ref.watch(algorithmServiceProvider);
   final minutesByCategory = ref.watch(minutesByCategoryProvider);
-  return service.calculate(minutesByCategory: minutesByCategory);
+  // TODO: Replace with actual user ID from an auth provider
+  const userId = 'test_user_id'; 
+  return service.calculate(
+    minutesByCategory: minutesByCategory,
+    userId: userId,
+  );
 });
 
 AlgorithmConfig _fallbackConfig() {

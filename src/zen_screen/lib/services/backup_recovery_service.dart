@@ -122,6 +122,7 @@ class BackupRecoveryService {
               minutesByCategory: entry.minutesByCategory,
               earnedScreenTime: entry.earnedScreenTime,
               usedScreenTime: entry.usedScreenTime,
+              remainingScreenTime: entry.remainingScreenTime,
               powerModeUnlocked: entry.powerModeUnlocked,
               algorithmVersion: entry.algorithmVersion,
             );
@@ -140,6 +141,17 @@ class BackupRecoveryService {
                 minutesByCategory: entry.minutesByCategory,
                 earnedScreenTime: entry.earnedScreenTime,
                 usedScreenTime: entry.usedScreenTime,
+                remainingScreenTime: entry.remainingScreenTime,
+                powerModeUnlocked: entry.powerModeUnlocked,
+                algorithmVersion: entry.algorithmVersion,
+              );
+              await _habitRepository.upsertEntry(
+                userId: entry.userId,
+                date: entry.date,
+                minutesByCategory: entry.minutesByCategory,
+                earnedScreenTime: entry.earnedScreenTime,
+                usedScreenTime: entry.usedScreenTime,
+                remainingScreenTime: entry.remainingScreenTime,
                 powerModeUnlocked: entry.powerModeUnlocked,
                 algorithmVersion: entry.algorithmVersion,
               );

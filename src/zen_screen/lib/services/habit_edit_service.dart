@@ -141,6 +141,7 @@ class HabitEditService {
         minutesByCategory: updatedMinutes,
         earnedScreenTime: algorithmResult.totalEarnedMinutes,
         usedScreenTime: existingEntry.usedScreenTime,
+        remainingScreenTime: algorithmResult.totalEarnedMinutes - existingEntry.usedScreenTime,
         powerModeUnlocked: algorithmResult.powerModeUnlocked,
         algorithmVersion: algorithmResult.algorithmVersion,
       );

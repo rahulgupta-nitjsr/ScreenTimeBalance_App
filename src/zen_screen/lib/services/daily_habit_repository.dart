@@ -1,9 +1,13 @@
+import 'dart:math';
+
 import 'package:uuid/uuid.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/daily_habit_entry.dart';
 import '../models/habit_category.dart';
 import 'platform_database_service.dart';
+import '../providers/screen_time_provider.dart';
 
 class DailyHabitRepository {
   DailyHabitRepository({PlatformDatabaseService? databaseService})
@@ -19,17 +23,31 @@ class DailyHabitRepository {
     required DateTime date,
     required Map<HabitCategory, int> minutesByCategory,
     required int earnedScreenTime,
-    required int usedScreenTime,
+    int? usedScreenTime,
+    int? remainingScreenTime,
     required bool powerModeUnlocked,
     required String algorithmVersion,
     int? manualAdjustmentMinutes,
+    WidgetRef? ref, // Add WidgetRef for accessing providers
   }) async {
     final sanitizedMinutes = _sanitizeMinutes(minutesByCategory);
+
+    // Fetch latest screen time values if not provided
+    int actualUsedScreenTime = usedScreenTime ?? 0;
+    if (ref != null && usedScreenTime == null) {
+      final screenTimeState = await ref.read(screenTimeStateProvider.future);
+      actualUsedScreenTime = screenTimeState.used;
+    }
+
+    // Compute remainingScreenTime if not provided
+    final computedRemaining = remainingScreenTime ?? max(earnedScreenTime - actualUsedScreenTime, 0);
+
     _validateInputs(
       userId: userId,
       minutesByCategory: sanitizedMinutes,
       earnedScreenTime: earnedScreenTime,
-      usedScreenTime: usedScreenTime,
+      usedScreenTime: actualUsedScreenTime,
+      remainingScreenTime: computedRemaining,
       algorithmVersion: algorithmVersion,
     );
 
@@ -41,7 +59,8 @@ class DailyHabitRepository {
       date: DateTime(date.year, date.month, date.day),
       minutesByCategory: sanitizedMinutes,
       earnedScreenTime: earnedScreenTime,
-      usedScreenTime: usedScreenTime,
+      usedScreenTime: actualUsedScreenTime,
+      remainingScreenTime: computedRemaining,
       powerModeUnlocked: powerModeUnlocked,
       algorithmVersion: algorithmVersion,
       createdAt: existing?.createdAt ?? now,
@@ -122,6 +141,7 @@ class DailyHabitRepository {
     required Map<HabitCategory, int> minutesByCategory,
     required int earnedScreenTime,
     required int usedScreenTime,
+    required int remainingScreenTime,
     required String algorithmVersion,
   }) {
     if (userId.isEmpty) {
@@ -130,7 +150,7 @@ class DailyHabitRepository {
     if (algorithmVersion.trim().isEmpty) {
       throw ArgumentError('algorithmVersion is required');
     }
-    if (earnedScreenTime < 0 || usedScreenTime < 0) {
+    if (earnedScreenTime < 0 || usedScreenTime < 0 || remainingScreenTime < 0) {
       throw ArgumentError('Screen time values cannot be negative');
     }
     if (minutesByCategory.values.any((minutes) => minutes < 0)) {

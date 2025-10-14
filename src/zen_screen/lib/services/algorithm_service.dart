@@ -5,24 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../models/algorithm_config.dart';
 import '../models/daily_habit_entry.dart';
 import '../models/habit_category.dart';
-
-class AlgorithmResult {
-  AlgorithmResult({
-    required this.totalEarnedMinutes,
-    required this.powerModeUnlocked,
-    required this.perCategoryEarned,
-    required this.perCategoryLoggedMinutes,
-    required this.algorithmVersion,
-    this.totalUsedMinutes = 0,
-  });
-
-  final int totalEarnedMinutes;
-  final bool powerModeUnlocked;
-  final Map<HabitCategory, int> perCategoryEarned;
-  final Map<HabitCategory, int> perCategoryLoggedMinutes;
-  final String algorithmVersion;
-  final int totalUsedMinutes;
-}
+import '../models/algorithm_result.dart'; // Import the model's AlgorithmResult
 
 class AlgorithmService {
   AlgorithmService({required AlgorithmConfig config}) : _config = config;
@@ -35,6 +18,7 @@ class AlgorithmService {
 
   AlgorithmResult calculate({
     required Map<HabitCategory, int> minutesByCategory,
+    String userId = 'default_user_id', // Add userId parameter
   }) {
     final stopwatch = Stopwatch()..start();
     
@@ -90,8 +74,8 @@ class AlgorithmService {
       powerModeUnlocked: powerModeUnlocked,
       perCategoryEarned: perCategoryEarned,
       perCategoryLoggedMinutes: Map<HabitCategory, int>.from(minutesByCategory),
-      algorithmVersion: _config.version,
-      totalUsedMinutes: 0, // Default to 0 for now
+      categoryResults: {},
+      userId: userId, // Pass userId to constructor
     );
   }
 
@@ -116,9 +100,11 @@ class AlgorithmService {
       minutesByCategory: minutesByCategory,
       earnedScreenTime: result.totalEarnedMinutes,
       usedScreenTime: usedScreenTime,
+      remainingScreenTime: max(result.totalEarnedMinutes - usedScreenTime, 0),
       manualAdjustmentMinutes: 0,
       powerModeUnlocked: result.powerModeUnlocked,
-      algorithmVersion: result.algorithmVersion,
+      // The model's AlgorithmResult does not have 'algorithmVersion', so we can't access result.algorithmVersion
+      algorithmVersion: _config.version, // Use config version directly
       createdAt: now,
       updatedAt: now,
     );

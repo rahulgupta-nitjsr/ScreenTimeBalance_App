@@ -382,7 +382,7 @@ void main() {
 
         // Verify main widget has semantic label
         final semantics = find.byWidgetPredicate(
-          (widget) => widget is Semantics && widget.label == 'Manual time entry for habit tracking',
+          (widget) => widget is Semantics && widget.properties.label == 'Manual time entry for habit tracking',
         );
         expect(semantics, findsOneWidget);
 
@@ -392,7 +392,7 @@ void main() {
 
         // Verify tab has semantic label
         final tabSemantics = find.byWidgetPredicate(
-          (widget) => widget is Semantics && widget.label == 'Exercise category',
+          (widget) => widget is Semantics && widget.properties.label == 'Exercise category',
         );
         expect(tabSemantics, findsOneWidget);
       });
@@ -416,8 +416,8 @@ void main() {
         // Verify hour chips have semantic labels
         final hourChipSemantics = find.byWidgetPredicate(
           (widget) => widget is Semantics && 
-                     widget.label != null && 
-                     widget.label!.contains('hours for Exercise'),
+                     widget.properties.label != null && 
+                     widget.properties.label!.contains('hours for Exercise'),
         );
         expect(hourChipSemantics, findsWidgets);
       });
@@ -441,7 +441,7 @@ void main() {
         // Verify slider has semantic label
         final sliderSemantics = find.byWidgetPredicate(
           (widget) => widget is Semantics && 
-                     widget.label == 'Minutes slider for Exercise',
+                     widget.properties.label == 'Minutes slider for Exercise',
         );
         expect(sliderSemantics, findsOneWidget);
       });

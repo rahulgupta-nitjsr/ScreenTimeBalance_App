@@ -6,11 +6,14 @@ import '../models/algorithm_result.dart';
 import '../providers/algorithm_provider.dart';
 import '../providers/historical_data_provider.dart';
 import '../providers/daily_reset_provider.dart';
+import '../providers/screen_time_provider.dart';
 import '../utils/theme.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/habit_progress_card.dart';
 import '../widgets/power_plus_celebration.dart';
+import '../widgets/screen_time_display.dart';
+import '../widgets/usage_education_card.dart';
 
 /// Progress Screen - Feature 11 & 12 Implementation
 /// 
@@ -138,86 +141,136 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     );
   }
 
-  /// Build elegant earned screen time summary
+  /// Build screen time summary with earned, used, and remaining
+  /// Feature 17: Shows comprehensive screen time balance
   Widget _buildEarnedScreenTimeSummary(BuildContext context, dynamic algorithmResult) {
     final theme = Theme.of(context);
-    final earnedMinutes = algorithmResult.totalEarnedMinutes;
-    final hours = earnedMinutes ~/ 60;
-    final mins = earnedMinutes % 60;
+    final screenTimeState = ref.watch(screenTimeStateProvider);
     
     return GlassCard(
       padding: const EdgeInsets.all(AppTheme.spaceLG),
-      child: Column(
-        children: [
-          // Elegant header text
-          Text(
-            'Your Reward',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: AppTheme.textLight,
-              letterSpacing: 1.5,
-              fontWeight: FontWeight.w300,
-            ),
-          ),
-          const SizedBox(height: AppTheme.spaceXS),
+      child: screenTimeState.when(
+        data: (state) {
+          // Show education message if permission not granted
+          if (!state.hasPermission) {
+            return Column(
+              children: [
+                Text(
+                  'Your Reward',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: AppTheme.textLight,
+                    letterSpacing: 1.5,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spaceMD),
+                ScreenTimeDisplay(
+                  label: 'Earned',
+                  minutes: state.earned,
+                  color: AppTheme.secondaryGreen,
+                  icon: Icons.emoji_events,
+                ),
+                const SizedBox(height: AppTheme.spaceMD),
+                Text(
+                  'Enable usage tracking to see Used and Remaining',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppTheme.textLight,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            );
+          } else if (state.isOemRestricted) {
+            return Column(
+              children: [
+                CompactUsageEducationBanner(
+                  message: 'Usage data may be restricted by your device. Tap to check settings.',
+                  onTap: () => ref.read(screenTimeServiceProvider).openUsageSettings(),
+                ),
+                const SizedBox(height: AppTheme.spaceMD),
+                ScreenTimeDisplay(
+                  label: 'Earned',
+                  minutes: state.earned,
+                  color: AppTheme.secondaryGreen,
+                  icon: Icons.emoji_events,
+                ),
+                const SizedBox(height: AppTheme.spaceMD),
+                Text(
+                  'Usage data unavailable due to device restrictions.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppTheme.textLight,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            );
+          }
           
-          // Big earned time display
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+          // Show all three values when permission granted
+          return Column(
             children: [
               Text(
-                '$hours',
-                style: theme.textTheme.displayMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.secondaryGreen,
+                'Screen Time Balance',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: AppTheme.textLight,
+                  letterSpacing: 1.5,
+                  fontWeight: FontWeight.w300,
                 ),
               ),
-              Text(
-                'h ',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: AppTheme.secondaryGreen.withOpacity(0.7),
-                  fontWeight: FontWeight.w500,
-                ),
+              const SizedBox(height: AppTheme.spaceMD),
+              ScreenTimeTripleDisplay(
+                earned: state.earned,
+                used: state.used,
+                remaining: state.remaining,
               ),
+              const SizedBox(height: AppTheme.spaceXS),
               Text(
-                '$mins',
-                style: theme.textTheme.displayMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.secondaryGreen,
-                ),
-              ),
-              Text(
-                'm',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: AppTheme.secondaryGreen.withOpacity(0.7),
-                  fontWeight: FontWeight.w500,
+                'Based on your habits and device usage',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppTheme.textLight,
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: AppTheme.spaceXS),
-          
-          // Motivational subtext
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppTheme.spaceMD,
-              vertical: AppTheme.spaceXS,
-            ),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryGreen.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(AppTheme.radiusLG),
-            ),
-            child: Text(
-              'Screen Time Earned',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: AppTheme.secondaryGreen,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
+          );
+        },
+        loading: () => Column(
+          children: [
+            Text(
+              'Screen Time Balance',
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: AppTheme.textLight,
+                letterSpacing: 1.5,
+                fontWeight: FontWeight.w300,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: AppTheme.spaceMD),
+            const ScreenTimeTripleDisplay(
+              earned: 0,
+              used: 0,
+              remaining: 0,
+              isLoading: true,
+            ),
+          ],
+        ),
+        error: (_, __) => Column(
+          children: [
+            Text(
+              'Your Reward',
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: AppTheme.textLight,
+                letterSpacing: 1.5,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+            const SizedBox(height: AppTheme.spaceMD),
+            ScreenTimeDisplay(
+              label: 'Earned',
+              minutes: algorithmResult.totalEarnedMinutes,
+              color: AppTheme.secondaryGreen,
+              icon: Icons.emoji_events,
+            ),
+          ],
+        ),
       ),
     );
   }

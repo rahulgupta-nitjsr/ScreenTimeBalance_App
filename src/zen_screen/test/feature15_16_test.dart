@@ -203,6 +203,7 @@ void main() {
         minutesByCategory: {HabitCategory.sleep: 60},
         earnedScreenTime: 30,
         usedScreenTime: 0,
+        remainingScreenTime: 30,
         powerModeUnlocked: false,
         algorithmVersion: '1.0.0',
       );

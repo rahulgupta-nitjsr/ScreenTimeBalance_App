@@ -7,6 +7,8 @@ class AlgorithmResult {
   final Map<HabitCategory, CategoryResult> categoryResults;
   final Map<HabitCategory, int> perCategoryLoggedMinutes;
   final Map<HabitCategory, int> perCategoryEarned;
+  final String userId; // Add userId property
+  final String algorithmVersion; // Add algorithmVersion property
 
   const AlgorithmResult({
     required this.totalEarnedMinutes,
@@ -14,16 +16,23 @@ class AlgorithmResult {
     required this.categoryResults,
     required this.perCategoryLoggedMinutes,
     required this.perCategoryEarned,
+    this.userId = 'default_user_id', // Add userId to constructor with default
+    this.algorithmVersion = '1.0.0', // Add algorithmVersion to constructor with default
   });
 
   /// Create an empty result
-  factory AlgorithmResult.empty() {
+  factory AlgorithmResult.empty({
+    String userId = 'default_user_id', // Add userId parameter to factory
+    String algorithmVersion = '1.0.0', // Add algorithmVersion parameter to factory
+  }) {
     return AlgorithmResult(
       totalEarnedMinutes: 0,
       powerModeUnlocked: false,
       categoryResults: {},
       perCategoryLoggedMinutes: {},
       perCategoryEarned: {},
+      userId: userId,
+      algorithmVersion: algorithmVersion,
     );
   }
 }

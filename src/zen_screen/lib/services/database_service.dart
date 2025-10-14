@@ -10,7 +10,7 @@ class DatabaseService {
 
   Database? _database;
   static const _dbName = 'zen_screen.db';
-  static const _dbVersion = 3;
+  static const _dbVersion = 4; // Feature 17: Added remaining_screen_time
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -62,7 +62,8 @@ class DatabaseService {
         minutes_outdoor INTEGER NOT NULL,
         minutes_productive INTEGER NOT NULL,
         earned_screen_time INTEGER NOT NULL,
-        used_screen_time INTEGER NOT NULL,
+        used_screen_time INTEGER NOT NULL DEFAULT 0,
+        remaining_screen_time INTEGER NOT NULL DEFAULT 0,
         manual_adjustment_minutes INTEGER NOT NULL DEFAULT 0,
         power_mode_unlocked INTEGER NOT NULL,
         algorithm_version TEXT NOT NULL,
@@ -150,6 +151,16 @@ class DatabaseService {
           ''');
           await db.execute('''
             ALTER TABLE daily_habit_entries ADD COLUMN manual_adjustment_minutes INTEGER NOT NULL DEFAULT 0
+          ''');
+          // Add migration for used_screen_time if it's missing (should be there by now, but for safety)
+          await db.execute('''
+            ALTER TABLE daily_habit_entries ADD COLUMN used_screen_time INTEGER NOT NULL DEFAULT 0
+          ''');
+          break;
+        case 3:
+          // Feature 17: Add remaining_screen_time column for display of earned - used
+          await db.execute('''
+            ALTER TABLE daily_habit_entries ADD COLUMN remaining_screen_time INTEGER NOT NULL DEFAULT 0
           ''');
           break;
       }

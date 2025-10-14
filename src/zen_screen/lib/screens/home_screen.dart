@@ -12,6 +12,10 @@ import '../providers/navigation_provider.dart';
 import '../widgets/home_dashboard.dart';
 import '../providers/algorithm_provider.dart';
 import '../services/algorithm_service.dart';
+import '../providers/screen_time_provider.dart';
+import '../widgets/screen_time_display.dart';
+import '../widgets/usage_education_card.dart';
+import '../models/algorithm_result.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -69,6 +73,7 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _buildSummaryCard(BuildContext context, WidgetRef ref, double maxWidth) {
     final algorithmResult = ref.watch(algorithmResultProvider);
+    final screenTimeState = ref.watch(screenTimeStateProvider);
     final isCompact = maxWidth < 420;
 
     Widget buildActions() {
@@ -106,20 +111,80 @@ class HomeScreen extends ConsumerWidget {
       );
     }
 
+    // Build screen time display based on state
+    Widget buildScreenTimeDisplay() {
+      return screenTimeState.when(
+        data: (state) {
+          // Show education card if permission not granted
+          if (!state.hasPermission) {
+            return Column(
+              children: [
+                const CompactUsageEducationBanner(),
+                const SizedBox(height: AppTheme.spaceMD),
+                // Show only earned time when permission not granted
+                ScreenTimeDisplay(
+                  label: 'Earned',
+                  minutes: state.earned,
+                  color: AppTheme.primaryGreen,
+                  icon: Icons.emoji_events,
+                ),
+              ],
+            );
+          } else if (state.isOemRestricted) {
+            return Column(
+              children: [
+                CompactUsageEducationBanner(
+                  message: 'Usage data may be restricted by your device. Tap to check settings.',
+                  onTap: () => ref.read(screenTimeServiceProvider).openUsageSettings(),
+                ),
+                const SizedBox(height: AppTheme.spaceMD),
+                ScreenTimeDisplay(
+                  label: 'Earned',
+                  minutes: state.earned,
+                  color: AppTheme.primaryGreen,
+                  icon: Icons.emoji_events,
+                ),
+              ],
+            );
+          }
+          
+          // Show all three values when permission granted
+          return Column(
+            children: [
+              Text(
+                'Screen Time Today',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppTheme.textLight,
+                    ),
+              ),
+              const SizedBox(height: AppTheme.spaceSM),
+              ScreenTimeTripleDisplay(
+                earned: state.earned,
+                used: state.used,
+                remaining: state.remaining,
+              ),
+            ],
+          );
+        },
+        loading: () => const ScreenTimeTripleDisplay(
+          earned: 0,
+          used: 0,
+          remaining: 0,
+          isLoading: true,
+        ),
+        error: (_, __) => ScreenTimeDisplay(
+          label: 'Earned',
+          minutes: algorithmResult.totalEarnedMinutes,
+          color: AppTheme.primaryGreen,
+          icon: Icons.emoji_events,
+        ),
+      );
+    }
+
     final summaryContent = Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          'Earned screen time',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textLight,
-              ),
-        ),
-        const SizedBox(height: AppTheme.spaceXS),
-        Text(
-          _formatMinutes(algorithmResult.totalEarnedMinutes),
-          style: Theme.of(context).textTheme.headlineLarge,
-        ),
+        buildScreenTimeDisplay(),
         const SizedBox(height: AppTheme.spaceSM),
         _buildPowerModeIndicator(context, ref),
       ],

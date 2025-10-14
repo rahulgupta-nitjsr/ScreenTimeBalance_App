@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'habit_category.dart';
 
 class DailyHabitEntry {
@@ -8,19 +10,21 @@ class DailyHabitEntry {
     required this.minutesByCategory,
     required this.earnedScreenTime,
     required this.usedScreenTime,
+    int? remainingScreenTime,
     required this.powerModeUnlocked,
     required this.algorithmVersion,
     required this.createdAt,
     required this.updatedAt,
     this.manualAdjustmentMinutes = 0,
-  });
+  }) : remainingScreenTime = remainingScreenTime ?? max(earnedScreenTime - usedScreenTime, 0);
 
   final String id;
   final String userId;
   final DateTime date;
   final Map<HabitCategory, int> minutesByCategory;
   final int earnedScreenTime;
-  final int usedScreenTime;
+  final int usedScreenTime; // From Android OS UsageStats
+  final int remainingScreenTime; // Computed: max(earned - used, 0)
   final bool powerModeUnlocked;
   final String algorithmVersion;
   final DateTime createdAt;
@@ -31,6 +35,7 @@ class DailyHabitEntry {
     Map<HabitCategory, int>? minutesByCategory,
     int? earnedScreenTime,
     int? usedScreenTime,
+    int? remainingScreenTime,
     bool? powerModeUnlocked,
     String? algorithmVersion,
     DateTime? updatedAt,
@@ -43,6 +48,7 @@ class DailyHabitEntry {
       minutesByCategory: minutesByCategory ?? this.minutesByCategory,
       earnedScreenTime: earnedScreenTime ?? this.earnedScreenTime,
       usedScreenTime: usedScreenTime ?? this.usedScreenTime,
+      remainingScreenTime: remainingScreenTime ?? this.remainingScreenTime,
       powerModeUnlocked: powerModeUnlocked ?? this.powerModeUnlocked,
       algorithmVersion: algorithmVersion ?? this.algorithmVersion,
       createdAt: createdAt,
@@ -59,6 +65,7 @@ class DailyHabitEntry {
       'minutesByCategory': minutesByCategory.map((key, value) => MapEntry(key.id, value)),
       'earnedScreenTime': earnedScreenTime,
       'usedScreenTime': usedScreenTime,
+      'remainingScreenTime': remainingScreenTime,
       'powerModeUnlocked': powerModeUnlocked ? 1 : 0,
       'algorithmVersion': algorithmVersion,
       'createdAt': createdAt.toIso8601String(),
@@ -78,6 +85,7 @@ class DailyHabitEntry {
       'minutes_productive': minutesByCategory[HabitCategory.productive] ?? 0,
       'earned_screen_time': earnedScreenTime,
       'used_screen_time': usedScreenTime,
+      'remaining_screen_time': remainingScreenTime,
       'power_mode_unlocked': powerModeUnlocked ? 1 : 0,
       'algorithm_version': algorithmVersion,
       'created_at': createdAt.toIso8601String(),
@@ -97,6 +105,7 @@ class DailyHabitEntry {
       minutesByCategory: minutes,
       earnedScreenTime: (map['earnedScreenTime'] as num?)?.toInt() ?? 0,
       usedScreenTime: (map['usedScreenTime'] as num?)?.toInt() ?? 0,
+      remainingScreenTime: (map['remainingScreenTime'] as num?)?.toInt() ?? 0,
       powerModeUnlocked: (map['powerModeUnlocked'] as num?) == 1,
       algorithmVersion: map['algorithmVersion'] as String? ?? '1.0.0-unknown',
       createdAt: DateTime.parse(map['createdAt'] as String? ?? DateTime.now().toIso8601String()),
@@ -119,7 +128,8 @@ class DailyHabitEntry {
       date: DateTime.parse(map['entry_date'] as String),
       minutesByCategory: minutes,
       earnedScreenTime: (map['earned_screen_time'] as num).toInt(),
-      usedScreenTime: (map['used_screen_time'] as num).toInt(),
+      usedScreenTime: (map['used_screen_time'] as num?)?.toInt() ?? 0,
+      remainingScreenTime: (map['remaining_screen_time'] as num?)?.toInt() ?? 0,
       powerModeUnlocked: (map['power_mode_unlocked'] as num) == 1,
       algorithmVersion: map['algorithm_version'] as String,
       createdAt: DateTime.parse(map['created_at'] as String),
@@ -137,6 +147,7 @@ class DailyHabitEntry {
       'minutesByCategory': minutesByCategory.map((key, value) => MapEntry(key.id, value)),
       'earnedScreenTime': earnedScreenTime,
       'usedScreenTime': usedScreenTime,
+      'remainingScreenTime': remainingScreenTime,
       'powerModeUnlocked': powerModeUnlocked,
       'algorithmVersion': algorithmVersion,
       'createdAt': createdAt,
@@ -158,6 +169,7 @@ class DailyHabitEntry {
       minutesByCategory: minutes,
       earnedScreenTime: (data['earnedScreenTime'] as num?)?.toInt() ?? 0,
       usedScreenTime: (data['usedScreenTime'] as num?)?.toInt() ?? 0,
+      remainingScreenTime: (data['remainingScreenTime'] as num?)?.toInt() ?? 0,
       powerModeUnlocked: data['powerModeUnlocked'] as bool? ?? false,
       algorithmVersion: data['algorithmVersion'] as String? ?? '1.0.0-unknown',
       createdAt: _convertTimestamp(data['createdAt']),

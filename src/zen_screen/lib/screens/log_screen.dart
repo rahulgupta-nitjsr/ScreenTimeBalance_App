@@ -572,6 +572,7 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
     final algorithmService = ref.read(algorithmServiceProvider);
     final repository = ref.read(dailyHabitRepositoryProvider);
     final algorithmResult = algorithmService.calculate(minutesByCategory: minutesMap);
+    final algorithmConfig = await ref.read(algorithmConfigProvider.future); // Fetch algorithm config
 
     await repository.upsertEntry(
       userId: userId, // ✅ Use authenticated user ID
@@ -580,7 +581,7 @@ class _LogScreenState extends ConsumerState<LogScreen> with SingleTickerProvider
       earnedScreenTime: algorithmResult.totalEarnedMinutes,
       usedScreenTime: 0,
       powerModeUnlocked: algorithmResult.powerModeUnlocked,
-      algorithmVersion: algorithmResult.algorithmVersion,
+      algorithmVersion: algorithmConfig.version, // Use config version
     );
 
     // Trigger sync after data save

@@ -10,6 +10,7 @@ import '../providers/auth_provider.dart';
 import '../providers/historical_data_provider.dart';
 import '../providers/minutes_provider.dart';
 import '../providers/repository_providers.dart';
+import '../providers/screen_time_provider.dart';
 import '../providers/timer_provider.dart';
 import '../utils/theme.dart';
 
@@ -818,12 +819,26 @@ class _CategoryEntryPaneState extends ConsumerState<_CategoryEntryPane> {
           final repository = ref.read(dailyHabitRepositoryProvider);
           final result = algorithmService.calculate(minutesByCategory: minutesMap);
 
+          // Feature 17: Fetch screen time used and calculate remaining
+          int usedScreenTime = 0;
+          int remainingScreenTime = result.totalEarnedMinutes;
+          
+          try {
+            final screenTimeState = await ref.read(screenTimeStateProvider.future);
+            usedScreenTime = screenTimeState.used;
+            remainingScreenTime = screenTimeState.remaining;
+          } catch (e) {
+            // If screen time fetch fails, use defaults (earned with no usage)
+            // This maintains backward compatibility
+          }
+
           await repository.upsertEntry(
             userId: userId,
             date: DateTime.now(),
             minutesByCategory: minutesMap,
             earnedScreenTime: result.totalEarnedMinutes,
-            usedScreenTime: 0,
+            usedScreenTime: usedScreenTime,
+            remainingScreenTime: remainingScreenTime,
             powerModeUnlocked: result.powerModeUnlocked,
             algorithmVersion: result.algorithmVersion,
           );
