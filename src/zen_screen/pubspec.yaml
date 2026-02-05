@@ -42,7 +42,7 @@ dependencies:
   csv: ^6.0.0
   
   # Screen Time Tracking (Feature 17)
-  app_usage: ^3.0.0
+  app_usage: ^4.0.1
   permission_handler: ^11.0.0
   
 dev_dependencies:
